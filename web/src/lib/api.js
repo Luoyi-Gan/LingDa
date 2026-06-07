@@ -41,6 +41,8 @@ const http = axios.create({ baseURL: BASE_URL, timeout: 20000 });
 http.interceptors.request.use((config) => {
   config.headers = config.headers || {};
   config.headers['Content-Type'] = 'application/json';
+  // 绕过 ngrok 免费版的"浏览器警告页"，否则 API 会拿到 HTML 而不是 JSON
+  config.headers['ngrok-skip-browser-warning'] = '1';
   const token = getToken();
   if (token) config.headers['Authorization'] = 'Bearer ' + token;
   return config;
