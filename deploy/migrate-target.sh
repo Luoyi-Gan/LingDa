@@ -110,9 +110,13 @@ sudo pmset -a sleep 0 disksleep 0 displaysleep 10 womp 1 autorestart 1 2>&1 | ta
 echo "==[8/8] 起 ngrok（固定子域名）=========================="
 # 从 ngrok.yml 读出 authtoken，配上固定 URL 重启
 NGROK_URL="${NGROK_URL:-dipped-handset-clarify.ngrok-free.dev}"
-pm2 delete ngrok-tunnel 2>/dev/null || true
-pm2 start ngrok --name ngrok-tunnel -- http 4173 --url="$NGROK_URL" --log=stdout
-pm2 save
+if [ "${SKIP_NGROK:-0}" = "1" ]; then
+  echo "  ⏭  SKIP_NGROK=1，跳过启 ngrok（手动在外部切换 URL）"
+else
+  pm2 delete ngrok-tunnel 2>/dev/null || true
+  pm2 start ngrok --name ngrok-tunnel -- http 4173 --url="$NGROK_URL" --log=stdout
+  pm2 save
+fi
 
 sleep 5
 echo ""
