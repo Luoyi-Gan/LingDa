@@ -1,0 +1,29 @@
+/* 移动端：包裹层零盒子，渲染与原版一致 */
+.shell {
+  display: contents;
+}
+.main {
+  display: contents;
+}
+
+/* 桌面端：脱离全局「居中手机列」，左导航 + 右主内容应用壳 */
+@media (min-width: 1024px) {
+  .shell {
+    display: flex;
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    background: var(--ds-bg-community);
+    z-index: 1;
+  }
+  .main {
+    display: block;
+    flex: 1;
+    min-width: 0;
+    height: 100vh;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+}

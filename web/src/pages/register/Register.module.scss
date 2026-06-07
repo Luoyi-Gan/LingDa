@@ -1,0 +1,145 @@
+/* 移植自 pages/register/register.wxss */
+.pageReg {
+  min-height: 100vh;
+  background: var(--bg);
+}
+.regWrap {
+  padding: 40rpx 36rpx 80rpx;
+}
+.regTitle {
+  font-size: 48rpx;
+  font-weight: 800;
+  color: var(--ink);
+}
+.regSub {
+  font-size: 24rpx;
+  color: var(--ink-3);
+  margin-top: 12rpx;
+}
+
+.regCard {
+  padding: 32rpx 32rpx 24rpx;
+  border-radius: var(--r-l);
+  margin-top: 36rpx;
+}
+.regField {
+  margin-bottom: 24rpx;
+}
+.regLabel {
+  font-size: 22rpx;
+  color: var(--ink-3);
+  letter-spacing: 2rpx;
+  margin-bottom: 8rpx;
+}
+.regReq {
+  color: var(--accent);
+  margin-left: 4rpx;
+}
+.regInput {
+  width: 100%;
+  font-size: 28rpx;
+  padding: 20rpx 24rpx;
+  border-radius: var(--r-m);
+  background: rgba(0, 0, 0, 0.04);
+}
+.regBtn {
+  width: 100%;
+  margin-top: 28rpx;
+  background: var(--accent);
+  color: #fff;
+  font-weight: 700;
+  font-size: 30rpx;
+  border-radius: var(--r-full);
+  padding: 28rpx 0;
+  letter-spacing: 4rpx;
+}
+.regFoot {
+  text-align: center;
+  margin-top: 36rpx;
+  font-size: 26rpx;
+  color: var(--ink-3);
+}
+.regLink {
+  color: var(--accent);
+  margin-left: 8rpx;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+@media (min-width: 1024px) {
+  .pageReg {
+    min-height: 100vh;
+    background: var(--ds-bg-community);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 48px;
+  }
+  .regWrap {
+    width: 480px;
+    max-width: 100%;
+    padding: 0;
+  }
+  .regTitle {
+    font-size: 30px;
+    color: var(--ds-ink);
+  }
+  .regSub {
+    font-size: 14px;
+    color: var(--ds-ink-3);
+  }
+  .regCard {
+    background: var(--ds-surface) !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    border: 1px solid var(--ds-border);
+    box-shadow: var(--ds-card-shadow);
+    border-radius: var(--ds-r-xl);
+    padding: 32px 32px 26px;
+    margin-top: 24px;
+  }
+  .regField {
+    margin-bottom: 16px;
+  }
+  .regLabel {
+    font-size: 13px;
+    color: var(--ds-ink-3);
+  }
+  .regInput {
+    font-size: 15px;
+    padding: 13px 15px;
+    border-radius: var(--ds-r-m);
+    background: #fff;
+    border: 1px solid var(--ds-border);
+    transition: border-color var(--ds-dur) var(--ds-ease),
+      box-shadow var(--ds-dur) var(--ds-ease);
+  }
+  .regInput:hover {
+    border-color: var(--ds-border-strong);
+  }
+  .regInput:focus {
+    border-color: var(--ds-blue);
+    box-shadow: var(--ds-ring);
+  }
+  .regBtn {
+    height: 48px;
+    padding: 0;
+    font-size: 15px;
+    border-radius: var(--ds-r-full);
+    background: linear-gradient(135deg, var(--ds-blue), var(--ds-blue-600));
+    box-shadow: 0 10px 22px -10px var(--ds-blue-glow);
+    transition: transform var(--ds-dur) var(--ds-ease),
+      box-shadow var(--ds-dur) var(--ds-ease);
+  }
+  .regBtn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 16px 28px -10px var(--ds-blue-glow);
+  }
+  .regFoot {
+    font-size: 14px;
+    color: var(--ds-ink-3);
+  }
+  .regLink {
+    color: var(--ds-blue);
+  }
+}

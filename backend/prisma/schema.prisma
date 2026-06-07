@@ -1,0 +1,311 @@
+// =============================================================
+// 校园搭子 · Prisma Schema (1:1 镜像 DBA 的 SQL)
+//
+// 真实 SQL 见仓库根目录 docs/搭子er图.sql。
+// 修改顺序:DBA 改 SQL → 同步改本文件 → 后端跑 npm run prisma:generate
+//
+// Prisma 命名约定:
+//   - DB 表/字段保留下划线 + 大小写形式(snake_case + PascalCase)
+//   - TS 代码层使用 camelCase 字段名
+//   - 通过 @map / @@map 做映射
+// =============================================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================================
+// User —— 学生实体
+// ============================================================
+model User {
+  userId        String   @id @map("user_id") @db.VarChar(50) // 学号
+  username      String   @unique @db.VarChar(100)
+  realName      String   @map("real_name") @db.VarChar(100)
+  tags          String?  @db.VarChar(255) // 逗号分隔字符串,如 "i人,爱看演唱会,喜欢自习"
+  isSearchable  Boolean  @default(true) @map("is_searchable")
+  msgPermission String   @default("all") @map("msg_permission") @db.VarChar(20) // all/friends/none
+  gender        String?  @db.VarChar(20)
+  college       String   @db.VarChar(100)
+  major         String?  @db.VarChar(100)
+  phone         String   @unique @db.VarChar(30)
+  passwordHash  String   @map("password_hash") @db.VarChar(255)
+  creditScore   Decimal  @default(5.00) @map("credit_score") @db.Decimal(3, 2)
+  accountStatus String   @default("normal") @map("account_status") @db.VarChar(20) // normal/restricted/banned
+  createTime    DateTime @default(now()) @map("create_time") @db.DateTime(0)
+
+  // relations
+  friendshipsAsUser1 Friendship[]  @relation("FriendshipUser1")
+  friendshipsAsUser2 Friendship[]  @relation("FriendshipUser2")
+  blocksMade         Blacklist[]   @relation("Blocker")
+  blocksReceived     Blacklist[]   @relation("Blocked")
+  roomsCreated       MatchRoom[]   @relation("RoomCreator")
+  memberships        MatchMember[]
+  messagesSent       Message[]     @relation("MessageSender")
+  messagesReceived   Message[]     @relation("MessageReceiver")
+  socialGroupsCreated SocialGroup[] @relation("SocialGroupCreator")
+  socialGroupMemberships SocialGroupMember[]
+
+  @@map("User")
+}
+
+// ============================================================
+// Friendship —— 好友关系(带请求状态机)
+// status: pending / accepted / rejected
+// ============================================================
+model Friendship {
+  friendId   Int      @id @default(autoincrement()) @map("friend_id")
+  userId1    String   @map("user_id_1") @db.VarChar(50) // 发起方
+  userId2    String   @map("user_id_2") @db.VarChar(50) // 接收方
+  status     String   @default("pending") @db.VarChar(20)
+  createTime DateTime @default(now()) @map("create_time") @db.DateTime(0)
+
+  user1 User @relation("FriendshipUser1", fields: [userId1], references: [userId], onDelete: Cascade, onUpdate: Cascade)
+  user2 User @relation("FriendshipUser2", fields: [userId2], references: [userId], onDelete: Cascade, onUpdate: Cascade)
+
+  @@unique([userId1, userId2], map: "uk_friendship_pair")
+  @@index([userId1], map: "idx_friendship_user1")
+  @@index([userId2], map: "idx_friendship_user2")
+  @@map("Friendship")
+}
+
+// ============================================================
+// Blacklist —— 黑名单(单向)
+// ============================================================
+model Blacklist {
+  blockId    Int      @id @default(autoincrement()) @map("block_id")
+  blockerId  String   @map("blocker_id") @db.VarChar(50)
+  blockedId  String   @map("blocked_id") @db.VarChar(50)
+  createTime DateTime @default(now()) @map("create_time") @db.DateTime(0)
+
+  blocker User @relation("Blocker", fields: [blockerId], references: [userId], onDelete: Cascade, onUpdate: Cascade)
+  blocked User @relation("Blocked", fields: [blockedId], references: [userId], onDelete: Cascade, onUpdate: Cascade)
+
+  @@unique([blockerId, blockedId], map: "uk_blacklist_pair")
+  @@index([blockerId], map: "idx_blacklist_blocker")
+  @@map("Blacklist")
+}
+
+// ============================================================
+// MatchRoom —— 搭子房间 ISA 超类
+// room_type: carpool / entertainment / group
+// status:    open / full / finished / cancelled
+// join_rule: direct / audit / password
+// ============================================================
+model MatchRoom {
+  roomId       Int       @id @default(autoincrement()) @map("room_id")
+  creatorId    String    @map("creator_id") @db.VarChar(50)
+  roomType     String    @map("room_type") @db.VarChar(30)
+  joinRule     String    @default("direct") @map("join_rule") @db.VarChar(30)
+  joinPassword String?   @map("join_password") @db.VarChar(50) // 仅 joinRule='password' 时使用,后端存明文或 bcrypt(MVP 明文,Step 3.3 决策)
+  tags         String?   @db.VarChar(255)
+  title        String    @db.VarChar(255)
+  content      String?   @db.VarChar(1000)
+  totalNum     Int       @map("total_num")
+  currentNum   Int       @default(0) @map("current_num")
+  meetTime     DateTime? @map("meet_time") @db.DateTime(0)
+  meetLocation String?   @map("meet_location") @db.VarChar(255)
+  status       String    @default("open") @db.VarChar(30)
+  createTime   DateTime  @default(now()) @map("create_time") @db.DateTime(0)
+
+  creator       User               @relation("RoomCreator", fields: [creatorId], references: [userId], onDelete: Restrict, onUpdate: Cascade)
+  carpool       CarpoolRoom?
+  entertainment EntertainmentRoom?
+  group         GroupRoom?
+  members       MatchMember[]
+  messages      Message[]
+
+  @@index([roomType, status, meetTime], map: "idx_room_type_status_time")
+  @@index([creatorId], map: "idx_room_creator")
+  @@map("Match_Room")
+}
+
+// ============================================================
+// CarpoolRoom —— ISA 子类 · 拼车
+// ============================================================
+model CarpoolRoom {
+  roomId        Int      @id @map("room_id")
+  startLocation String   @map("start_location") @db.VarChar(255)
+  endLocation   String   @map("end_location") @db.VarChar(255)
+  carType       String?  @map("car_type") @db.VarChar(100)
+  costSplit     Decimal? @map("cost_split") @db.Decimal(10, 2)
+
+  room MatchRoom @relation(fields: [roomId], references: [roomId], onDelete: Cascade, onUpdate: Cascade)
+
+  @@index([startLocation, endLocation], map: "idx_carpool_route")
+  @@map("Carpool_Room")
+}
+
+// ============================================================
+// EntertainmentRoom —— ISA 子类 · 娱乐
+// ============================================================
+model EntertainmentRoom {
+  roomId    Int      @id @map("room_id")
+  entType   String   @map("ent_type") @db.VarChar(100)
+  cost      Decimal? @db.Decimal(10, 2)
+  equipment String?  @db.VarChar(255)
+
+  room MatchRoom @relation(fields: [roomId], references: [roomId], onDelete: Cascade, onUpdate: Cascade)
+
+  @@map("Entertainment_Room")
+}
+
+// ============================================================
+// GroupRoom —— ISA 子类 · 学习小组(对应前端 "study")
+// ============================================================
+model GroupRoom {
+  roomId       Int     @id @map("room_id")
+  courseName   String? @map("course_name") @db.VarChar(100)
+  groupTarget  String  @map("group_target") @db.VarChar(255)
+  requireSkill String? @map("require_skill") @db.VarChar(255)
+
+  room MatchRoom @relation(fields: [roomId], references: [roomId], onDelete: Cascade, onUpdate: Cascade)
+
+  @@index([courseName], map: "idx_group_course")
+  @@map("Group_Room")
+}
+
+// ============================================================
+// MatchMember —— 房间成员(状态机)
+// status: pending / approved / rejected / left
+// 谁是房主?查 MatchRoom.creatorId == userId 即可,DB 无 role 字段。
+// ============================================================
+model MatchMember {
+  memberId Int      @id @default(autoincrement()) @map("member_id")
+  roomId   Int      @map("room_id")
+  userId   String   @map("user_id") @db.VarChar(50)
+  status   String   @default("approved") @db.VarChar(30)
+  joinTime DateTime @default(now()) @map("join_time") @db.DateTime(0)
+
+  room                MatchRoom       @relation(fields: [roomId], references: [roomId], onDelete: Cascade, onUpdate: Cascade)
+  user                User            @relation(fields: [userId], references: [userId], onDelete: Cascade, onUpdate: Cascade)
+  evaluationsGiven    MatchEvaluate[] @relation("EvaluateFromMember")
+  evaluationsReceived MatchEvaluate[] @relation("EvaluateToMember")
+
+  @@unique([roomId, userId], map: "uk_room_user")
+  @@index([userId], map: "idx_member_user")
+  @@index([roomId, status], map: "idx_member_room_status")
+  @@map("Match_Member")
+}
+
+// ============================================================
+// Message —— 聊天记录(私聊 + 群聊统一表)
+// 私聊:receiverId != null && roomId == null
+// 群聊:receiverId == null && roomId != null
+// ============================================================
+model Message {
+  msgId         Int      @id @default(autoincrement()) @map("msg_id")
+  senderId      String   @map("sender_id") @db.VarChar(50)
+  receiverId    String?  @map("receiver_id") @db.VarChar(50)
+  roomId        Int?     @map("room_id")
+  socialGroupId Int?     @map("social_group_id") // Wave 3 #7b：朋友群聊（与 roomId 互斥）
+  content       String   @db.VarChar(1000)
+  sendTime      DateTime @default(now()) @map("send_time") @db.DateTime(0)
+
+  sender      User         @relation("MessageSender", fields: [senderId], references: [userId], onDelete: Restrict, onUpdate: Cascade)
+  receiver    User?        @relation("MessageReceiver", fields: [receiverId], references: [userId], onDelete: Restrict, onUpdate: Cascade)
+  room        MatchRoom?   @relation(fields: [roomId], references: [roomId], onDelete: Cascade, onUpdate: Cascade)
+  socialGroup SocialGroup? @relation(fields: [socialGroupId], references: [groupId], onDelete: Cascade, onUpdate: Cascade)
+
+  @@index([roomId, sendTime], map: "idx_message_room_time")
+  @@index([senderId, receiverId, sendTime], map: "idx_message_private_time")
+  @@index([socialGroupId, sendTime], map: "idx_message_sgroup_time")
+  @@map("Message")
+}
+
+// ============================================================
+// SocialGroup —— Wave 3 #7b 朋友群聊
+// 独立于 MatchRoom（拼车/学习/娱乐这种"事件"），承载纯社交群。
+// 当前仅支持创建者邀请；公开/搜索群留到后续迭代。
+// ============================================================
+model SocialGroup {
+  groupId    Int      @id @default(autoincrement()) @map("group_id")
+  name       String   @db.VarChar(120)
+  creatorId  String   @map("creator_id") @db.VarChar(50)
+  iconEmoji  String   @default("💬") @map("icon_emoji") @db.VarChar(10)
+  iconColor  String   @default("#7766DD") @map("icon_color") @db.VarChar(20)
+  createTime DateTime @default(now()) @map("create_time") @db.DateTime(0)
+
+  creator  User                @relation("SocialGroupCreator", fields: [creatorId], references: [userId], onDelete: Restrict, onUpdate: Cascade)
+  members  SocialGroupMember[]
+  messages Message[]
+
+  @@index([creatorId], map: "idx_sgroup_creator")
+  @@map("Social_Group")
+}
+
+model SocialGroupMember {
+  id       Int      @id @default(autoincrement())
+  groupId  Int      @map("group_id")
+  userId   String   @map("user_id") @db.VarChar(50)
+  role     String   @default("member") @db.VarChar(20)
+  joinTime DateTime @default(now()) @map("join_time") @db.DateTime(0)
+
+  group SocialGroup @relation(fields: [groupId], references: [groupId], onDelete: Cascade, onUpdate: Cascade)
+  user  User        @relation(fields: [userId], references: [userId], onDelete: Cascade, onUpdate: Cascade)
+
+  @@unique([groupId, userId], map: "uk_sgroup_member")
+  @@index([userId], map: "idx_sgroup_member_user")
+  @@map("Social_Group_Member")
+}
+
+// ============================================================
+// MatchEvaluate —— 搭子评价
+// 注意:from / to 都是 member_id (MatchMember.memberId),不是 userId。
+// 提交评价时后端先把 (currentUser, roomId) 解析成 member_id。
+// 数据库层 trigger 会校验同房间。
+// ============================================================
+model MatchEvaluate {
+  evaluateId   Int      @id @default(autoincrement()) @map("evaluate_id")
+  fromMemberId Int      @map("from_member_id")
+  toMemberId   Int      @map("to_member_id")
+  score        Int
+  content      String?  @db.VarChar(1000)
+  createTime   DateTime @default(now()) @map("create_time") @db.DateTime(0)
+
+  fromMember MatchMember @relation("EvaluateFromMember", fields: [fromMemberId], references: [memberId], onDelete: Cascade, onUpdate: Cascade)
+  toMember   MatchMember @relation("EvaluateToMember", fields: [toMemberId], references: [memberId], onDelete: Cascade, onUpdate: Cascade)
+
+  @@unique([fromMemberId, toMemberId], map: "uk_evaluate_pair")
+  @@map("Match_Evaluate")
+}
+
+// ============================================================
+// Notification —— 站内通知（新增表，additive，不影响旧数据）
+// 主要用于：房间解散后向所有成员推送评价提醒。
+// payload 是 JSON，由 type 约定结构；当前至少含 { roomId, roomType, roomTitle }。
+// ============================================================
+model Notification {
+  id        BigInt   @id @default(autoincrement())
+  userId    String   @map("user_id") @db.VarChar(50)
+  type      String   @db.VarChar(32)
+  payload   Json
+  isRead    Boolean  @default(false) @map("is_read")
+  createdAt DateTime @default(now()) @map("created_at") @db.DateTime(0)
+
+  @@index([userId, isRead], map: "idx_notif_user_read")
+  @@index([userId, createdAt], map: "idx_notif_user_time")
+  @@map("Notification")
+}
+
+// ============================================================
+// Conversation_Hidden —— 用户级的会话隐藏（additive，0 风险）
+// 解决"删了聊天再次打开又出现"的 bug：
+//   · 删除 → 写一条 (userId, convId, hiddenAt=now)
+//   · 列表查询时过滤掉 hiddenAt >= 最后一条消息时间的会话
+//   · 之后若再有新消息（sendTime > hiddenAt），自动恢复显示
+// ============================================================
+model ConversationHidden {
+  id       BigInt   @id @default(autoincrement())
+  userId   String   @map("user_id") @db.VarChar(50)
+  convId   String   @map("conv_id") @db.VarChar(64)
+  hiddenAt DateTime @default(now()) @map("hidden_at") @db.DateTime(0)
+
+  @@unique([userId, convId], map: "uk_conv_hidden")
+  @@index([userId], map: "idx_conv_hidden_user")
+  @@map("Conversation_Hidden")
+}

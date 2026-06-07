@@ -1,0 +1,41 @@
+# ---- 依赖 / 构建产物 ----
+node_modules/
+dist/
+build/
+
+# ---- 环境变量与密钥 ----
+.env
+.env.*
+!.env.example
+!*.env.example
+*.pem
+*.key
+*.crt
+
+# ---- IDE / OS ----
+.DS_Store
+.idea/
+.vscode/
+*.swp
+
+# ---- 日志 / 临时 ----
+*.log
+.tmp/
+tmp/
+
+# ---- 数据库 dump ----
+*.sql.gz
+*.sql.bak
+
+# ---- 迁移产物 ----
+lingda-export-*.tar.gz
+
+# ---- Prisma 生成物 ----
+backend/node_modules/.prisma
+
+# ---- 老的小程序遗物（保留本地、不入库）----
+_legacy/
+
+# ---- ngrok 配置（含 authtoken，不能入库）----
+.ngrok2/
+ngrok.yml

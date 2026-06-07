@@ -1,0 +1,30 @@
+# /opt/frp/frps.toml —— ECS 端 FRP 服务端
+# 装入步骤：
+#   1) 下载 FRP 二进制到 /opt/frp/
+#   2) 复制本文件到 /opt/frp/frps.toml，改 token 和管理面板密码
+#   3) systemd 装服务（见 README-macmini.md §3.3）
+
+bindPort = 7000          # frpc 走这个端口控制连接
+
+# 鉴权（frpc 必须用同一个 token）
+auth.method = "token"
+auth.token  = "REPLACE_RANDOM_HEX_TOKEN"
+
+# 默认 vhost HTTP 路由（如果以后绑域名做多服务可用，目前不依赖）
+vhostHTTPPort  = 80
+# vhostHTTPSPort = 443
+
+# 管理面板（可选，开了能在浏览器看连接情况：http://ECS_IP:7500）
+webServer.addr     = "0.0.0.0"
+webServer.port     = 7500
+webServer.user     = "admin"
+webServer.password = "REPLACE_DASHBOARD_PASSWORD"
+
+# 心跳 / 超时
+transport.tcpMux = true
+transport.heartbeatTimeout = 90
+
+# 日志
+log.to = "/var/log/frps.log"
+log.level = "info"
+log.maxDays = 7

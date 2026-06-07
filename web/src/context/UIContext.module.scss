@@ -1,0 +1,233 @@
+/* Toast / Modal —— 复刻微信小程序的观感 */
+.toastLayer {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 9999;
+  max-width: var(--app-max);
+  margin: 0 auto;
+}
+.toast {
+  pointer-events: none;
+  min-width: 240rpx;
+  max-width: 480rpx;
+  padding: 32rpx 40rpx;
+  background: rgba(0, 0, 0, 0.72);
+  color: #fff;
+  border-radius: 16rpx;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16rpx;
+}
+.icon {
+  font-size: 64rpx;
+  line-height: 1;
+}
+.spin {
+  animation: toastSpin 1s linear infinite;
+}
+@keyframes toastSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.toastText {
+  font-size: 28rpx;
+  line-height: 1.4;
+}
+
+.modalMask {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9998;
+  max-width: var(--app-max);
+  margin: 0 auto;
+}
+.modal {
+  width: 560rpx;
+  background: #fff;
+  border-radius: 24rpx;
+  overflow: hidden;
+}
+.modalTitle {
+  text-align: center;
+  font-size: 34rpx;
+  font-weight: 700;
+  color: var(--ink);
+  padding: 48rpx 40rpx 16rpx;
+}
+.modalContent {
+  text-align: center;
+  font-size: 30rpx;
+  color: var(--ink-2);
+  padding: 8rpx 40rpx 48rpx;
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+.modalBtns {
+  display: flex;
+  border-top: 1rpx solid var(--line);
+}
+.modalBtn {
+  flex: 1;
+  padding: 30rpx 0;
+  font-size: 32rpx;
+  background: #fff;
+}
+.modalBtn:active {
+  background: rgba(0, 0, 0, 0.04);
+}
+.cancel {
+  color: var(--ink-3);
+  border-right: 1rpx solid var(--line);
+}
+.confirm {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+/* 输入型弹窗（口令等）—— 移动端 */
+.modalInputWrap {
+  padding: 0 40rpx 40rpx;
+}
+.modalInput {
+  width: 100%;
+  box-sizing: border-box;
+  font-size: 30rpx;
+  padding: 22rpx 24rpx;
+  border-radius: 16rpx;
+  background: rgba(0, 0, 0, 0.04);
+  color: var(--ink);
+  border: 2rpx solid transparent;
+}
+.modalInput:focus {
+  border-color: var(--accent);
+  background: #fff;
+}
+
+/* ====================== 桌面端（≥1024px）—— 现代化弹窗 ====================== */
+@media (min-width: 1024px) {
+  .modalMask {
+    max-width: none;
+    background: rgba(14, 26, 43, 0.42);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+  }
+  .modal {
+    width: 420px;
+    border-radius: var(--ds-r-xl);
+    overflow: hidden;
+    border: 1px solid var(--ds-border);
+    box-shadow: 0 30px 70px -20px rgba(16, 32, 58, 0.4);
+    animation: modalPop 0.22s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  @keyframes modalPop {
+    from {
+      opacity: 0;
+      transform: translateY(8px) scale(0.97);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+  .modalTitle {
+    font-size: 19px;
+    font-weight: 800;
+    color: var(--ds-ink);
+    padding: 28px 28px 6px;
+  }
+  .modalContent {
+    font-size: 15px;
+    color: var(--ds-ink-3);
+    padding: 6px 28px 22px;
+    line-height: 1.6;
+  }
+  .modalInputWrap {
+    padding: 0 28px 24px;
+  }
+  .modalInput {
+    font-size: 15px;
+    padding: 12px 14px;
+    border-radius: var(--ds-r-m);
+    background: #fff;
+    border: 1px solid var(--ds-border);
+    transition: border-color var(--ds-dur) var(--ds-ease),
+      box-shadow var(--ds-dur) var(--ds-ease);
+  }
+  .modalInput:focus {
+    border-color: var(--ds-blue);
+    box-shadow: var(--ds-ring);
+    background: #fff;
+  }
+  .modalBtns {
+    border-top: 1px solid var(--ds-border);
+    padding: 14px 20px 20px;
+    gap: 12px;
+    border-top-color: transparent;
+  }
+  .modalBtn {
+    flex: 1;
+    padding: 13px 0;
+    font-size: 15px;
+    font-weight: 700;
+    border-radius: var(--ds-r-full);
+    transition: transform var(--ds-dur-fast) var(--ds-ease),
+      filter var(--ds-dur-fast) var(--ds-ease),
+      background var(--ds-dur-fast) var(--ds-ease);
+  }
+  .cancel {
+    color: var(--ds-ink-2);
+    background: #f3f6fb;
+    border-right: none;
+  }
+  .cancel:hover {
+    background: #e9eef6;
+  }
+  .confirm {
+    color: #fff;
+    background: linear-gradient(135deg, var(--ds-blue), var(--ds-blue-600));
+    box-shadow: 0 10px 22px -10px var(--ds-blue-glow);
+  }
+  .confirm:hover {
+    transform: translateY(-1px);
+    filter: brightness(1.05);
+  }
+  .modalBtn:active {
+    background: initial;
+    transform: translateY(0);
+  }
+
+  /* Toast 桌面：右上角轻提示，不占满屏 */
+  .toastLayer {
+    max-width: none;
+    align-items: flex-start;
+    justify-content: center;
+    padding-top: 40px;
+  }
+  .toast {
+    min-width: 0;
+    max-width: 420px;
+    padding: 16px 22px;
+    background: rgba(14, 26, 43, 0.92);
+    border-radius: 14px;
+    flex-direction: row;
+    gap: 10px;
+    box-shadow: 0 18px 40px -16px rgba(16, 32, 58, 0.5);
+  }
+  .icon {
+    font-size: 22px;
+  }
+  .toastText {
+    font-size: 14px;
+  }
+}

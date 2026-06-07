@@ -1,0 +1,34 @@
+# /opt/lingda/frpc.toml —— Mac mini 端 FRP 客户端
+# 装入步骤：
+#   1) brew install frpc
+#   2) 复制本文件到 /opt/lingda/frpc.toml，填好 serverAddr / token
+#   3) ln -sf /opt/lingda/frpc.toml /opt/homebrew/etc/frpc.toml
+#   4) brew services start frpc
+# 升级：编辑后  brew services restart frpc
+
+serverAddr = "REPLACE_ECS_PUBLIC_IP"
+serverPort = 7000
+
+auth.method = "token"
+auth.token  = "REPLACE_SAME_TOKEN_AS_FRPS"
+
+# 客户端日志（看连接是否健康）
+log.to       = "/opt/lingda/frpc.log"
+log.level    = "info"
+log.maxDays  = 7
+
+# 隧道：ECS 的 80 → Mac mini 本机的 nginx (80)
+[[proxies]]
+name       = "lingda-web"
+type       = "tcp"
+localIP    = "127.0.0.1"
+localPort  = 80
+remotePort = 80
+
+# 可选：把后端单独再开个口（直连调试用，生产不需要）
+# [[proxies]]
+# name       = "lingda-api-debug"
+# type       = "tcp"
+# localIP    = "127.0.0.1"
+# localPort  = 3000
+# remotePort = 3001

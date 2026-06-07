@@ -1,0 +1,536 @@
+/* ============================================================
+   登录页样式
+   —— 移动端 (<1024px)：与原 pages/login/login.wxss 完全一致
+   —— 桌面端 (≥1024px)：科技协作风 左右分屏 重构
+   桌面专属 DOM 默认隐藏，移动端布局/手感零改动。
+   ============================================================ */
+
+/* ====================== 移动端（原样保留） ====================== */
+.pageLogin {
+  min-height: 100vh;
+  background: var(--bg);
+  position: relative;
+  overflow: hidden;
+}
+.loginWrap {
+  padding: 220rpx 60rpx 80rpx;
+}
+.loginBrand {
+  text-align: center;
+  margin-bottom: 80rpx;
+}
+.loginEmoji {
+  font-size: 110rpx;
+}
+.loginTitle {
+  font-size: 64rpx;
+  font-weight: 800;
+  letter-spacing: 4rpx;
+  margin-top: 12rpx;
+  color: var(--ink);
+}
+.loginSub {
+  font-size: 24rpx;
+  color: var(--ink-3);
+  margin-top: 12rpx;
+  letter-spacing: 2rpx;
+}
+.loginCard {
+  padding: 48rpx 40rpx;
+  border-radius: var(--r-l);
+  margin-top: 40rpx;
+}
+.loginField {
+  margin-bottom: 36rpx;
+}
+.loginLabel {
+  font-size: 22rpx;
+  color: var(--ink-3);
+  letter-spacing: 2rpx;
+  margin-bottom: 12rpx;
+}
+.loginInput {
+  width: 100%;
+  font-size: 30rpx;
+  padding: 24rpx 28rpx;
+  border-radius: var(--r-m);
+  background: rgba(0, 0, 0, 0.04);
+  color: var(--ink);
+}
+.loginBtn {
+  width: 100%;
+  margin-top: 24rpx;
+  background: var(--accent);
+  color: #fff;
+  font-weight: 700;
+  font-size: 30rpx;
+  border-radius: var(--r-full);
+  padding: 28rpx 0;
+  letter-spacing: 4rpx;
+}
+.loginBtn[data-loading] {
+  background: var(--accent-light);
+  color: var(--accent);
+}
+.loginFoot {
+  margin-top: 36rpx;
+  text-align: center;
+  font-size: 26rpx;
+  color: var(--ink-3);
+}
+.loginLink {
+  color: var(--accent);
+  margin-left: 8rpx;
+  font-weight: 600;
+  cursor: pointer;
+}
+.orbPink {
+  background: #ff6b95;
+  width: 480rpx;
+  height: 480rpx;
+  top: -160rpx;
+  right: -120rpx;
+}
+.orbBlue {
+  background: #5b7cc9;
+  width: 520rpx;
+  height: 520rpx;
+  bottom: -200rpx;
+  left: -180rpx;
+}
+
+/* 桌面专属 DOM —— 移动端一律隐藏（保证手感零变化） */
+.deskVisual,
+.deskCardHead,
+.rememberRow,
+.btnDesktop {
+  display: none;
+}
+.btnMobile {
+  display: inline;
+}
+
+/* ====================== 桌面端（≥1024px 重构） ====================== */
+@media (min-width: 1024px) {
+  /* 脱离全局「居中手机列」，铺满整屏分屏 */
+  .pageLogin {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    overflow: hidden;
+    background: var(--ds-bg-community);
+    z-index: 1;
+  }
+  .mobileAurora {
+    display: none;
+  }
+
+  /* ---------- 左侧 · 视觉冲击区 ---------- */
+  .deskVisual {
+    display: flex;
+    flex: 1.15;
+    position: relative;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 72px;
+    color: #fff;
+    background: var(--ds-visual-bg);
+    overflow: hidden;
+  }
+  /* 科技网格 + 星点底纹 */
+  .deskGrid {
+    position: absolute;
+    inset: 0;
+    background-image: linear-gradient(
+        rgba(120, 170, 255, 0.08) 1px,
+        transparent 1px
+      ),
+      linear-gradient(90deg, rgba(120, 170, 255, 0.08) 1px, transparent 1px),
+      radial-gradient(rgba(255, 255, 255, 0.7) 1px, transparent 1.4px);
+    background-size: 48px 48px, 48px 48px, 160px 130px;
+    -webkit-mask-image: radial-gradient(
+      120% 90% at 30% 25%,
+      #000 0%,
+      transparent 75%
+    );
+    mask-image: radial-gradient(120% 90% at 30% 25%, #000 0%, transparent 75%);
+    opacity: 0.55;
+  }
+  .deskNet {
+    position: absolute;
+    top: -4%;
+    right: -6%;
+    width: 78%;
+    height: 100%;
+    opacity: 0.9;
+    animation: deskFloat 11s ease-in-out infinite;
+  }
+  .deskNode {
+    fill: #8fc0ff;
+    filter: drop-shadow(0 0 6px rgba(120, 170, 255, 0.9));
+    animation: deskNodePulse 3.4s ease-in-out infinite;
+    transform-box: fill-box;
+    transform-origin: center;
+  }
+
+  .deskCopy {
+    position: relative;
+    z-index: 2;
+    max-width: 560px;
+  }
+  .deskBadge {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 16px;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.4px;
+    color: #cfe0ff;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    border-radius: var(--ds-r-full);
+    backdrop-filter: blur(8px);
+  }
+  .deskDot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #4ade80;
+    box-shadow: 0 0 10px #4ade80;
+    animation: deskBlink 1.8s ease-in-out infinite;
+  }
+  .deskSlogan {
+    margin: 28px 0 0;
+    font-size: 58px;
+    font-weight: 800;
+    line-height: 1.08;
+    letter-spacing: -1.5px;
+  }
+  .deskAccent {
+    background: linear-gradient(100deg, #5aa0ff 0%, #7be0ff 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .deskSubtitle {
+    margin: 22px 0 0;
+    max-width: 460px;
+    font-size: 17px;
+    line-height: 1.7;
+    color: rgba(255, 255, 255, 0.66);
+  }
+  .deskStats {
+    display: flex;
+    align-items: center;
+    gap: 30px;
+    margin-top: 52px;
+  }
+  .deskStat {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .deskStatNum {
+    font-size: 26px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+  }
+  .deskStatLbl {
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.5);
+  }
+  .deskStatDiv {
+    width: 1px;
+    height: 34px;
+    background: rgba(255, 255, 255, 0.16);
+  }
+
+  /* ---------- 右侧 · 操作鉴权区 ---------- */
+  .loginWrap {
+    flex: 0.85;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    max-width: none; /* 中和全局桌面层对 .glass-stage 的宽度收敛 */
+    margin: 0;
+  }
+  .loginBrand {
+    display: none;
+  }
+
+  .loginCard {
+    width: 420px;
+    max-width: 90%;
+    margin: 0;
+    padding: 44px 40px;
+    border-radius: var(--ds-r-xl);
+    /* 覆盖全局 .glass-strong 的毛玻璃，桌面用清爽实底卡 */
+    background: var(--ds-surface) !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    border: 1px solid var(--ds-border);
+    box-shadow: var(--ds-card-shadow);
+    transition: box-shadow var(--ds-dur) var(--ds-ease),
+      transform var(--ds-dur) var(--ds-ease);
+  }
+  .loginCard:hover {
+    box-shadow: var(--ds-card-shadow-hover);
+    transform: translateY(-2px);
+  }
+
+  .deskCardHead {
+    display: block;
+    margin-bottom: 28px;
+  }
+  .deskCardTitle {
+    font-size: 25px;
+    font-weight: 800;
+    color: var(--ds-ink);
+    letter-spacing: -0.4px;
+  }
+  .deskCardSub {
+    margin-top: 7px;
+    font-size: 14px;
+    color: var(--ds-ink-3);
+  }
+
+  .loginField {
+    margin-bottom: 18px;
+  }
+  .loginLabel {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ds-ink-3);
+    letter-spacing: 0.2px;
+    margin-bottom: 8px;
+  }
+  .loginInput {
+    width: 100%;
+    font-size: 15px;
+    padding: 14px 16px;
+    border-radius: var(--ds-r-m);
+    background: #fff;
+    color: var(--ds-ink);
+    border: 1px solid var(--ds-border);
+    transition: border-color var(--ds-dur) var(--ds-ease),
+      box-shadow var(--ds-dur) var(--ds-ease),
+      background var(--ds-dur) var(--ds-ease);
+  }
+  .loginInput::placeholder {
+    color: #9aa7ba;
+  }
+  .loginInput:hover {
+    border-color: var(--ds-border-strong);
+  }
+  .loginInput:focus {
+    border-color: var(--ds-blue);
+    box-shadow: var(--ds-ring);
+  }
+
+  /* 记住我 + 忘记密码 */
+  .rememberRow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 6px 0 22px;
+  }
+  .remember {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    cursor: pointer;
+    user-select: none;
+  }
+  .rememberBox {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+  .rememberMark {
+    width: 18px;
+    height: 18px;
+    border-radius: 6px;
+    border: 1.5px solid var(--ds-border-strong);
+    background: #fff;
+    position: relative;
+    transition: all var(--ds-dur-fast) var(--ds-ease);
+  }
+  .rememberMark::after {
+    content: '';
+    position: absolute;
+    left: 5px;
+    top: 1px;
+    width: 5px;
+    height: 10px;
+    border: solid #fff;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg) scale(0);
+    transition: transform var(--ds-dur-fast) var(--ds-ease);
+  }
+  .rememberBox:checked + .rememberMark {
+    background: var(--ds-blue);
+    border-color: var(--ds-blue);
+  }
+  .rememberBox:checked + .rememberMark::after {
+    transform: rotate(45deg) scale(1);
+  }
+  .rememberBox:focus-visible + .rememberMark {
+    box-shadow: var(--ds-ring);
+  }
+  .rememberTxt {
+    font-size: 14px;
+    color: var(--ds-ink-2);
+  }
+  .forgotLink {
+    font-size: 14px;
+    color: var(--ds-blue);
+    cursor: pointer;
+    transition: color var(--ds-dur-fast) var(--ds-ease);
+  }
+  .forgotLink:hover {
+    color: var(--ds-blue-700);
+    text-decoration: underline;
+  }
+
+  /* 行动召唤按钮 */
+  .loginBtn {
+    width: 100%;
+    margin-top: 4px;
+    height: 50px;
+    padding: 0;
+    border-radius: var(--ds-r-full);
+    background: linear-gradient(135deg, var(--ds-blue), var(--ds-blue-600));
+    color: #fff;
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 10px 24px -10px var(--ds-blue-glow);
+    transition: transform var(--ds-dur) var(--ds-ease),
+      box-shadow var(--ds-dur) var(--ds-ease),
+      filter var(--ds-dur) var(--ds-ease);
+  }
+  .loginBtn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -120%;
+    width: 60%;
+    height: 100%;
+    background: linear-gradient(
+      100deg,
+      transparent,
+      rgba(255, 255, 255, 0.28),
+      transparent
+    );
+    transition: left 0.6s var(--ds-ease);
+  }
+  .loginBtn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 18px 34px -12px var(--ds-blue-glow);
+    filter: brightness(1.04);
+  }
+  .loginBtn:hover::before {
+    left: 130%;
+  }
+  .loginBtn:active {
+    transform: translateY(0);
+  }
+  .loginBtn[data-loading] {
+    background: linear-gradient(135deg, var(--ds-blue), var(--ds-blue-600));
+    color: #fff;
+    opacity: 0.78;
+    cursor: default;
+  }
+  .btnMobile {
+    display: none;
+  }
+  .btnDesktop {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+  .btnArrow {
+    transition: transform var(--ds-dur) var(--ds-ease);
+  }
+  .loginBtn:hover .btnArrow {
+    transform: translateX(5px);
+  }
+
+  .loginFoot {
+    margin-top: 22px;
+    font-size: 14px;
+    color: var(--ds-ink-3);
+  }
+  .loginLink {
+    color: var(--ds-blue);
+    font-weight: 600;
+    transition: color var(--ds-dur-fast) var(--ds-ease);
+  }
+  .loginLink:hover {
+    color: var(--ds-blue-700);
+    text-decoration: underline;
+  }
+
+  @keyframes deskNodePulse {
+    0%,
+    100% {
+      opacity: 0.55;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 1;
+      transform: scale(1.35);
+    }
+  }
+  @keyframes deskBlink {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.35;
+    }
+  }
+  @keyframes deskFloat {
+    0%,
+    100% {
+      transform: translate(0, 0);
+    }
+    50% {
+      transform: translate(-14px, 16px);
+    }
+  }
+}
+
+/* 大屏进一步放大留白 */
+@media (min-width: 1440px) {
+  .deskVisual {
+    padding: 96px;
+  }
+  .deskSlogan {
+    font-size: 66px;
+  }
+  .loginCard {
+    width: 440px;
+    padding: 48px 44px;
+  }
+}
+
+/* 降低动效偏好 */
+@media (prefers-reduced-motion: reduce) {
+  .deskNode,
+  .deskDot,
+  .deskNet,
+  .loginBtn::before {
+    animation: none !important;
+    transition: none !important;
+  }
+}

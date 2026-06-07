@@ -1,0 +1,186 @@
+/* UI 重做 Phase 1.5 — Tech-but-Friendly
+ *
+ * 主轴：冷调极简底（Linear/Vercel 那种）+ 软冷色 tint 大块 + 角落巨型简笔画
+ *   背景：冷调暖灰 #F7F8FB
+ *   主色：indigo-600 用作主行动 / 焦点
+ *   强调色：amber-500 用作热点/CTA，比纯橙更友好
+ *   蓝青：cyan-500 用作 live / 数据指示
+ *   大色块：用 -50 到 -100 档软底（不大面积饱和）+ 角落巨大简笔图，亲近又有数据感
+ */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Light Tech-Friendly */
+    --background: 220 24% 97%;          /* 冷调暖灰 #F7F8FB */
+    --foreground: 222 47% 11%;          /* slate-900 #0F172A */
+
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+
+    --primary: 239 84% 60%;             /* indigo-600 */
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 220 14% 96%;           /* slate-100 */
+    --secondary-foreground: 222 47% 11%;
+
+    --muted: 220 14% 96%;
+    --muted-foreground: 215 16% 47%;    /* slate-500 */
+
+    --accent: 220 14% 96%;
+    --accent-foreground: 222 47% 11%;
+
+    --destructive: 0 72% 50%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 220 13% 91%;              /* slate-200 */
+    --input: 220 13% 91%;
+    --ring: 239 84% 60%;
+
+    --cta: 38 92% 50%;                  /* amber-500 #F59E0B 暖友好 */
+    --cta-foreground: 0 0% 100%;
+
+    --radius: 0.875rem;
+
+    /* 软调大色块（tint = -50/-100 档，前景用 -700/-800 档保证对比） */
+    --t-sky:       204 94% 94%;  /* sky-100   #E0F2FE  */
+    --t-sky-fg:    202 90% 28%;  /* sky-800   #075985  */
+    --t-violet:    270 96% 94%;  /* violet-100 #EDE9FE */
+    --t-violet-fg: 263 70% 36%;  /* violet-800 */
+    --t-teal:      167 85% 89%;  /* teal-100  #CCFBF1  */
+    --t-teal-fg:   175 70% 22%;  /* teal-800            */
+    --t-amber:     48 96% 89%;   /* amber-100 #FEF3C7  */
+    --t-amber-fg:  26 90% 32%;   /* amber-900           */
+    --t-rose:      346 78% 95%;  /* rose-100  #FFE4E6  */
+    --t-rose-fg:   355 60% 36%;  /* rose-800            */
+    --t-slate:     210 40% 96%;  /* slate-100           */
+    --t-slate-fg:  217 33% 17%;  /* slate-800           */
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --background: 222 47% 6%;         /* 极深冷调 */
+      --foreground: 210 40% 96%;
+
+      --card: 222 47% 9%;
+      --card-foreground: 210 40% 96%;
+
+      --popover: 222 47% 9%;
+      --popover-foreground: 210 40% 96%;
+
+      --primary: 234 89% 74%;           /* indigo-400 拉亮 */
+      --primary-foreground: 222 47% 11%;
+
+      --secondary: 217 33% 17%;
+      --secondary-foreground: 210 40% 96%;
+
+      --muted: 217 33% 17%;
+      --muted-foreground: 215 20% 65%;
+
+      --accent: 217 33% 17%;
+      --accent-foreground: 210 40% 96%;
+
+      --destructive: 0 62% 50%;
+      --destructive-foreground: 210 40% 96%;
+
+      --border: 217 33% 20%;
+      --input: 217 33% 20%;
+      --ring: 234 89% 74%;
+
+      --cta: 38 92% 56%;
+      --cta-foreground: 222 47% 11%;
+
+      /* 暗模式大色块：拉低到 950 档，文字提到 200 档 */
+      --t-sky:       202 80% 14%;
+      --t-sky-fg:    199 89% 78%;
+      --t-violet:    263 50% 18%;
+      --t-violet-fg: 270 95% 85%;
+      --t-teal:      175 70% 14%;
+      --t-teal-fg:   168 70% 78%;
+      --t-amber:     30 60% 16%;
+      --t-amber-fg:  43 96% 78%;
+      --t-rose:      350 50% 18%;
+      --t-rose-fg:   355 90% 84%;
+      --t-slate:     217 33% 17%;
+      --t-slate-fg:  210 40% 90%;
+    }
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    -webkit-tap-highlight-color: transparent;
+  }
+  body {
+    font-family: 'Open Sans', 'PingFang SC', 'Microsoft YaHei', system-ui, sans-serif;
+    font-feature-settings: 'cv11', 'ss01';
+    background: hsl(var(--background));
+    color: hsl(var(--foreground));
+    transition: background-color 200ms ease, color 200ms ease;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    font-family: Poppins, 'PingFang SC', 'Microsoft YaHei', system-ui, sans-serif;
+    letter-spacing: -0.01em;
+  }
+
+  :focus-visible {
+    outline: 2px solid hsl(var(--ring));
+    outline-offset: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+@layer components {
+  .bento-grid {
+    @apply grid gap-4 md:gap-5;
+    grid-template-columns: repeat(2, 1fr);
+  }
+  @media (min-width: 768px) {
+    .bento-grid {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+  @media (min-width: 1180px) {
+    .bento-grid {
+      grid-template-columns: repeat(6, 1fr);
+    }
+  }
+  .bento-card {
+    @apply rounded-bento border border-border bg-card text-card-foreground p-5
+           shadow-bento transition-all duration-200 ease-out;
+  }
+  .bento-card-interactive {
+    @apply hover:shadow-bento-hover hover:-translate-y-0.5 active:translate-y-0 cursor-pointer;
+  }
+}
+
+/* tint 工具类 —— 软冷色大块，自带可读前景 */
+.t-sky    { background: hsl(var(--t-sky));    color: hsl(var(--t-sky-fg)); }
+.t-violet { background: hsl(var(--t-violet)); color: hsl(var(--t-violet-fg)); }
+.t-teal   { background: hsl(var(--t-teal));   color: hsl(var(--t-teal-fg)); }
+.t-amber  { background: hsl(var(--t-amber));  color: hsl(var(--t-amber-fg)); }
+.t-rose   { background: hsl(var(--t-rose));   color: hsl(var(--t-rose-fg)); }
+.t-slate  { background: hsl(var(--t-slate));  color: hsl(var(--t-slate-fg)); }
+
+/* 科技感装饰：极淡网格 + 等距点阵 */
+.tech-grid-bg {
+  background-image:
+    linear-gradient(to right, hsl(var(--foreground) / 0.04) 1px, transparent 1px),
+    linear-gradient(to bottom, hsl(var(--foreground) / 0.04) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+.tech-dots-bg {
+  background-image: radial-gradient(hsl(var(--foreground) / 0.07) 1px, transparent 1px);
+  background-size: 18px 18px;
+}
