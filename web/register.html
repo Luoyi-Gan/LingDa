@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>注册 · 灵搭 LingDa</title>
+  <link rel="stylesheet" href="css/tokens.css" />
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/components.css" />
+  <link rel="stylesheet" href="css/pages.css" />
+</head>
+<body>
+  <div class="auth-page">
+    <div class="auth-wrap" style="max-width:980px;grid-template-columns:0.9fr 1.1fr">
+      <aside class="auth-panel">
+        <div>
+          <a class="btn btn-soft btn-sm" href="login.html" style="margin-bottom:20px">← 返回登录</a>
+          <div class="brand">
+            <div class="brand-mark">灵</div>
+            <div class="brand-text">
+              <span class="brand-name">灵搭</span>
+              <span class="brand-sub">LingDa</span>
+            </div>
+          </div>
+          <h1 style="margin-top:24px">创建你的<br /><em>校园身份</em></h1>
+          <p class="lead">完成几个简单字段，立刻开始找搭子。真实姓名仅用于内部审核。</p>
+          <ul style="margin-top:24px;display:flex;flex-direction:column;gap:10px;font-size:13px;color:var(--muted)">
+            <li style="display:flex;align-items:center;gap:8px"><span class="tag tag-indigo">✓</span> 学号绑定，0 重复账号</li>
+            <li style="display:flex;align-items:center;gap:8px"><span class="tag tag-indigo">✓</span> 真实姓名仅内部审核</li>
+            <li style="display:flex;align-items:center;gap:8px"><span class="tag tag-indigo">✓</span> 即刻使用三大模块</li>
+          </ul>
+        </div>
+        <div>
+          <span class="tag tag-amber">注册后可申请校内认证</span>
+        </div>
+      </aside>
+
+      <main class="auth-form">
+        <div class="eyebrow">Create Account</div>
+        <h2>创建账号</h2>
+        <p class="sub">填写以下信息，开始使用搭子</p>
+
+        <form class="stack" action="#" method="get" onsubmit="return false;">
+          <div class="grid-2">
+            <div class="field">
+              <label>学号 <span style="color:var(--amber)">*</span></label>
+              <input class="input" type="text" placeholder="4-50 位" required />
+            </div>
+            <div class="field">
+              <label>昵称 <span style="color:var(--amber)">*</span></label>
+              <input class="input" type="text" placeholder="展示给搭子" required />
+            </div>
+            <div class="field">
+              <label>真实姓名 <span style="color:var(--amber)">*</span></label>
+              <input class="input" type="text" placeholder="内部审核用" required />
+            </div>
+            <div class="field">
+              <label>密码 <span style="color:var(--amber)">*</span></label>
+              <input class="input" type="password" placeholder="至少 6 位" required />
+            </div>
+            <div class="field">
+              <label>手机号 <span style="color:var(--amber)">*</span></label>
+              <input class="input" type="tel" placeholder="11 位手机号" required />
+            </div>
+            <div class="field">
+              <label>学院 <span style="color:var(--amber)">*</span></label>
+              <input class="input" type="text" placeholder="如：新闻学院" required />
+            </div>
+            <div class="field">
+              <label>专业</label>
+              <input class="input" type="text" placeholder="选填" />
+            </div>
+            <div class="field">
+              <label>性别</label>
+              <input class="input" type="text" placeholder="男 / 女 / 不填" />
+            </div>
+          </div>
+
+          <div class="auth-actions" style="margin-top:8px">
+            <button type="submit" class="btn btn-primary btn-block">完成注册</button>
+          </div>
+        </form>
+
+        <p class="auth-foot">
+          已有账号？<a href="login.html">返回登录</a>
+        </p>
+      </main>
+    </div>
+  </div>
+</body>
+</html>
