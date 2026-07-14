@@ -2,83 +2,106 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="js/theme.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>登录 · 灵搭 LingDa</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="css/tokens.css" />
   <link rel="stylesheet" href="css/base.css" />
   <link rel="stylesheet" href="css/components.css" />
   <link rel="stylesheet" href="css/pages.css" />
 </head>
 <body>
-  <div class="auth-page">
-    <div class="auth-wrap">
-      <aside class="auth-panel">
-        <div>
-          <div class="brand">
-            <div class="brand-mark">灵</div>
-            <div class="brand-text">
-              <span class="brand-name">灵搭</span>
-              <span class="brand-sub">LingDa</span>
-            </div>
-          </div>
-          <div style="margin-top:20px">
-            <span class="tag tag-indigo">校园协作匹配平台</span>
-          </div>
-          <h1>找到同频的<br /><em>校园搭子</em></h1>
-          <p class="lead">拼车出行、娱乐开黑、学习组队 — 一站式匹配与聊天，开局即协作。</p>
-          <div class="pills" style="margin-top:20px">
-            <span class="tag tag-sky">拼车</span>
-            <span class="tag tag-amber">娱乐</span>
-            <span class="tag tag-teal">学习</span>
+  <div class="auth">
+    <aside class="auth-brand t-violet">
+      <svg class="auth-decor" viewBox="0 0 200 200" fill="none" aria-hidden="true">
+        <circle cx="100" cy="100" r="92" stroke="currentColor" stroke-width="1" />
+        <circle cx="100" cy="100" r="70" stroke="currentColor" stroke-width="1" />
+        <circle cx="100" cy="100" r="48" stroke="currentColor" stroke-width="1" />
+        <circle cx="100" cy="100" r="26" stroke="currentColor" stroke-width="1" />
+        <line x1="0" y1="100" x2="200" y2="100" stroke="currentColor" stroke-width="1" />
+        <line x1="100" y1="0" x2="100" y2="200" stroke="currentColor" stroke-width="1" />
+      </svg>
+
+      <div class="auth-badge">
+        <span style="width:6px;height:6px;border-radius:999px;background:currentColor"></span>
+        灵搭 · 校园协作匹配平台
+      </div>
+
+      <div>
+        <div class="auth-logo">
+          <div class="auth-logo-mark">灵</div>
+          <div>
+            <div class="font-heading" style="font-size:20px;font-weight:800">灵搭</div>
+            <div style="font-size:10px;letter-spacing:0.18em;text-transform:uppercase;opacity:0.7;margin-top:6px">LingDa</div>
           </div>
         </div>
+        <h1>找到你的<br />最佳组队合伙人</h1>
+        <p class="lead">拼车 · 娱乐 · 学习 — 三步匹配同频伙伴，让每一次组队都高效而温暖。</p>
         <div class="auth-stats">
           <div class="auth-stat"><strong>12k+</strong><span>校园用户</span></div>
+          <span class="divider"></span>
           <div class="auth-stat"><strong>3.8k</strong><span>成功组队</span></div>
+          <span class="divider"></span>
           <div class="auth-stat"><strong>4.9★</strong><span>平均口碑</span></div>
         </div>
-      </aside>
+      </div>
 
-      <main class="auth-form">
+      <div class="auth-copy">© 2026 灵搭 LingDa</div>
+    </aside>
+
+    <main class="auth-form">
+      <div class="auth-form-inner">
         <div class="eyebrow">Sign In</div>
-        <h2>欢迎回来</h2>
-        <p class="sub">使用学号登录你的校园协作空间</p>
+        <h2>进入系统</h2>
+        <p class="sub">使用学号登录你的协作空间</p>
 
-        <form class="stack" action="#" method="get" onsubmit="return false;">
+        <div class="stack" style="gap:16px">
           <div class="field">
             <label>
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 8h10M7 12h6"/></svg>
               学号
             </label>
-            <input class="input" type="text" name="userId" placeholder="请输入学号" autocomplete="username" />
+            <input class="input" id="login-student" type="text" placeholder="请输入学号" autocomplete="username" />
           </div>
           <div class="field">
             <label>
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
               密码
             </label>
-            <input class="input" type="password" name="password" placeholder="至少 6 位" autocomplete="current-password" />
+            <input class="input" id="login-password" type="password" placeholder="至少 6 位" autocomplete="current-password" />
           </div>
 
-          <div class="auth-row-between">
-            <label class="check">
-              <input type="checkbox" name="remember" />
+          <div class="auth-ops">
+            <span class="check">
+              <span class="check-box" id="remember-check"></span>
               记住我
-            </label>
-            <a href="#">忘记密码？</a>
+            </span>
+            <a href="#" id="login-forgot">忘记密码？</a>
           </div>
 
-          <div class="auth-actions">
-            <button type="submit" class="btn btn-primary btn-block">立即登录</button>
-            <a class="btn btn-soft btn-block" href="announcements.html">开发预览 · 直接进入</a>
-          </div>
-        </form>
+          <button type="button" class="btn btn-cta btn-block" id="login-submit">
+            立即进入
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+          </button>
 
-        <p class="auth-foot">
-          还没账号？<a href="register.html">立即注册</a>
-        </p>
-      </main>
-    </div>
+          <a class="btn btn-soft btn-block" href="hall.html" id="login-preview">
+            开发预览 · 直接进入
+          </a>
+
+          <p class="auth-foot">
+            还没账号？
+            <a href="register.html">立即注册</a>
+          </p>
+        </div>
+      </div>
+    </main>
   </div>
+  <script src="js/ui.js"></script>
+  <script src="js/users.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/login.js"></script>
 </body>
 </html>

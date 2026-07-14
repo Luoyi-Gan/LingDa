@@ -2,152 +2,131 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="js/theme.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>我的 · 灵搭 LingDa</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="css/tokens.css" />
   <link rel="stylesheet" href="css/base.css" />
-  <link rel="stylesheet" href="css/layout.css" />
+  <link rel="stylesheet" href="css/shell.css" />
   <link rel="stylesheet" href="css/components.css" />
   <link rel="stylesheet" href="css/pages.css" />
 </head>
 <body>
-  <div class="app">
-    <aside class="sidebar">
-      <div class="sidebar-top">
-        <a class="side-profile" href="me.html" title="个人主页">
-          <div class="avatar av-indigo" data-user="me">开</div>
-          <div class="side-profile-info">
-            <div class="side-profile-name">开发预览</div>
-            <div class="side-profile-meta">新闻学院 · 研一</div>
-            <div class="side-profile-tags">
-              <span class="tag tag-sky">认证学生</span>
-            </div>
-          </div>
-          <span class="side-profile-chev">›</span>
-        </a>
-        <a class="brand" href="announcements.html">
-          <div class="brand-mark">灵</div>
-          <div class="brand-text">
-            <span class="brand-name">灵搭</span>
-            <span class="brand-sub">LingDa</span>
-          </div>
-        </a>
-      </div>
-      <nav class="nav">
-        <a class="nav-item" data-page="announcements.html" href="announcements.html">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-          <span>公告</span>
-        </a>
-        <a class="nav-item" data-page="forum.html" href="forum.html">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-          <span>贴吧</span>
-        </a>
-        <a class="nav-item" data-page="partners.html" href="partners.html">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-          <span>搭子</span>
-        </a>
-        <a class="nav-item" data-page="favorites.html" href="favorites.html">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
-          <span>收藏</span>
-        </a>
-        <a class="nav-item" data-page="settings.html" href="settings.html">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
-          <span>设置</span>
-        </a>
-      </nav>
-      <div class="sidebar-foot">校园协作匹配平台</div>
-    </aside>
-
-    <main class="main">
-      <div class="page-head">
-        <div>
-          <h1 class="page-title">我的</h1>
-          <p class="page-desc">个人资料与快捷入口</p>
+  <div class="app-shell">
+    <nav class="desktop-nav" aria-label="主导航">
+      <a class="dn-profile" href="me.html" title="个人主页">
+        <div class="avatar" data-user="me" data-me-av>开</div>
+        <div class="meta">
+          <div class="name" data-me-name>开发预览</div>
+          <div class="sub" data-me-sub>新闻学院 · 研一</div>
+          <div class="tags"><span class="chip chip-indigo">认证学生</span></div>
         </div>
-        <a class="btn btn-ghost" href="settings.html">编辑资料</a>
+        <span class="chev">›</span>
+      </a>
+
+      <div class="dn-brand">
+        <div class="dn-mark">灵</div>
+        <div><div class="dn-name">灵搭</div><div class="dn-sub">LingDa</div></div>
       </div>
-
-      <div class="stack">
-        <section class="card">
-          <div class="me-hero">
-            <div class="avatar lg av-indigo" data-user="me">开</div>
-            <div class="who">
-              <div class="name">开发预览</div>
-              <div class="meta-line">新闻学院 · 前端 · 研一</div>
-              <div class="tags">
-                <span class="tag tag-sky">认证学生</span>
-                <span class="tag tag-indigo">★ 4.9</span>
+      <a class="dn-cta" href="javascript:void(0)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+        发起组队
+      </a>
+      <div class="dn-items">
+        <a class="dn-item" data-nav="hall" href="hall.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg><span>大厅<div class="desc">组队大厅</div></span></a>
+        <a class="dn-item" data-nav="posts" href="posts.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg><span>帖子<div class="desc">广场动态</div></span></a>
+        <a class="dn-item" data-nav="chat" href="chat.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><span>聊天<div class="desc">消息会话</div></span></a>
+      </div>
+    </nav>
+    <main class="app-main page-pad">
+      <div class="page-wrap">
+        <div class="bento-grid">
+          <section class="card col-2 md-col-4 xl-col-4 md-row-2 xl-row-2">
+            <div class="row">
+              <div class="avatar xl" data-user="me" data-me-av>开</div>
+              <div class="grow">
+                <h2 class="font-heading" style="font-size:22px;font-weight:800" data-me-name>开发预览</h2>
+                <p class="text-muted" style="margin-top:4px;font-size:13px" data-me-line>新闻学院 · 前端 · 研一</p>
+                <div class="row" style="margin-top:10px;flex-wrap:wrap;gap:6px">
+                  <span class="chip chip-indigo">认证学生</span>
+                  <span class="chip chip-amber">★ 4.9</span>
+                </div>
               </div>
             </div>
-          </div>
-        </section>
-
-        <section class="card">
-          <div class="card-head"><h2 class="card-title">快捷入口</h2></div>
-          <div class="stack" style="gap:10px">
-            <a class="link-row" href="partners.html">
-              <div class="icon-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div>
-              <div class="grow">
-                <div class="title">我的组队</div>
-                <div class="sub">进行中 2 · 已完成 8</div>
-              </div>
-              <span class="chev">›</span>
-            </a>
-            <a class="link-row" href="forum.html">
-              <div class="icon-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
-              <div class="grow">
-                <div class="title">我的帖子</div>
-                <div class="sub">发布 3 · 评论 12</div>
-              </div>
-              <span class="chev">›</span>
-            </a>
-            <a class="link-row" href="favorites.html">
-              <div class="icon-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg></div>
-              <div class="grow">
-                <div class="title">我的收藏</div>
-                <div class="sub">帖子与搭子 5 条</div>
-              </div>
-              <span class="chev">›</span>
-            </a>
-            <a class="link-row" href="settings.html">
-              <div class="icon-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="3"/></svg></div>
-              <div class="grow">
-                <div class="title">账号与认证</div>
-                <div class="sub">隐私、安全、校内认证</div>
-              </div>
-              <span class="chev">›</span>
-            </a>
-          </div>
-        </section>
-
-        <section class="card">
-          <div class="card-head"><h2 class="card-title">最近评价</h2></div>
-          <div class="list-row">
-            <div class="avatar sm av-teal" data-user="cheng" title="查看主页">程</div>
-            <div style="flex:1;min-width:0">
-              <div class="row" style="justify-content:space-between">
-                <strong style="font-size:13px">程思</strong>
-                <span class="tag tag-indigo">★ 5</span>
-              </div>
-              <p style="margin-top:4px;font-size:13px;color:var(--muted)">准时靠谱，拼车体验很好！</p>
+          </section>
+          <section class="card col-2 md-col-4 xl-col-2 md-row-2 xl-row-2">
+            <div class="eyebrow">Settings</div>
+            <h3 class="font-heading" style="font-size:16px;font-weight:800;margin:8px 0 12px">快捷设置</h3>
+            <div class="stack">
+              <a class="btn btn-outline" href="javascript:void(0)" data-action="edit-profile" style="justify-content:flex-start">编辑资料</a>
+              <a class="btn btn-outline" href="javascript:void(0)" data-action="privacy" style="justify-content:flex-start">隐私与安全</a>
+              <a class="btn btn-outline" href="login.html" data-action="logout" style="justify-content:flex-start">退出登录</a>
             </div>
-          </div>
-          <div class="list-row">
-            <div class="avatar sm av-amber" data-user="ye" title="查看主页">叶</div>
-            <div style="flex:1;min-width:0">
-              <div class="row" style="justify-content:space-between">
-                <strong style="font-size:13px">叶舟</strong>
-                <span class="tag tag-indigo">★ 5</span>
-              </div>
-              <p style="margin-top:4px;font-size:13px;color:var(--muted)">开黑氛围好，沟通顺畅。</p>
+          </section>
+          <section class="card t-teal tint-border col-2 md-col-4 xl-col-3">
+            <div class="eyebrow">Teams</div>
+            <h3 class="font-heading" style="font-size:16px;font-weight:800;margin:8px 0 12px">我的队伍</h3>
+            <div class="soft-block" data-open-post="1" style="margin-bottom:8px"><strong style="font-size:13px">周五晚南站拼车</strong><div class="text-muted" style="font-size:12px;margin-top:2px">进行中 · 2/3</div></div>
+            <div class="soft-block" data-open-post="3"><strong style="font-size:13px">高数习题 mutual</strong><div class="text-muted" style="font-size:12px;margin-top:2px">进行中 · 2/4</div></div>
+          </section>
+          <section class="card col-2 md-col-4 xl-col-3">
+            <div class="eyebrow">Rating</div>
+            <h3 class="font-heading" style="font-size:16px;font-weight:800;margin:8px 0 12px">评分分布</h3>
+            <div class="stack" style="gap:8px">
+              <div class="row"><span style="width:28px;font-size:12px">5★</span><div class="bar"><i style="width:80%"></i></div></div>
+              <div class="row"><span style="width:28px;font-size:12px">4★</span><div class="bar"><i style="width:15%"></i></div></div>
+              <div class="row"><span style="width:28px;font-size:12px">3★</span><div class="bar"><i style="width:5%"></i></div></div>
             </div>
-          </div>
-        </section>
+          </section>
+          <section class="card t-amber tint-border col-2 md-col-4 xl-col-6">
+            <div class="eyebrow">Achievements</div>
+            <h3 class="font-heading" style="font-size:16px;font-weight:800;margin:8px 0 12px">成就</h3>
+            <div class="row" style="flex-wrap:wrap;gap:8px">
+              <div class="soft-block" style="text-align:center;min-width:88px">🏆<div style="font-size:11px;font-weight:700;margin-top:4px">准时达人</div></div>
+              <div class="soft-block" style="text-align:center;min-width:88px">🤝<div style="font-size:11px;font-weight:700;margin-top:4px">十次组队</div></div>
+              <div class="soft-block" style="text-align:center;min-width:88px">⭐<div style="font-size:11px;font-weight:700;margin-top:4px">五星口碑</div></div>
+            </div>
+          </section>
+          <section class="card t-violet tint-border col-2 md-col-4 xl-col-6">
+            <div class="eyebrow">Teammates</div>
+            <h3 class="font-heading" style="font-size:16px;font-weight:800;margin:8px 0 12px">历史搭子</h3>
+            <div class="row" style="flex-wrap:wrap;gap:12px">
+              <div style="text-align:center"><div class="avatar" data-user="zhou" title="查看主页">周</div><div style="font-size:11px;margin-top:4px">周一凡</div></div>
+              <div style="text-align:center"><div class="avatar" data-user="ye" title="查看主页">叶</div><div style="font-size:11px;margin-top:4px">叶舟</div></div>
+              <div style="text-align:center"><div class="avatar" data-user="cheng" title="查看主页">程</div><div style="font-size:11px;margin-top:4px">程思</div></div>
+            </div>
+          </section>
+          <section class="card t-sky tint-border col-2 md-col-4 xl-col-6">
+            <div class="eyebrow">Reviews</div>
+            <h3 class="font-heading" style="font-size:16px;font-weight:800;margin:8px 0 12px">最近评价</h3>
+            <div class="soft-block" style="margin-bottom:8px"><strong style="font-size:13px">程思 · ★5</strong><p class="text-muted" style="font-size:12px;margin-top:4px">准时靠谱，拼车体验很好！</p></div>
+            <div class="soft-block"><strong style="font-size:13px">叶舟 · ★5</strong><p class="text-muted" style="font-size:12px;margin-top:4px">开黑氛围好，沟通顺畅。</p></div>
+          </section>
+        </div>
       </div>
     </main>
   </div>
+  <div class="tabbar">
+    <div class="tabbar-inner">
+      <a class="tab-item" data-nav="hall" href="hall.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>大厅</a>
+      <a class="tab-item" data-nav="posts" href="posts.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>帖子</a>
+      <div class="tab-fab-slot"></div>
+      <a class="tab-item" data-nav="chat" href="chat.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>聊天</a>
+      <a class="tab-item active" data-nav="me" href="me.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>我的</a>
+      <a class="tab-fab" href="javascript:void(0)" aria-label="发起组队">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+      </a>
+    </div>
+  </div>
+
+  <script src="js/ui.js"></script>
   <script src="js/users.js"></script>
+  <script src="js/auth.js"></script>
   <script src="js/nav.js"></script>
   <script src="js/avatar.js"></script>
+  <script src="js/app.js"></script>
 </body>
 </html>

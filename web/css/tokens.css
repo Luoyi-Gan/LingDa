@@ -1,39 +1,152 @@
-/* 校园社区设计 token —— 对齐草图浅色风 */
+/* 复刻原 React tokens.css —— Tech-but-Friendly（无 Tailwind） */
 :root {
-  --bg: #f7f8fb;
-  --surface: #ffffff;
-  --foreground: #0f172a;
-  --muted: #64748b;
-  --muted-soft: #94a3b8;
-  --border: #e2e8f0;
-  --border-soft: #eef2f7;
+  --background: 220 24% 97%;
+  --foreground: 222 47% 11%;
+  --card: 0 0% 100%;
+  --card-foreground: 222 47% 11%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 222 47% 11%;
+  --primary: 239 84% 60%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 220 14% 96%;
+  --secondary-foreground: 222 47% 11%;
+  --muted: 220 14% 96%;
+  --muted-foreground: 215 16% 47%;
+  --accent: 220 14% 96%;
+  --accent-foreground: 222 47% 11%;
+  --destructive: 0 72% 50%;
+  --destructive-foreground: 0 0% 100%;
+  --border: 220 13% 91%;
+  --input: 220 13% 91%;
+  --ring: 239 84% 60%;
+  --cta: 38 92% 50%;
+  --cta-foreground: 0 0% 100%;
+  --radius: 0.875rem;
+  --radius-bento: 24px;
 
-  --primary: #4f46e5;       /* indigo-600 */
-  --primary-hover: #4338ca; /* indigo-700 */
-  --primary-soft: #eef2ff;  /* indigo-50 */
-  --primary-text: #4338ca;  /* indigo-700 */
+  --t-sky: 204 94% 94%;
+  --t-sky-fg: 202 90% 28%;
+  --t-violet: 270 96% 94%;
+  --t-violet-fg: 263 70% 36%;
+  --t-teal: 167 85% 89%;
+  --t-teal-fg: 175 70% 22%;
+  --t-amber: 48 96% 89%;
+  --t-amber-fg: 26 90% 32%;
+  --t-rose: 346 78% 95%;
+  --t-rose-fg: 355 60% 36%;
+  --t-slate: 210 40% 96%;
+  --t-slate-fg: 217 33% 17%;
 
-  --sky: #0284c7;
-  --sky-soft: #e0f2fe;
-  --amber: #d97706;
-  --amber-soft: #fef3c7;
-  --teal: #0d9488;
-  --teal-soft: #ccfbf1;
-  --rose: #e11d48;
-  --rose-soft: #ffe4e6;
-  --violet-soft: #ede9fe;
-  --violet: #6d28d9;
+  --shadow-bento: 0 4px 16px -4px rgb(15 23 42 / 0.06), 0 2px 4px -2px rgb(15 23 42 / 0.04);
+  --shadow-bento-hover: 0 10px 30px -8px rgb(79 70 229 / 0.18), 0 4px 12px -4px rgb(15 23 42 / 0.08);
+  --shadow-cta: 0 8px 22px -8px hsl(var(--cta) / 0.55);
 
-  --radius-sm: 8px;
-  --radius: 12px;
-  --radius-lg: 16px;
-  --radius-xl: 20px;
-  --radius-full: 999px;
+  --font: "Open Sans", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+  --font-heading: Poppins, "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
 
-  --shadow: 0 1px 2px rgb(15 23 42 / 0.04), 0 4px 16px -4px rgb(15 23 42 / 0.06);
-  --shadow-md: 0 4px 20px -6px rgb(79 70 229 / 0.12), 0 2px 8px -2px rgb(15 23 42 / 0.05);
+  /* 布局比例 */
+  --sidebar-w: 14.5rem;
+  --content-max: 1120px;
+  --page-pad-x: clamp(16px, 3.2vw, 40px);
+  --page-pad-y: clamp(20px, 3vw, 40px);
+  --page-pad-bottom-mobile: calc(5.5rem + env(safe-area-inset-bottom));
+  --page-pad-bottom-desktop: 2.5rem;
+  --lg: 960px;
+}
 
-  --sidebar-w: 220px;
-  --font: "Segoe UI", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
-  --font-heading: "Segoe UI", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+/* 深色：手动 data-theme="dark"；未手动设置时跟随系统 */
+html[data-theme="light"] {
+  color-scheme: light;
+}
+html[data-theme="dark"] {
+  color-scheme: dark;
+  --background: 222 47% 6%;
+  --foreground: 210 40% 96%;
+  --card: 222 47% 9%;
+  --card-foreground: 210 40% 96%;
+  --popover: 222 47% 9%;
+  --popover-foreground: 210 40% 96%;
+  --primary: 234 89% 74%;
+  --primary-foreground: 222 47% 11%;
+  --secondary: 217 33% 17%;
+  --secondary-foreground: 210 40% 96%;
+  --muted: 217 33% 17%;
+  --muted-foreground: 215 20% 65%;
+  --accent: 217 33% 17%;
+  --accent-foreground: 210 40% 96%;
+  --destructive: 0 62% 50%;
+  --destructive-foreground: 210 40% 96%;
+  --border: 217 33% 20%;
+  --input: 217 33% 20%;
+  --ring: 234 89% 74%;
+  --cta: 38 92% 56%;
+  --cta-foreground: 222 47% 11%;
+  --t-sky: 202 80% 14%;
+  --t-sky-fg: 199 89% 78%;
+  --t-violet: 263 50% 18%;
+  --t-violet-fg: 270 95% 85%;
+  --t-teal: 175 70% 14%;
+  --t-teal-fg: 168 70% 78%;
+  --t-amber: 30 60% 16%;
+  --t-amber-fg: 43 96% 78%;
+  --t-rose: 350 50% 18%;
+  --t-rose-fg: 355 90% 84%;
+  --t-slate: 217 33% 17%;
+  --t-slate-fg: 210 40% 90%;
+}
+@media (prefers-color-scheme: dark) {
+  html:not([data-theme]) {
+    color-scheme: dark;
+    --background: 222 47% 6%;
+    --foreground: 210 40% 96%;
+    --card: 222 47% 9%;
+    --card-foreground: 210 40% 96%;
+    --popover: 222 47% 9%;
+    --popover-foreground: 210 40% 96%;
+    --primary: 234 89% 74%;
+    --primary-foreground: 222 47% 11%;
+    --secondary: 217 33% 17%;
+    --secondary-foreground: 210 40% 96%;
+    --muted: 217 33% 17%;
+    --muted-foreground: 215 20% 65%;
+    --accent: 217 33% 17%;
+    --accent-foreground: 210 40% 96%;
+    --destructive: 0 62% 50%;
+    --destructive-foreground: 210 40% 96%;
+    --border: 217 33% 20%;
+    --input: 217 33% 20%;
+    --ring: 234 89% 74%;
+    --cta: 38 92% 56%;
+    --cta-foreground: 222 47% 11%;
+    --t-sky: 202 80% 14%;
+    --t-sky-fg: 199 89% 78%;
+    --t-violet: 263 50% 18%;
+    --t-violet-fg: 270 95% 85%;
+    --t-teal: 175 70% 14%;
+    --t-teal-fg: 168 70% 78%;
+    --t-amber: 30 60% 16%;
+    --t-amber-fg: 43 96% 78%;
+    --t-rose: 350 50% 18%;
+    --t-rose-fg: 355 90% 84%;
+    --t-slate: 217 33% 17%;
+    --t-slate-fg: 210 40% 90%;
+  }
+}
+
+.t-sky    { background: hsl(var(--t-sky));    color: hsl(var(--t-sky-fg)); }
+.t-violet { background: hsl(var(--t-violet)); color: hsl(var(--t-violet-fg)); }
+.t-teal   { background: hsl(var(--t-teal));   color: hsl(var(--t-teal-fg)); }
+.t-amber  { background: hsl(var(--t-amber));  color: hsl(var(--t-amber-fg)); }
+.t-rose   { background: hsl(var(--t-rose));   color: hsl(var(--t-rose-fg)); }
+.t-slate  { background: hsl(var(--t-slate));  color: hsl(var(--t-slate-fg)); }
+
+.tech-grid-bg {
+  background-image:
+    linear-gradient(to right, hsl(var(--foreground) / 0.04) 1px, transparent 1px),
+    linear-gradient(to bottom, hsl(var(--foreground) / 0.04) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+.tech-dots-bg {
+  background-image: radial-gradient(hsl(var(--foreground) / 0.07) 1px, transparent 1px);
+  background-size: 18px 18px;
 }

@@ -1,91 +1,67 @@
 # 灵搭 LingDa
 
-校园协作匹配平台。围绕 **拼车 / 娱乐 / 学习**，把找搭子、校园贴吧与公告服务放在同一套浅色社区界面里。
+校园协作匹配平台。三模块：**拼车 / 娱乐 / 学习**。
 
-当前分支重点：**纯 HTML + CSS 静态前端 UI**（按校园社区草图重做）。接口暂未接入；`backend/` 仍保留原 NestJS 实现供后续联调。
+当前 `web/` 为 **纯 HTML + CSS 静态前端**，视觉复刻原 Vite React 版（Tech-but-Friendly：冷灰底、indigo 主色、amber CTA、sky/violet/teal tint 色块、Bento 布局）。**暂不接接口**。
 
-## 产品模块（UI）
-
-| 入口 | 说明 |
-|------|------|
-| 公告 | 学期节点、平台公告、校园服务网格 |
-| 贴吧 | 帖子流、分类筛选、右侧滑入详情（图 / 评论 / 点赞 / 收藏） |
-| 搭子 | 拼车 / 娱乐 / 学习 Tab，推荐人与组队列表 |
-| 我的 / 个人主页 | 侧栏左上角进自己的主页；点他人头像进 `profile.html` |
-| 收藏 · 设置 | 收藏列表与认证/隐私/安全设置（纯 UI） |
-
-登录页提供 **「开发预览 · 直接进入」**，无需账号即可浏览各页。
+- 后端：NestJS + Prisma + MySQL 8（[`backend/`](./backend/)）
+- 部署说明：[`deploy/`](./deploy/)
 
 ## 目录结构
 
 ```
-backend/    NestJS API + Prisma + MySQL（现有后端，本期 UI 未接）
-web/        纯静态前端（HTML / CSS / 少量 JS）
-deploy/     部署脚本 / Nginx / 迁移说明
+backend/    NestJS API + Prisma schema
+web/        静态 HTML / CSS / JS（原 React UI 静态化预览）
+deploy/     部署脚本 / Nginx / 迁移
 docs/       API / schema 文档
 ```
 
-### `web/` 静态站
+### `web/` 页面
 
-```
-web/
-  index.html            → 跳转 login.html
-  login.html            登录（含开发预览入口）
-  register.html         注册
-  announcements.html    公告
-  forum.html            贴吧
-  partners.html         搭子
-  me.html               我的
-  profile.html          他人主页（?u=用户id）
-  favorites.html        收藏
-  settings.html         设置
-  css/                  tokens / base / layout / components / pages
-  js/                   nav / forum / users / avatar / profile
-  assets/               静态资源占位
-```
+| 文件 | 说明 |
+|------|------|
+| `login.html` | 登录（假鉴权 + 记住我） |
+| `register.html` | 注册校验后进入大厅 |
+| `hall.html` | 大厅 Bento（匹配入口 / 筛选 / 评价） |
+| `posts.html` | 帖子广场 + 右侧详情抽屉 |
+| `chat.html` / `chat-detail.html` | 消息列表与会话详情 |
+| `me.html` | 个人中心（编辑资料） |
+| `profile.html` | 他人主页（加好友 / 私信） |
+| `css/` | tokens / base / shell / components / pages |
+| `js/` | ui / auth / app / posts / chat / nav … |
+| `public/` | 图标等静态资源 |
 
-视觉约定：浅色底 `#F7F8FB`、主色 indigo-600、白卡片 + 软圆角；角色标签用 sky / amber / teal。
+桌面（≥960px）：左侧 DesktopNav；移动端：底部 TabBar + 中间 FAB。
 
-## 本地预览（前端）
-
-无需安装 npm 依赖。在 `web/` 下起任意静态服务器即可：
+## 本地预览
 
 ```bash
 cd web
 npx serve -l 5173 .
 ```
 
-浏览器打开：http://localhost:5173/
+打开 http://localhost:5173/ → 登录页点「立即进入」或「开发预览」进大厅。
 
-建议路径：登录页 →「开发预览 · 直接进入」→ 公告 → 侧栏切换贴吧 / 搭子等。
+## 已实现的 UI 交互（静态预览）
 
-直接双击打开 HTML 也可预览部分页面，但相对路径与侧栏高亮在部分浏览器下可能异常，优先用本地服务器。
+- **登录 / 注册**：非空与格式校验，会话写入 `localStorage`；记住我；忘记密码提示
+- **发起组队**：侧栏 CTA / 底栏 FAB 打开发布 Sheet（拼车 / 娱乐 / 学习）
+- **大厅入口**：三模块打开匹配 Sheet；热门卡片可跳转帖子详情；筛选真实过滤；待办评价
+- **帖子**：分类过滤、右侧抽屉（点赞 / 收藏 / 评论持久化 / 申请加入）、`?post=` 深链
+- **聊天**：列表进详情，消息本地持久化；头像仍进主页
+- **我的**：编辑资料同步侧栏；队伍跳转帖子；退出清会话
+- **他人主页**：加好友状态本地保存；私信进会话
+- 桌面侧栏 **左上角个人主页卡片**（移动端底栏「我的」）
+- **左下角主题切换**：深色 / 浅色，偏好写入 `localStorage`
 
-## 后端（可选，联调时）
+## 后端（可选联调）
 
 ```bash
-cd backend
-npm ci
-# 配置 .env 后
-npm run start:dev
+cd backend && npm ci && npm run start:dev
 ```
 
-- API：http://127.0.0.1:3000/api/v1  
-- 文档：见 [`docs/`](./docs/) 与 [`backend/README.md`](./backend/README.md)
-
-当前静态前端**未请求**后端；联调需后续把表单与列表接到 API。
+API：http://127.0.0.1:3000/api/v1（静态前端尚未请求后端）。
 
 ## 公网部署
 
-历史部署说明见 [`deploy/MIGRATION.md`](./deploy/MIGRATION.md)。静态站可直接由 Nginx / 任意静态托管分发 `web/` 目录。
-
-## 开发说明
-
-- 侧栏当前页高亮：`js/nav.js`（兼容 `/forum` 与 `/forum.html`）
-- 贴吧详情抽屉：`js/forum.js`；点赞/收藏状态存在 `localStorage`
-- 头像跳转：带 `data-user` 的头像由 `js/avatar.js` 处理；`data-user="me"`（当前用户）不跳转
-
-## 本期明确不做
-
-- 真实登录鉴权 / 发帖 / 匹配 / 聊天接口
-- React / Vite / Tailwind 运行时（旧实现已从本分支 `web/` 移除，可从 git 历史找回）
+见 [`deploy/MIGRATION.md`](./deploy/MIGRATION.md)。静态站可直接托管 `web/` 目录。

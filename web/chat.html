@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <script src="js/theme.js"></script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>个人主页 · 灵搭 LingDa</title>
+  <title>聊天 · 灵搭 LingDa</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet" />
@@ -38,20 +38,30 @@
       <div class="dn-items">
         <a class="dn-item" data-nav="hall" href="hall.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg><span>大厅<div class="desc">组队大厅</div></span></a>
         <a class="dn-item" data-nav="posts" href="posts.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg><span>帖子<div class="desc">广场动态</div></span></a>
-        <a class="dn-item" data-nav="chat" href="chat.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><span>聊天<div class="desc">消息会话</div></span></a>
+        <a class="dn-item active" data-nav="chat" href="chat.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><span>聊天<div class="desc">消息会话</div></span></a>
       </div>
     </nav>
     <main class="app-main page-pad">
       <div class="page-wrap">
 
-        <div class="row" style="justify-content:space-between;margin-bottom:16px">
-          <div>
-            <h1 class="font-heading page-title" id="profile-title" style="font-size:24px;font-weight:800">个人主页</h1>
-            <p class="text-muted" style="font-size:13px;margin-top:4px">查看搭子资料与动态</p>
+        <h2 class="font-heading" style="font-size:22px;font-weight:800;margin-bottom:16px">消息</h2>
+        <section class="card">
+          <div class="chat-row" data-chat="zhou">
+            <div class="avatar" data-user="zhou" title="查看主页">周</div>
+            <div class="grow"><div class="title">周一凡</div><div class="preview">好的，那明天图书馆见～</div></div>
+            <div class="time">14:20</div>
           </div>
-          <a class="btn btn-ghost" href="javascript:history.back()">返回</a>
-        </div>
-        <div id="profile-root"></div>
+          <div class="chat-row" data-chat="ye">
+            <div class="avatar" data-user="ye" title="查看主页">叶</div>
+            <div class="grow"><div class="title">叶舟</div><div class="preview">今晚 8 点开黑记得上线</div></div>
+            <div class="time">昨天</div>
+          </div>
+          <div class="chat-row" data-chat="cheng">
+            <div class="avatar" data-user="cheng" title="查看主页">程</div>
+            <div class="grow"><div class="title">高数 mutual</div><div class="preview">二教 305 门锁了我们换教室</div></div>
+            <div class="time">周一</div>
+          </div>
+        </section>
 
       </div>
     </main>
@@ -61,8 +71,8 @@
     <a class="tab-item" data-nav="hall" href="hall.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>大厅</a>
     <a class="tab-item" data-nav="posts" href="posts.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>帖子</a>
     <div class="tab-fab-slot"></div>
-    <a class="tab-item" data-nav="chat" href="chat.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>聊天</a>
-    <a class="tab-item active" data-nav="me" href="me.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>我的</a>
+    <a class="tab-item active" data-nav="chat" href="chat.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>聊天</a>
+    <a class="tab-item" data-nav="me" href="me.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>我的</a>
       <a class="tab-fab" href="javascript:void(0)" aria-label="发起组队">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
       </a>
@@ -75,6 +85,6 @@
   <script src="js/nav.js"></script>
   <script src="js/avatar.js"></script>
   <script src="js/app.js"></script>
-  <script src="js/profile.js"></script>
+  <script src="js/chat.js"></script>
 </body>
 </html>

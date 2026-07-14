@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <script src="js/theme.js"></script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>个人主页 · 灵搭 LingDa</title>
+  <title>聊天详情 · 灵搭 LingDa</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet" />
@@ -17,7 +17,7 @@
 <body>
   <div class="app-shell">
     <nav class="desktop-nav" aria-label="主导航">
-            <a class="dn-profile" href="me.html" title="个人主页">
+      <a class="dn-profile" href="me.html" title="个人主页">
         <div class="avatar" data-user="me" data-me-av>开</div>
         <div class="meta">
           <div class="name" data-me-name>开发预览</div>
@@ -26,7 +26,6 @@
         </div>
         <span class="chev">›</span>
       </a>
-
       <div class="dn-brand">
         <div class="dn-mark">灵</div>
         <div><div class="dn-name">灵搭</div><div class="dn-sub">LingDa</div></div>
@@ -38,31 +37,34 @@
       <div class="dn-items">
         <a class="dn-item" data-nav="hall" href="hall.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg><span>大厅<div class="desc">组队大厅</div></span></a>
         <a class="dn-item" data-nav="posts" href="posts.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg><span>帖子<div class="desc">广场动态</div></span></a>
-        <a class="dn-item" data-nav="chat" href="chat.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><span>聊天<div class="desc">消息会话</div></span></a>
+        <a class="dn-item active" data-nav="chat" href="chat.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><span>聊天<div class="desc">消息会话</div></span></a>
       </div>
     </nav>
     <main class="app-main page-pad">
       <div class="page-wrap">
-
-        <div class="row" style="justify-content:space-between;margin-bottom:16px">
-          <div>
-            <h1 class="font-heading page-title" id="profile-title" style="font-size:24px;font-weight:800">个人主页</h1>
-            <p class="text-muted" style="font-size:13px;margin-top:4px">查看搭子资料与动态</p>
+        <div class="chat-detail-head">
+          <a class="btn btn-ghost" href="chat.html">← 返回</a>
+          <div class="avatar" id="chat-peer-av" data-user="">—</div>
+          <div class="grow">
+            <div class="font-heading" style="font-size:16px;font-weight:800" id="chat-peer-name">会话</div>
+            <div class="text-muted" style="font-size:12px" id="chat-peer-sub"></div>
           </div>
-          <a class="btn btn-ghost" href="javascript:history.back()">返回</a>
         </div>
-        <div id="profile-root"></div>
-
+        <div class="chat-thread" id="chat-thread"></div>
+        <div class="chat-composer">
+          <input class="input" id="chat-input" type="text" placeholder="输入消息…" autocomplete="off" />
+          <button type="button" class="btn btn-primary" id="chat-send">发送</button>
+        </div>
       </div>
     </main>
   </div>
   <div class="tabbar">
     <div class="tabbar-inner">
-    <a class="tab-item" data-nav="hall" href="hall.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>大厅</a>
-    <a class="tab-item" data-nav="posts" href="posts.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>帖子</a>
-    <div class="tab-fab-slot"></div>
-    <a class="tab-item" data-nav="chat" href="chat.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>聊天</a>
-    <a class="tab-item active" data-nav="me" href="me.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>我的</a>
+      <a class="tab-item" data-nav="hall" href="hall.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>大厅</a>
+      <a class="tab-item" data-nav="posts" href="posts.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>帖子</a>
+      <div class="tab-fab-slot"></div>
+      <a class="tab-item active" data-nav="chat" href="chat.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>聊天</a>
+      <a class="tab-item" data-nav="me" href="me.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>我的</a>
       <a class="tab-fab" href="javascript:void(0)" aria-label="发起组队">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
       </a>
@@ -75,6 +77,6 @@
   <script src="js/nav.js"></script>
   <script src="js/avatar.js"></script>
   <script src="js/app.js"></script>
-  <script src="js/profile.js"></script>
+  <script src="js/chat.js"></script>
 </body>
 </html>
