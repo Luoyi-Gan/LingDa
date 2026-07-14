@@ -15,8 +15,8 @@ cd "$ROOT"
 
 echo "==[1/5] dump MySQL（sys 库全表）======================="
 DB_USER="${MIGRATE_DB_USER:-root}"
-DB_PASS="${MIGRATE_DB_PASS:-88888888}"
-mysqldump -h 127.0.0.1 -u "$DB_USER" -p"$DB_PASS" \
+DB_PASS="${MIGRATE_DB_PASS:-}"
+mysqldump -h 127.0.0.1 -u "$DB_USER" ${DB_PASS:+-p"$DB_PASS"} \
   --single-transaction \
   --routines --triggers \
   --default-character-set=utf8mb4 \

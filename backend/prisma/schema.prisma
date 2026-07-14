@@ -1,7 +1,7 @@
 // =============================================================
 // 校园搭子 · Prisma Schema (1:1 镜像 DBA 的 SQL)
 //
-// 真实 SQL 见仓库根目录 docs/搭子er图.sql。
+// 完整 MySQL 结构与增量迁移见仓库根目录 database/。
 // 修改顺序:DBA 改 SQL → 同步改本文件 → 后端跑 npm run prisma:generate
 //
 // Prisma 命名约定:
@@ -23,34 +23,191 @@ datasource db {
 // User —— 学生实体
 // ============================================================
 model User {
-  userId        String   @id @map("user_id") @db.VarChar(50) // 学号
-  username      String   @unique @db.VarChar(100)
-  realName      String   @map("real_name") @db.VarChar(100)
-  tags          String?  @db.VarChar(255) // 逗号分隔字符串,如 "i人,爱看演唱会,喜欢自习"
-  isSearchable  Boolean  @default(true) @map("is_searchable")
-  msgPermission String   @default("all") @map("msg_permission") @db.VarChar(20) // all/friends/none
-  gender        String?  @db.VarChar(20)
-  college       String   @db.VarChar(100)
-  major         String?  @db.VarChar(100)
-  phone         String   @unique @db.VarChar(30)
-  passwordHash  String   @map("password_hash") @db.VarChar(255)
-  creditScore   Decimal  @default(5.00) @map("credit_score") @db.Decimal(3, 2)
-  accountStatus String   @default("normal") @map("account_status") @db.VarChar(20) // normal/restricted/banned
-  createTime    DateTime @default(now()) @map("create_time") @db.DateTime(0)
+  userId             String   @id @map("user_id") @db.VarChar(50) // 学号
+  username           String   @unique @db.VarChar(100)
+  realName           String   @map("real_name") @db.VarChar(100)
+  tags               String?  @db.VarChar(255) // 逗号分隔字符串,如 "i人,爱看演唱会,喜欢自习"
+  isSearchable       Boolean  @default(true) @map("is_searchable")
+  msgPermission      String   @default("all") @map("msg_permission") @db.VarChar(20) // all/friends/none
+  gender             String?  @db.VarChar(20)
+  college            String   @db.VarChar(100)
+  major              String?  @db.VarChar(100)
+  phone              String   @unique @db.VarChar(30)
+  passwordHash       String   @map("password_hash") @db.VarChar(255)
+  creditScore        Decimal  @default(5.00) @map("credit_score") @db.Decimal(3, 2)
+  accountStatus      String   @default("normal") @map("account_status") @db.VarChar(20) // normal/restricted/banned
+  accountRole        String   @default("student") @map("account_role") @db.VarChar(20) // student/club/official/admin
+  verificationStatus String   @default("unverified") @map("verification_status") @db.VarChar(20) // unverified/pending/verified/rejected
+  grade              String?  @db.VarChar(30)
+  bio                String?  @db.VarChar(500)
+  avatarUrl          String?  @map("avatar_url") @db.VarChar(500)
+  showProfile        Boolean  @default(true) @map("show_profile")
+  notifyEnabled      Boolean  @default(true) @map("notify_enabled")
+  createTime         DateTime @default(now()) @map("create_time") @db.DateTime(0)
 
   // relations
-  friendshipsAsUser1 Friendship[]  @relation("FriendshipUser1")
-  friendshipsAsUser2 Friendship[]  @relation("FriendshipUser2")
-  blocksMade         Blacklist[]   @relation("Blocker")
-  blocksReceived     Blacklist[]   @relation("Blocked")
-  roomsCreated       MatchRoom[]   @relation("RoomCreator")
-  memberships        MatchMember[]
-  messagesSent       Message[]     @relation("MessageSender")
-  messagesReceived   Message[]     @relation("MessageReceiver")
-  socialGroupsCreated SocialGroup[] @relation("SocialGroupCreator")
+  friendshipsAsUser1     Friendship[]          @relation("FriendshipUser1")
+  friendshipsAsUser2     Friendship[]          @relation("FriendshipUser2")
+  blocksMade             Blacklist[]           @relation("Blocker")
+  blocksReceived         Blacklist[]           @relation("Blocked")
+  roomsCreated           MatchRoom[]           @relation("RoomCreator")
+  memberships            MatchMember[]
+  messagesSent           Message[]             @relation("MessageSender")
+  messagesReceived       Message[]             @relation("MessageReceiver")
+  socialGroupsCreated    SocialGroup[]         @relation("SocialGroupCreator")
   socialGroupMemberships SocialGroupMember[]
+  postsCreated           CommunityPost[]       @relation("PostAuthor")
+  postsReviewed          CommunityPost[]       @relation("PostReviewer")
+  postComments           PostComment[]
+  postLikes              PostLike[]
+  favorites              Favorite[]
+  announcements          Announcement[]        @relation("AnnouncementAuthor")
+  announcementsReviewed  Announcement[]        @relation("AnnouncementReviewer")
+  verificationRequests   VerificationRequest[] @relation("VerificationApplicant")
+  verificationReviews    VerificationRequest[] @relation("VerificationReviewer")
 
   @@map("User")
+}
+
+// ============================================================
+// CommunityPost / PostComment / PostLike —— 学生开放社区
+// category: club/course/lost_found/campus_life
+// status: draft/pending/published/rejected/hidden
+// moderationMode: automatic/manual
+// ============================================================
+model CommunityPost {
+  postId         Int       @id @default(autoincrement()) @map("post_id")
+  authorId       String    @map("author_id") @db.VarChar(50)
+  category       String    @db.VarChar(30)
+  title          String    @db.VarChar(150)
+  content        String    @db.Text
+  images         Json?
+  status         String    @default("pending") @db.VarChar(20)
+  moderationMode String    @default("automatic") @map("moderation_mode") @db.VarChar(20)
+  riskLevel      String    @default("low") @map("risk_level") @db.VarChar(20)
+  reviewReason   String?   @map("review_reason") @db.VarChar(500)
+  reviewerId     String?   @map("reviewer_id") @db.VarChar(50)
+  reviewedAt     DateTime? @map("reviewed_at") @db.DateTime(0)
+  publishedAt    DateTime? @map("published_at") @db.DateTime(0)
+  viewCount      Int       @default(0) @map("view_count")
+  createTime     DateTime  @default(now()) @map("create_time") @db.DateTime(0)
+  updateTime     DateTime  @updatedAt @map("update_time") @db.DateTime(0)
+
+  author   User          @relation("PostAuthor", fields: [authorId], references: [userId], onDelete: Cascade, onUpdate: Cascade)
+  reviewer User?         @relation("PostReviewer", fields: [reviewerId], references: [userId], onDelete: SetNull, onUpdate: Cascade)
+  comments PostComment[]
+  likes    PostLike[]
+
+  @@index([status, category, publishedAt], map: "idx_post_feed")
+  @@index([authorId, createTime], map: "idx_post_author")
+  @@map("Community_Post")
+}
+
+model PostComment {
+  commentId     Int       @id @default(autoincrement()) @map("comment_id")
+  postId        Int       @map("post_id")
+  authorId      String    @map("author_id") @db.VarChar(50)
+  content       String    @db.VarChar(1000)
+  status        String    @default("published") @db.VarChar(20)
+  moderationMode String   @default("automatic") @map("moderation_mode") @db.VarChar(20)
+  riskLevel     String    @default("low") @map("risk_level") @db.VarChar(20)
+  reviewReason  String?   @map("review_reason") @db.VarChar(500)
+  reviewerId    String?   @map("reviewer_id") @db.VarChar(50)
+  reviewedAt    DateTime? @map("reviewed_at") @db.DateTime(0)
+  createTime    DateTime  @default(now()) @map("create_time") @db.DateTime(0)
+
+  post   CommunityPost @relation(fields: [postId], references: [postId], onDelete: Cascade, onUpdate: Cascade)
+  author User          @relation(fields: [authorId], references: [userId], onDelete: Cascade, onUpdate: Cascade)
+
+  @@index([postId, createTime], map: "idx_comment_post")
+  @@index([authorId], map: "idx_comment_author")
+  @@index([status, riskLevel], map: "idx_comment_moderation")
+  @@map("Post_Comment")
+}
+
+model PostLike {
+  likeId     Int      @id @default(autoincrement()) @map("like_id")
+  postId     Int      @map("post_id")
+  userId     String   @map("user_id") @db.VarChar(50)
+  createTime DateTime @default(now()) @map("create_time") @db.DateTime(0)
+
+  post CommunityPost @relation(fields: [postId], references: [postId], onDelete: Cascade, onUpdate: Cascade)
+  user User          @relation(fields: [userId], references: [userId], onDelete: Cascade, onUpdate: Cascade)
+
+  @@unique([postId, userId], map: "uk_post_like")
+  @@index([userId], map: "idx_like_user")
+  @@map("Post_Like")
+}
+
+// 统一收藏。target_type 仅允许 post / room，target_id 是对应主键。
+model Favorite {
+  favoriteId Int      @id @default(autoincrement()) @map("favorite_id")
+  userId     String   @map("user_id") @db.VarChar(50)
+  targetType String   @map("target_type") @db.VarChar(20)
+  targetId   Int      @map("target_id")
+  createTime DateTime @default(now()) @map("create_time") @db.DateTime(0)
+
+  user User @relation(fields: [userId], references: [userId], onDelete: Cascade, onUpdate: Cascade)
+
+  @@unique([userId, targetType, targetId], map: "uk_favorite_target")
+  @@index([userId, targetType, createTime], map: "idx_favorite_list")
+  @@map("Favorite")
+}
+
+// ============================================================
+// Announcement —— 校园公告
+// 仅 admin / official / verified club 可发布。
+// ============================================================
+model Announcement {
+  announcementId Int       @id @default(autoincrement()) @map("announcement_id")
+  authorId       String    @map("author_id") @db.VarChar(50)
+  category       String    @default("platform") @db.VarChar(30)
+  title          String    @db.VarChar(150)
+  summary        String?   @db.VarChar(300)
+  content        String    @db.Text
+  coverUrl       String?   @map("cover_url") @db.VarChar(500)
+  status         String    @default("published") @db.VarChar(20)
+  isPinned       Boolean   @default(false) @map("is_pinned")
+  reviewerId     String?   @map("reviewer_id") @db.VarChar(50)
+  reviewReason   String?   @map("review_reason") @db.VarChar(500)
+  publishedAt    DateTime? @map("published_at") @db.DateTime(0)
+  createTime     DateTime  @default(now()) @map("create_time") @db.DateTime(0)
+  updateTime     DateTime  @updatedAt @map("update_time") @db.DateTime(0)
+
+  author   User  @relation("AnnouncementAuthor", fields: [authorId], references: [userId], onDelete: Restrict, onUpdate: Cascade)
+  reviewer User? @relation("AnnouncementReviewer", fields: [reviewerId], references: [userId], onDelete: SetNull, onUpdate: Cascade)
+
+  @@index([status, isPinned, publishedAt], map: "idx_announcement_feed")
+  @@index([authorId], map: "idx_announcement_author")
+  @@map("Announcement")
+}
+
+// ============================================================
+// VerificationRequest —— 完整身份认证申请与人工审核
+// type: student / club / official
+// ============================================================
+model VerificationRequest {
+  requestId        Int       @id @default(autoincrement()) @map("request_id")
+  userId           String    @map("user_id") @db.VarChar(50)
+  type             String    @db.VarChar(20)
+  organizationName String?   @map("organization_name") @db.VarChar(150)
+  applicantName    String    @map("applicant_name") @db.VarChar(100)
+  studentId        String?   @map("student_id") @db.VarChar(50)
+  materialUrls     Json      @map("material_urls")
+  statement        String?   @db.VarChar(1000)
+  status           String    @default("pending") @db.VarChar(20)
+  reviewerId       String?   @map("reviewer_id") @db.VarChar(50)
+  reviewNote       String?   @map("review_note") @db.VarChar(500)
+  reviewedAt       DateTime? @map("reviewed_at") @db.DateTime(0)
+  createTime       DateTime  @default(now()) @map("create_time") @db.DateTime(0)
+  updateTime       DateTime  @updatedAt @map("update_time") @db.DateTime(0)
+
+  applicant User  @relation("VerificationApplicant", fields: [userId], references: [userId], onDelete: Cascade, onUpdate: Cascade)
+  reviewer  User? @relation("VerificationReviewer", fields: [reviewerId], references: [userId], onDelete: SetNull, onUpdate: Cascade)
+
+  @@index([userId, createTime], map: "idx_verification_user")
+  @@index([status, createTime], map: "idx_verification_review")
+  @@map("Verification_Request")
 }
 
 // ============================================================
@@ -308,4 +465,22 @@ model ConversationHidden {
   @@unique([userId, convId], map: "uk_conv_hidden")
   @@index([userId], map: "idx_conv_hidden_user")
   @@map("Conversation_Hidden")
+}
+
+// ============================================================
+// Conversation_Read —— 用户级会话已读游标（additive，0 风险）
+// 解决"后端重启/热更新后已读消息重新出现红点"：
+//   · 打开会话/收到新消息后写入 (userId, convId, lastReadAt)
+//   · 未读数只统计 sendTime > lastReadAt 的对方消息
+// ============================================================
+model ConversationRead {
+  id         BigInt   @id @default(autoincrement())
+  userId     String   @map("user_id") @db.VarChar(50)
+  convId     String   @map("conv_id") @db.VarChar(64)
+  lastReadAt DateTime @default(now()) @map("last_read_at") @db.DateTime(0)
+
+  @@unique([userId, convId], map: "uk_conv_read")
+  @@index([userId], map: "idx_conv_read_user")
+  @@index([userId, convId], map: "idx_conv_read_user_conv")
+  @@map("Conversation_Read")
 }

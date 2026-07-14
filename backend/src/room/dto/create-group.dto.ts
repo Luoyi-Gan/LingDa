@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsOptional, IsString, MaxLength } from 'class-validator';
+import { IsOptional, IsString, MaxLength, MinLength } from 'class-validator';
 import { CreateRoomBaseDto } from './create-room-base.dto';
 
 export class CreateGroupDto extends CreateRoomBaseDto {
@@ -14,9 +14,9 @@ export class CreateGroupDto extends CreateRoomBaseDto {
   @MaxLength(255)
   groupTarget: string;
 
-  @ApiPropertyOptional({ example: '看完前 3 章' })
-  @IsOptional()
+  @ApiProperty({ example: '绩点 3.3+；认真负责 / 会做展示' })
   @IsString()
+  @MinLength(1)
   @MaxLength(255)
-  requireSkill?: string;
+  requireSkill: string;
 }

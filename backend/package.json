@@ -13,7 +13,10 @@
     "postinstall": "prisma generate",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
-    "prisma:studio": "prisma studio"
+    "prisma:studio": "prisma studio",
+    "test:community": "ts-node test/community.e2e.ts",
+    "seed:preview": "ts-node scripts/seed-preview-content.ts",
+    "seed:admin-preview": "ts-node scripts/seed-admin-preview.ts"
   },
   "dependencies": {
     "@nestjs/common": "^10.3.0",

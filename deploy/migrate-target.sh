@@ -84,20 +84,27 @@ npm ci 2>&1 | tail -3
 npx prisma generate
 npm run build 2>&1 | tail -3
 
-echo "==[5/8] 装 web 依赖 + build ============================"
-cd "$PROJECT_HOME/web"
+echo "==[5/8] 装前端依赖 + build ============================="
+cd "$PROJECT_HOME/frontend/student"
+npm ci 2>&1 | tail -3
+npm run build 2>&1 | tail -3
+cd "$PROJECT_HOME/frontend/admin"
 npm ci 2>&1 | tail -3
 npm run build 2>&1 | tail -3
 
-echo "==[6/8] PM2 起后端 + 前端 preview + 开机自启 ============"
+echo "==[6/8] PM2 起后端 + 两个前端 preview + 开机自启 ========"
 cd "$PROJECT_HOME/backend"
 pm2 delete lingda-api 2>/dev/null || true
 pm2 start dist/main.js --name lingda-api --time
 
 # 前端 vite preview（已经 build 完，自带 /api 反代到 :3000）
-cd "$PROJECT_HOME/web"
+cd "$PROJECT_HOME/frontend/student"
 pm2 delete lingda-web 2>/dev/null || true
 pm2 start npm --name lingda-web --time -- run preview
+
+cd "$PROJECT_HOME/frontend/admin"
+pm2 delete lingda-admin 2>/dev/null || true
+pm2 start npm --name lingda-admin --time -- run preview
 
 pm2 save
 # launchd 让 Mac mini 重启后 pm2 + 所有进程自动复活
@@ -110,13 +117,9 @@ sudo pmset -a sleep 0 disksleep 0 displaysleep 10 womp 1 autorestart 1 2>&1 | ta
 echo "==[8/8] 起 ngrok（固定子域名）=========================="
 # 从 ngrok.yml 读出 authtoken，配上固定 URL 重启
 NGROK_URL="${NGROK_URL:-dipped-handset-clarify.ngrok-free.dev}"
-if [ "${SKIP_NGROK:-0}" = "1" ]; then
-  echo "  ⏭  SKIP_NGROK=1，跳过启 ngrok（手动在外部切换 URL）"
-else
-  pm2 delete ngrok-tunnel 2>/dev/null || true
-  pm2 start ngrok --name ngrok-tunnel -- http 4173 --url="$NGROK_URL" --log=stdout
-  pm2 save
-fi
+pm2 delete ngrok-tunnel 2>/dev/null || true
+pm2 start ngrok --name ngrok-tunnel -- http 4173 --url="$NGROK_URL" --log=stdout
+pm2 save
 
 sleep 5
 echo ""

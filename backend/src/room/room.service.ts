@@ -712,11 +712,13 @@ export class RoomService {
       if (lo >= 0.6) reasons.push('地点接近');
       if (ti >= 0.5) reasons.push('时间接近');
     } else {
-      const c = this.textSim(r.group?.courseName, dto.courseName);
-      const l = this.textSim(r.meetLocation, dto.meetLocation);
-      base = 0.45 * c + 0.25 * l;
+      const c = Math.max(
+        this.textSim(r.group?.courseName, dto.courseName),
+        this.textSim(r.title, dto.courseName),
+        this.textSim(r.content, dto.courseName),
+      );
+      base = 0.70 * c;
       if (c >= 0.6) reasons.push('课程匹配');
-      if (l >= 0.6) reasons.push('地点接近');
     }
 
     // 标签 Jaccard（房间.tags ∩ 我.tags）
@@ -925,7 +927,9 @@ export class RoomService {
       roomType: 'group',
       courseName: r.group?.courseName,
       title: r.title,
+      content: r.content,
       groupTarget: r.group?.groupTarget,
+      requireSkill: r.group?.requireSkill,
       color: pickStudyBadgeColor(r.group?.courseName),
       badge: pickStudyBadge(r.group?.courseName),
       meetTime: r.meetTime?.toISOString() ?? null,

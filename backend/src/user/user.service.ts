@@ -42,11 +42,15 @@ export class UserService {
         major: true,
         tags: true,
         accountStatus: true,
+        isSearchable: true,
       },
     });
     if (!u) return { user: null, reason: 'not_registered' as const };
     if (u.accountStatus !== 'normal')
       return { user: null, reason: 'restricted' as const };
+    if (q !== currentUserId && !u.isSearchable) {
+      return { user: null, reason: 'not_searchable' as const };
+    }
 
     // 自己 → friendStatus='self'，前端显示"这是你自己"badge
     let friendStatus:
@@ -108,6 +112,11 @@ export class UserService {
     if (dto.tags !== undefined) data.tags = joinTags(dto.tags);
     if (dto.isSearchable !== undefined) data.isSearchable = dto.isSearchable;
     if (dto.msgPermission !== undefined) data.msgPermission = dto.msgPermission;
+    if (dto.grade !== undefined) data.grade = dto.grade;
+    if (dto.bio !== undefined) data.bio = dto.bio;
+    if (dto.avatarUrl !== undefined) data.avatarUrl = dto.avatarUrl;
+    if (dto.showProfile !== undefined) data.showProfile = dto.showProfile;
+    if (dto.notifyEnabled !== undefined) data.notifyEnabled = dto.notifyEnabled;
 
     if (Object.keys(data).length === 0) {
       return this.getMe(userId);
@@ -139,15 +148,19 @@ export class UserService {
   }
 
   // ============== GET /users/:userId/profile ==============
-  async getProfile(userId: string) {
+  async getProfile(userId: string, viewerId?: string) {
     const user = await this.prisma.user.findUnique({ where: { userId } });
     if (!user) {
       throw new BusinessException(ERROR_CODES.NOT_FOUND, '用户不存在');
+    }
+    if (!user.showProfile && viewerId !== userId) {
+      throw new BusinessException(ERROR_CODES.FORBIDDEN, '该用户未公开个人主页');
     }
 
     // 并发跑所有聚合查询(避免串行 N 次往返)
     const [
       postCount,
+      communityPostCount,
       matchedUserCount,
       ratingGroups,
       finishedRoomCount,
@@ -156,6 +169,9 @@ export class UserService {
       // 1) 发帖数 —— 我作为 creator 且非 cancelled 的房间数
       this.prisma.matchRoom.count({
         where: { creatorId: userId, status: { not: 'cancelled' } },
+      }),
+      this.prisma.communityPost.count({
+        where: { authorId: userId, status: 'published' },
       }),
       // 2) 搭子数 —— 我作为 approved 成员所在房间里,**去重**的其他 approved 成员数
       this.countMatchedUsers(userId),
@@ -221,6 +237,7 @@ export class UserService {
       user: toUserDto(user, { phone: 'omit' }),
       stats: {
         postCount,
+        communityPostCount,
         matchedUserCount,
         evaluationCount: totalEval,
       },

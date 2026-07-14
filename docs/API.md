@@ -846,7 +846,7 @@ DB 没有 `avatarText / avatarColor`。后端根据 `username` 用确定性 hash
 | 在线状态 | ❌ | 由 WebSocket Gateway 维护内存 presence map |
 | 学习类 `badge` | ❌ | 后端按 `courseName` 映射常量表 |
 | 娱乐类 `coverColor / coverEmoji` | ❌ | 后端按 `entType` 映射常量表 |
-| `joinRule = password` 的口令 | ✅(v1.1 补字段) | DBA 应用 `docs/migrations/2026-05-14_add_join_password.sql` 后,字段 `Match_Room.join_password` 可用 |
+| `joinRule = password` 的口令 | ✅(v1.1 补字段) | DBA 应用 `database/migrations/2026-05-14_add_join_password.sql` 后,字段 `Match_Room.join_password` 可用 |
 
 ### v2.0 待办(本期不实现)
 
@@ -880,7 +880,7 @@ DB 没有 `avatarText / avatarColor`。后端根据 `username` 用确定性 hash
 
 | 维度 | v1.0 | v1.1(DB 对齐) |
 |---|---|---|
-| 认证 | 微信登录 wx-login | 学号 + 密码 |
+| 认证 | 学号 + 密码 | 学号 + 密码 |
 | 学习类 roomType | `study` | `group` |
 | room.status | `recruiting/full/completed/cancelled` | `open/full/finished/cancelled` |
 | member.status 退出 | `quit` | `left` |
@@ -938,4 +938,3 @@ MySQL 8.0 < 8.0.32 不允许 CHECK 引用 CASCADE FK,以下 5 处搬到 Service:
   - 群聊 → 该房间所有 approved 成员(含发送者其他设备)
   - 私聊 → 发送者 + 接收者
 - ack 回 `{ ok, message? }` 或 `{ ok: false, code, msg }`,前端可 await
-

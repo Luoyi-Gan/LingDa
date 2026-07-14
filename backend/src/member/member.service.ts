@@ -49,6 +49,12 @@ export class MemberService {
         // 兜底,理论上 status='full' 已拦
         throw new BusinessException(ERROR_CODES.ROOM_FULL);
       }
+      if (room.roomType === 'group' && dto.confirmRequirements !== true) {
+        throw new BusinessException(
+          ERROR_CODES.VALIDATION_FAILED,
+          '请先确认课程组队条件后再申请',
+        );
+      }
       // joinRule = password 校验
       if (room.joinRule === 'password') {
         if (!dto.joinPassword || dto.joinPassword !== room.joinPassword) {
@@ -302,11 +308,11 @@ export class MemberService {
         where,
         include: {
           room: {
-            select: {
-              roomId: true,
-              roomType: true,
-              title: true,
-              creatorId: true,
+            include: {
+              group: true,
+              carpool: true,
+              entertainment: true,
+              creator: { select: { username: true } },
             },
           },
         },
@@ -317,15 +323,25 @@ export class MemberService {
     ]);
 
     const list = rows.map((m) => {
-      const t = m.room.roomType as RoomType;
+      const r = m.room;
+      const t = r.roomType as RoomType;
       return {
         memberId: m.memberId,
-        roomId: m.room.roomId,
-        roomType: m.room.roomType,
-        title: m.room.title,
-        creatorId: m.room.creatorId,
+        roomId: r.roomId,
+        roomType: r.roomType,
+        title: r.title,
+        content: r.content,
+        creatorId: r.creatorId,
+        creatorName: r.creator.username,
+        courseName: r.group?.courseName ?? null,
+        groupTarget: r.group?.groupTarget ?? null,
+        requireSkill: r.group?.requireSkill ?? null,
+        meetLocation: r.meetLocation,
+        currentNum: r.currentNum,
+        totalNum: r.totalNum,
+        roomStatus: r.status,
         accent: ROOM_ACCENT[t] ?? '#999999',
-        accentLabel: ROOM_ACCENT_LABEL[t] ?? m.room.roomType,
+        accentLabel: ROOM_ACCENT_LABEL[t] ?? r.roomType,
         status: m.status,
         statusLabel: STATUS_LABELS[m.status] ?? m.status,
         joinTime: m.joinTime.toISOString(),
@@ -352,7 +368,7 @@ export class MemberService {
       this.prisma.matchMember.count({ where }),
       this.prisma.matchMember.findMany({
         where,
-        include: { room: true },
+        include: { room: { include: { group: true } } },
         orderBy: { room: { meetTime: 'asc' } },
         skip: (page - 1) * pageSize,
         take: pageSize,
@@ -367,9 +383,16 @@ export class MemberService {
         roomType: r.roomType,
         role: r.creatorId === userId ? 'owner' : 'member',
         title: r.title,
+        content: r.content,
+        courseName: r.group?.courseName ?? null,
+        groupTarget: r.group?.groupTarget ?? null,
+        requireSkill: r.group?.requireSkill ?? null,
+        currentNum: r.currentNum,
+        totalNum: r.totalNum,
         accent: ROOM_ACCENT[t] ?? '#999999',
         accentLabel: ROOM_ACCENT_LABEL[t] ?? r.roomType,
         meetTime: r.meetTime?.toISOString() ?? null,
+        meetLocation: r.meetLocation,
         status: r.status,
       };
     });

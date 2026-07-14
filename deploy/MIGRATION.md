@@ -55,7 +55,7 @@ curl https://dipped-handset-clarify.ngrok-free.dev/api/v1/health
 ### A. 在 MacBook 上
 
 ```bash
-cd /Users/louis/WeChatProjects/miniprogram-9
+cd /Users/your-name/Desktop/LingDa
 bash deploy/migrate-source.sh
 # 看输出：lingda-export-YYYYMMDD-HHMMSS.tar.gz
 ```
@@ -100,8 +100,8 @@ bash deploy/migrate-target.sh ~/Downloads/lingda-export-*.tar.gz
 1. 解包
 2. `brew install` node@18 + mysql + nginx + ngrok + pm2
 3. 启 MySQL + 导入 dump
-4. `npm ci` backend + web，`npm run build` 双方
-5. `pm2 start lingda-api lingda-web ngrok-tunnel`
+4. `npm ci` backend + `frontend/student` + `frontend/admin`，并分别构建
+5. `pm2 start lingda-api lingda-web lingda-admin ngrok-tunnel`
 6. `pm2 startup launchd` 让 Mac mini 开机就跑
 7. `sudo pmset -a sleep 0 disksleep 0 displaysleep 10 womp 1 autorestart 1`
    - sleep 0：永不睡
@@ -173,14 +173,14 @@ mysqldump -u root -p sys | gzip > ~/lingda-backups/sys-$(date +%F).sql.gz
 
 ```bash
 # MacBook
-cd ~/WeChatProjects/miniprogram-9
+cd ~/Desktop/LingDa
 git add -A && git commit -m "feat: xxx" && git push
 
 # Mac mini（手动 or 写一个 watch）
 ssh <user>@<mac-mini-ip> '
   cd ~/lingda && git pull &&
   (cd backend && npm ci && npm run build && pm2 restart lingda-api) &&
-  (cd web && npm ci && npm run build && pm2 restart lingda-web)
+  (cd frontend/student && npm ci && npm run build && pm2 restart lingda-web)
 '
 ```
 

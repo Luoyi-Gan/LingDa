@@ -115,7 +115,8 @@ export class ChatService {
           orderBy: { sendTime: 'desc' },
           include: { sender: { select: { username: true } } },
         });
-        const lastView = this.unread.getLastView(userId, convId) ?? defaultLastView;
+        const lastView =
+          (await this.unread.getLastView(userId, convId)) ?? defaultLastView;
         const unreadCount = await this.prisma.message.count({
           where: {
             roomId: r.roomId,
@@ -185,7 +186,8 @@ export class ChatService {
         ]);
         if (!otherUser) return null;
         const av = makeAvatar(otherUser.username);
-        const lastView = this.unread.getLastView(userId, convId) ?? defaultLastView;
+        const lastView =
+          (await this.unread.getLastView(userId, convId)) ?? defaultLastView;
         const unreadCount = await this.prisma.message.count({
           where: {
             senderId: otherId,
@@ -263,7 +265,7 @@ export class ChatService {
           include: { sender: { select: { username: true } } },
         });
         const lastView =
-          this.unread.getLastView(userId, convId) ?? defaultLastView;
+          (await this.unread.getLastView(userId, convId)) ?? defaultLastView;
         const unreadCount = await this.prisma.message.count({
           where: {
             socialGroupId: g.groupId,
@@ -448,7 +450,7 @@ export class ChatService {
       data: { senderId: userId, socialGroupId: groupId, content },
       include: { sender: { select: { userId: true, username: true } } },
     });
-    this.unread.markRead(
+    await this.unread.markRead(
       userId,
       encodeSocialGroupConvId(groupId),
       msg.sendTime,
@@ -467,7 +469,7 @@ export class ChatService {
   async markRead(userId: string, convId: string) {
     const decoded = decodeConvId(convId);
     await this.assertCanAccess(userId, decoded);
-    this.unread.markRead(userId, convId);
+    await this.unread.markRead(userId, convId);
     return { ok: true };
   }
 
@@ -504,7 +506,7 @@ export class ChatService {
       data: { senderId: userId, roomId, content },
       include: { sender: { select: { userId: true, username: true } } },
     });
-    this.unread.markRead(userId, encodeGroupConvId(roomId), msg.sendTime);
+    await this.unread.markRead(userId, encodeGroupConvId(roomId), msg.sendTime);
 
     // 群聊推送对象 = 该房间所有 approved 成员
     const approved = await this.prisma.matchMember.findMany({
@@ -568,7 +570,7 @@ export class ChatService {
       data: { senderId: userId, receiverId: targetUserId, content },
       include: { sender: { select: { userId: true, username: true } } },
     });
-    this.unread.markRead(userId, encodePrivateConvId(targetUserId), msg.sendTime);
+    await this.unread.markRead(userId, encodePrivateConvId(targetUserId), msg.sendTime);
     return {
       message: this.formatMessage(userId, msg),
       recipientUserIds: [userId, targetUserId],

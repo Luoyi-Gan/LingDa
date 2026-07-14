@@ -1,0 +1,59 @@
+/* ============================================================
+   搭子 Design System v2 — "Capsule Universe"
+   rpx 值保持原样，由 vite 的 postcss 插件统一换算。
+   ============================================================ */
+:root {
+  /* 色彩系统 — 主背景偏暖灰，不是死白 */
+  --bg: #f2f0ed;
+  --bg-deep: #e8e5e1;
+  --card: #ffffff;
+  --card-elevated: #ffffff;
+
+  /* 三种队伍的专属色 */
+  --carpool: #4a6fa5;
+  --carpool-light: #edf2f8;
+  --entertainment: #c8567e;
+  --entertainment-light: #faeef2;
+  --study: #3b9b8f;
+  --study-light: #eaf6f4;
+
+  /* 主强调色 — 暖珊瑚 */
+  --accent: #e8725a;
+  --accent-light: #fdf0ed;
+
+  /* 中性色阶 */
+  --ink: #1a1a1a;
+  --ink-2: #555555;
+  --ink-3: #999999;
+  --ink-4: #bbbbbb;
+  --ink-5: #d9d9d9;
+  --line: rgba(0, 0, 0, 0.06);
+
+  /* 圆角体系 */
+  --r-xs: 8rpx;
+  --r-s: 14rpx;
+  --r-m: 20rpx;
+  --r-l: 28rpx;
+  --r-xl: 40rpx;
+  --r-full: 999rpx;
+
+  /* 阴影 */
+  --shadow-s: 0 2rpx 12rpx rgba(0, 0, 0, 0.04);
+  --shadow-m: 0 8rpx 32rpx rgba(0, 0, 0, 0.06);
+
+  /* === Liquid Glass tokens === */
+  --glass-bg: rgba(255, 255, 255, 0.62);
+  --glass-bg-strong: rgba(255, 255, 255, 0.78);
+  --glass-stroke: rgba(255, 255, 255, 0.7);
+  --glass-shadow: 0 16rpx 48rpx -16rpx rgba(40, 30, 20, 0.18),
+    0 4rpx 12rpx -4rpx rgba(40, 30, 20, 0.08);
+  --glass-blur: blur(40rpx) saturate(180%);
+  --glass-blur-strong: blur(60rpx) saturate(200%);
+
+  --glass-carpool: rgba(74, 111, 165, 0.3);
+  --glass-carpool-strong: rgba(74, 111, 165, 0.55);
+  --glass-ent: rgba(200, 86, 126, 0.3);
+  --glass-ent-strong: rgba(200, 86, 126, 0.55);
+  --glass-study: rgba(59, 155, 143, 0.3);
+  --glass-study-strong: rgba(59, 155, 143, 0.55);
+}

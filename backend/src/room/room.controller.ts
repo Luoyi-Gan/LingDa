@@ -49,7 +49,7 @@ export class RoomController {
   }
 
   @Post('group')
-  @ApiOperation({ summary: '发布学习小组(契约 §3.1.3)' })
+  @ApiOperation({ summary: '发布课程组队(契约 §3.1.3)' })
   createGroup(
     @CurrentUser('userId') userId: string,
     @Body() dto: CreateGroupDto,
@@ -71,7 +71,7 @@ export class RoomController {
   }
 
   @Get('group')
-  @ApiOperation({ summary: '学习小组列表(契约 §3.2.3)' })
+  @ApiOperation({ summary: '课程组队列表(契约 §3.2.3)' })
   listGroup(@Query() query: ListRoomsQueryDto) {
     return this.roomService.listGroup(query);
   }
@@ -126,7 +126,7 @@ export class RoomController {
   }
 
   @Patch(':roomId/group')
-  @ApiOperation({ summary: '房主编辑学习房间(契约扩展 §3.6.c)' })
+  @ApiOperation({ summary: '房主编辑课程组队(契约扩展 §3.6.c)' })
   updateGroup(
     @Param('roomId', ParseIntPipe) roomId: number,
     @CurrentUser('userId') userId: string,

@@ -11,8 +11,4 @@ export default () => ({
     secret: process.env.JWT_SECRET || 'change-me',
     expiresIn: process.env.JWT_EXPIRES_IN || '7d',
   },
-  wx: {
-    appId: process.env.WX_APPID || '',
-    secret: process.env.WX_SECRET || '',
-  },
 });

@@ -46,8 +46,11 @@ export class UserController {
   @ApiOperation({
     summary: '用户公开主页 —— 动态评分 + 统计 + 成就(契约 §2.3)',
   })
-  getProfile(@Param('userId') userId: string) {
-    return this.userService.getProfile(userId);
+  getProfile(
+    @Param('userId') userId: string,
+    @CurrentUser('userId') viewerId: string,
+  ) {
+    return this.userService.getProfile(userId, viewerId);
   }
 
   @Get(':userId/evaluations')

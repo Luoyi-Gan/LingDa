@@ -50,7 +50,7 @@ src/
 
 ## 与 DBA 的分工
 
-- `prisma/schema.prisma` 由 **DBA** 维护(model 定义)
+- `prisma/schema.prisma` 是后端 ORM 映射；完整 SQL 和增量迁移位于 `../database/`
 - 后端代码通过 `PrismaService`(继承自 `PrismaClient`)访问数据库
 - DBA 每次更新 schema 后,后端跑 `npm run prisma:generate` 拿最新类型
 

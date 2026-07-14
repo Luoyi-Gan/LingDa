@@ -62,7 +62,7 @@
 
 ```bash
 # 仅导数据（schema 由 prisma 推送）
-cd /Users/louis/WeChatProjects/miniprogram-9
+cd /Users/your-name/Desktop/LingDa
 mysqldump -h 127.0.0.1 -u root -p sys \
   --no-create-info \
   --skip-triggers \
@@ -77,16 +77,16 @@ ls -lh deploy/data-dump.sql
 ### 2.2 在本机：打前端 + 后端构建包
 
 ```bash
-cd /Users/louis/WeChatProjects/miniprogram-9
+cd /Users/your-name/Desktop/LingDa
 bash deploy/build-artifact.sh
-# → 生成 deploy/dist/web.tar.gz + deploy/dist/backend.tar.gz
+# → 生成 web.tar.gz + admin-web.tar.gz + backend.tar.gz
 ```
 
 ### 2.3 在本机：传文件到 ECS
 
 ```bash
 ECS_IP=<你的公网 IP>
-scp deploy/dist/web.tar.gz deploy/dist/backend.tar.gz deploy/data-dump.sql \
+scp deploy/dist/web.tar.gz deploy/dist/admin-web.tar.gz deploy/dist/backend.tar.gz deploy/data-dump.sql \
     deploy/setup-ecs.sh deploy/nginx-lingda.conf deploy/.env.example \
     ubuntu@$ECS_IP:/tmp/
 ```

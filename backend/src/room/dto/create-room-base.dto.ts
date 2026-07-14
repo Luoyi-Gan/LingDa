@@ -8,6 +8,7 @@ import {
   IsInt,
   IsOptional,
   IsString,
+  Max,
   MaxLength,
   Min,
   MinLength,
@@ -31,10 +32,11 @@ export abstract class CreateRoomBaseDto {
   @MaxLength(1000)
   content?: string;
 
-  @ApiProperty({ example: 4, minimum: 2, description: '房间总人数, ≥ 2' })
+  @ApiProperty({ example: 4, minimum: 2, maximum: 20, description: '房间总人数, 2-20' })
   @Type(() => Number)
   @IsInt()
   @Min(2)
+  @Max(20)
   totalNum: number;
 
   @ApiPropertyOptional({ example: '2026-05-13T16:00:00.000Z', description: 'ISO 8601' })

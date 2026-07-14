@@ -181,6 +181,9 @@ export class HallService {
     if (r.roomType === 'carpool' && r.carpool) {
       return `${r.carpool.startLocation} → ${r.carpool.endLocation}`;
     }
+    if (r.roomType === 'group' && r.group) {
+      return r.group.groupTarget || r.group.courseName || '';
+    }
     return r.meetLocation ?? '';
   }
 

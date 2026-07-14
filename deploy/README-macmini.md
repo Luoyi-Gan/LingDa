@@ -13,7 +13,7 @@
                 ║                                                  ║
                 ║  Mac mini (家里 / 宿舍 Wi-Fi)                    ║
                 ║   └─ frpc → 127.0.0.1:80                         ║
-                ║       └─ nginx → web/dist (静态) + /api → :3000  ║
+                ║       └─ nginx → frontend/student/dist + /api → :3000 ║
                 ║                          ↓                       ║
                 ║                       NestJS                     ║
                 ║                          ↓                       ║
@@ -94,15 +94,15 @@ mysql -u root -p dazi < /tmp/old-sys.sql   # 拉过来。schema 重复声明的 
 ### 2.3 用 prisma 创建 schema（新 dazi 库）
 
 ```bash
-cd /Users/louis/WeChatProjects/miniprogram-9/backend
+cd /Users/your-name/Desktop/LingDa/backend
 # 临时切到生产库再 push
-DATABASE_URL='mysql://dazi_app:你的强密码@127.0.0.1:3306/dazi' npx prisma db push --skip-generate --accept-data-loss
+DATABASE_URL='mysql://dazi_app:你的强密码@127.0.0.1:3306/dazi' npx prisma db push --skip-generate
 ```
 
 ### 2.4 装后端依赖 + build
 
 ```bash
-cd /Users/louis/WeChatProjects/miniprogram-9/backend
+cd /Users/your-name/Desktop/LingDa/backend
 npm ci
 npx prisma generate
 npm run build
@@ -111,20 +111,20 @@ npm run build
 ### 2.5 配生产 .env
 
 ```bash
-cat > /Users/louis/WeChatProjects/miniprogram-9/backend/.env.production <<EOF
+cat > /Users/your-name/Desktop/LingDa/backend/.env.production <<EOF
 NODE_ENV=production
 PORT=3000
 DATABASE_URL='mysql://dazi_app:你的强密码@127.0.0.1:3306/dazi?charset=utf8mb4&timezone=%2B08%3A00'
 JWT_SECRET=$(openssl rand -hex 32)
 JWT_EXPIRES_IN=7d
 EOF
-chmod 600 /Users/louis/WeChatProjects/miniprogram-9/backend/.env.production
+chmod 600 /Users/your-name/Desktop/LingDa/backend/.env.production
 ```
 
 ### 2.6 PM2 + launchd 自启
 
 ```bash
-cd /Users/louis/WeChatProjects/miniprogram-9/backend
+cd /Users/your-name/Desktop/LingDa/backend
 # 启动（用 .env.production）
 pm2 start dist/main.js --name lingda-api -- --env production
 pm2 save
@@ -141,7 +141,7 @@ pm2 logs lingda-api
 ### 2.7 build 前端 + 让 nginx 托管
 
 ```bash
-cd /Users/louis/WeChatProjects/miniprogram-9/web
+cd /Users/your-name/Desktop/LingDa/frontend/student
 npm ci
 npm run build
 
@@ -150,7 +150,7 @@ sudo mkdir -p /opt/lingda/web
 sudo cp -r dist/* /opt/lingda/web/
 
 # nginx 配置：把项目里的 nginx-macmini.conf 装进去
-sudo cp /Users/louis/WeChatProjects/miniprogram-9/deploy/nginx-macmini.conf \
+sudo cp /Users/your-name/Desktop/LingDa/deploy/nginx-macmini.conf \
         /opt/homebrew/etc/nginx/servers/lingda.conf
 nginx -t                       # 测试
 brew services start nginx      # 启动 + 跟随登录自启
@@ -317,7 +317,7 @@ journalctl -u frps -f     # 看 frp 隧道日志
 
 ```bash
 # 在 Mac mini 本机
-cd /Users/louis/WeChatProjects/miniprogram-9
+cd /Users/your-name/Desktop/LingDa
 git pull           # 或你工作流自己的方式
 
 # 后端
@@ -329,7 +329,7 @@ npm run build
 pm2 restart lingda-api
 
 # 前端
-cd ../web
+cd ../frontend/student
 npm ci
 npm run build
 sudo rsync -av --delete dist/ /opt/lingda/web/
@@ -342,7 +342,7 @@ sudo nginx -s reload
 
 ## 八、什么时候要域名 + HTTPS
 
-如果将来要把网址给非内部用户 / 上微信支付 / 接 OAuth：
+如果将来要把网址给非内部用户 / 接支付 / 接 OAuth：
 - 备案一个域名（阿里云万网，30-100 元/年）
 - 域名 A 记录指向 ECS_IP
 - ECS 上加 certbot + Let's Encrypt（免费证书）+ nginx 反代到 frp 上

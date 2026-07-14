@@ -27,6 +27,13 @@ export interface UserDto {
   msgPermission: string;
   creditScore: number;
   accountStatus: string;
+  accountRole: string;
+  verificationStatus: string;
+  grade: string | null;
+  bio: string | null;
+  avatarUrl: string | null;
+  showProfile: boolean;
+  notifyEnabled: boolean;
 }
 
 export interface ToUserDtoOptions {
@@ -54,5 +61,12 @@ export function toUserDto(user: User, opts: ToUserDtoOptions = {}): UserDto {
     msgPermission: user.msgPermission,
     creditScore: Number(user.creditScore),
     accountStatus: user.accountStatus,
+    accountRole: user.accountRole,
+    verificationStatus: user.verificationStatus,
+    grade: user.grade,
+    bio: user.bio,
+    avatarUrl: user.avatarUrl,
+    showProfile: user.showProfile,
+    notifyEnabled: user.notifyEnabled,
   };
 }

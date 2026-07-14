@@ -2,6 +2,7 @@
 node_modules/
 dist/
 build/
+coverage/
 
 # ---- 环境变量与密钥 ----
 .env
@@ -16,6 +17,8 @@ build/
 .DS_Store
 .idea/
 .vscode/
+.claude/
+.codex/
 *.swp
 
 # ---- 日志 / 临时 ----
@@ -28,7 +31,8 @@ tmp/
 *.sql.bak
 
 # ---- 迁移产物 ----
-lingda-export-*.tar.gz
+*.tar.gz
+*.zip
 
 # ---- Prisma 生成物 ----
 backend/node_modules/.prisma

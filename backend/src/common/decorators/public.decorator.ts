@@ -6,7 +6,7 @@ import { SetMetadata } from '@nestjs/common';
  *
  * 用法:
  *   @Public()
- *   @Post('wx-login')
+ *   @Post('login')
  *   wxLogin() { ... }
  */
 export const IS_PUBLIC_KEY = 'isPublic';

@@ -1,5 +1,5 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { IsOptional, IsString, MaxLength } from 'class-validator';
+import { IsBoolean, IsOptional, IsString, MaxLength } from 'class-validator';
 
 export class ApplyMemberDto {
   @ApiPropertyOptional({
@@ -10,4 +10,12 @@ export class ApplyMemberDto {
   @IsString()
   @MaxLength(50)
   joinPassword?: string;
+
+  @ApiPropertyOptional({
+    description: '课程组队申请时必须确认已阅读组员要求',
+    example: true,
+  })
+  @IsOptional()
+  @IsBoolean()
+  confirmRequirements?: boolean;
 }

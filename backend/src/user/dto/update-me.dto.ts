@@ -6,6 +6,7 @@ import {
   IsIn,
   IsOptional,
   IsString,
+  IsUrl,
   Matches,
   MaxLength,
   MinLength,
@@ -71,4 +72,32 @@ export class UpdateMeDto {
   @IsOptional()
   @IsIn(['all', 'friends', 'none'])
   msgPermission?: 'all' | 'friends' | 'none';
+
+  @ApiPropertyOptional({ example: '大三' })
+  @IsOptional()
+  @IsString()
+  @MaxLength(30)
+  grade?: string;
+
+  @ApiPropertyOptional({ example: '喜欢产品设计，也在找课程项目搭子。' })
+  @IsOptional()
+  @IsString()
+  @MaxLength(500)
+  bio?: string;
+
+  @ApiPropertyOptional({ example: 'https://example.com/avatar.jpg' })
+  @IsOptional()
+  @IsUrl()
+  @MaxLength(500)
+  avatarUrl?: string;
+
+  @ApiPropertyOptional({ example: true })
+  @IsOptional()
+  @IsBoolean()
+  showProfile?: boolean;
+
+  @ApiPropertyOptional({ example: true })
+  @IsOptional()
+  @IsBoolean()
+  notifyEnabled?: boolean;
 }

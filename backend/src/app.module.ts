@@ -17,6 +17,7 @@ import { ChatModule } from './chat/chat.module';
 import { HealthModule } from './health/health.module';
 import { NotificationModule } from './notification/notification.module';
 import { PlacesModule } from './places/places.module';
+import { CommunityModule } from './community/community.module';
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import { PlacesModule } from './places/places.module';
     HealthModule,
     NotificationModule,
     PlacesModule,
+    CommunityModule,
   ],
   providers: [
     // 全局守卫 —— 所有路由默认要求 JWT,@Public() 装饰过的方法放行
