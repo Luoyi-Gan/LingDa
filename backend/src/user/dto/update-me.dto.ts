@@ -11,6 +11,7 @@ import {
   MaxLength,
   MinLength,
 } from 'class-validator';
+import { COLLEGE_CODES, MAJOR_CODES } from '../../common/constants/academic-options';
 
 /**
  * 更新当前用户信息 —— 全部字段可选。
@@ -37,16 +38,16 @@ export class UpdateMeDto {
   @MaxLength(20)
   gender?: string;
 
-  @ApiPropertyOptional({ example: '新闻与传播学院' })
+  @ApiPropertyOptional({ example: 'FST', enum: COLLEGE_CODES })
   @IsOptional()
   @IsString()
-  @MaxLength(100)
+  @IsIn(COLLEGE_CODES, { message: '学院必须从 FST、SCC、FBM、FHSS 中选择' })
   college?: string;
 
-  @ApiPropertyOptional({ example: '网络与新媒体' })
+  @ApiPropertyOptional({ example: 'AI', enum: MAJOR_CODES })
   @IsOptional()
   @IsString()
-  @MaxLength(100)
+  @IsIn(MAJOR_CODES, { message: '请选择平台支持的专业简称' })
   major?: string;
 
   @ApiPropertyOptional({ example: '13900008421' })
@@ -73,10 +74,10 @@ export class UpdateMeDto {
   @IsIn(['all', 'friends', 'none'])
   msgPermission?: 'all' | 'friends' | 'none';
 
-  @ApiPropertyOptional({ example: '2027届' })
+  @ApiPropertyOptional({ example: '2024届', description: '入学届别' })
   @IsOptional()
   @IsString()
-  @Matches(/^20\d{2}届$/, { message: '毕业届别格式应为 2027届' })
+  @Matches(/^20\d{2}届$/, { message: '入学届别格式应为 2024届' })
   grade?: string;
 
   @ApiPropertyOptional({ example: '喜欢产品设计，也在找课程项目搭子。' })

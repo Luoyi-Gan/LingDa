@@ -8,6 +8,7 @@ import {
   Plus,
   Search,
   Send,
+  Trash2,
   X,
 } from 'lucide-react';
 import { api, mediaUrl } from '../../lib/api';
@@ -129,7 +130,19 @@ export default function Community() {
       </AppPage>
 
       {editorOpen && <PostEditor onClose={() => setEditorOpen(false)} onCreated={() => { setEditorOpen(false); load(); }} />}
-      {activePost && <PostDetail post={activePost} onClose={() => setActivePost(null)} onRefresh={() => openPost(activePost.post_id)} onProfile={setProfileUser} />}
+      {activePost && (
+        <PostDetail
+          post={activePost}
+          currentUser={currentUser}
+          onClose={() => setActivePost(null)}
+          onRefresh={() => openPost(activePost.post_id)}
+          onDeleted={() => {
+            setActivePost(null);
+            load();
+          }}
+          onProfile={setProfileUser}
+        />
+      )}
       {profileUser && <UserCard userId={profileUser.user_id} fallbackName={profileUser.username} onClose={() => setProfileUser(null)} />}
     </>
   );
@@ -214,10 +227,29 @@ function PostEditor({ onClose, onCreated }) {
   );
 }
 
-function PostDetail({ post, onClose, onRefresh, onProfile }) {
-  const { showToast } = useUI();
+function PostDetail({ post, currentUser, onClose, onRefresh, onDeleted, onProfile }) {
+  const { showModal, showToast } = useUI();
   const [comment, setComment] = useState('');
+  const [deleting, setDeleting] = useState(false);
   const images = Array.isArray(post.images) ? post.images : [];
+  const canDelete = currentUser?.user_id === post.author?.user_id || currentUser?.account_role === 'admin';
+  const deletePost = async () => {
+    const result = await showModal({
+      title: '删除帖子',
+      content: '删除后帖子将不再公开显示，相关收藏也会被移除。确定继续吗？',
+      confirmText: '删除',
+      confirmColor: '#DC2626',
+    });
+    if (!result.confirm) return;
+    setDeleting(true);
+    try {
+      await api.community.deletePost(post.post_id);
+      showToast({ title: '帖子已删除', icon: 'success' });
+      onDeleted();
+    } finally {
+      setDeleting(false);
+    }
+  };
   return (
     <ModalShell title={CATEGORY_LABEL[post.category]} onClose={onClose} wide>
       <div className="flex items-center gap-3 text-sm text-slate-500">
@@ -230,6 +262,12 @@ function PostDetail({ post, onClose, onRefresh, onProfile }) {
       <div className="mt-5 flex gap-2 border-y border-slate-100 py-3">
         <ActionButton active={post.liked} icon={Heart} label={`${post.like_count || 0}`} onClick={() => api.community.toggleLike(post.post_id).then(onRefresh)} />
         <ActionButton active={post.favorited} icon={Bookmark} label={post.favorited ? '已收藏' : '收藏'} onClick={() => (post.favorited ? api.community.unfavorite('post', post.post_id) : api.community.favorite('post', post.post_id)).then(onRefresh)} />
+        {canDelete && (
+          <button type="button" disabled={deleting} onClick={deletePost} className="ml-auto inline-flex h-9 items-center gap-2 rounded-lg px-3 text-sm font-semibold text-red-600 transition hover:bg-red-50 disabled:opacity-50">
+            <Trash2 className="h-4 w-4" />
+            {deleting ? '删除中...' : '删除'}
+          </button>
+        )}
       </div>
       <div className="mt-5 space-y-4">
         <h3 className="font-bold text-slate-950">评论 {post.comment_count || 0}</h3>

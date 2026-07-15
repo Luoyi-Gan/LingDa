@@ -25,6 +25,11 @@ export class CommunityController {
     return this.service.getPost(userId, postId);
   }
 
+  @Delete('posts/:postId')
+  deletePost(@CurrentUser('userId') userId: string, @Param('postId', ParseIntPipe) postId: number) {
+    return this.service.deletePost(userId, postId);
+  }
+
   @Post('posts/:postId/like')
   like(@CurrentUser('userId') userId: string, @Param('postId', ParseIntPipe) postId: number) {
     return this.service.toggleLike(userId, postId);

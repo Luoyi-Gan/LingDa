@@ -18,7 +18,7 @@ import { useAuth } from '../context/AuthContext';
 import { useUI } from '../context/UIContext';
 import { useWxNav } from '../lib/nav';
 import { makeAvatar } from '../lib/avatar';
-import { formatCohort } from '../lib/cohort';
+import { formatEnrollmentCohort } from '../lib/cohort';
 import { Avatar, AvatarFallback } from './ui/avatar';
 import { Button } from './ui/button';
 import { cn } from '../lib/cn';
@@ -160,7 +160,7 @@ export default function UserCard({ userId, fallbackName, onClose, anchorRect }) 
             <div className="text-xs text-muted-foreground truncate mt-0.5">
               {u.college || ''}
               {u.major ? ` · ${u.major}` : ''}
-              {u.grade ? ` · ${formatCohort(u.grade)}` : ''}
+              {u.grade ? ` · ${formatEnrollmentCohort(u.grade)}` : ''}
             </div>
             {profile?.rating && (
               <div className="mt-1.5 inline-flex items-center gap-1 rounded-full bg-amber-50 dark:bg-amber-950/30 border border-amber-200/50 dark:border-amber-800/50 px-2 py-0.5 text-[10px] font-bold text-amber-700 dark:text-amber-300">

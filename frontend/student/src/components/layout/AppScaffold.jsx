@@ -3,9 +3,9 @@ import { cn } from '../../lib/cn';
 
 export function AppPage({ children, aside, className }) {
   return (
-    <div className={cn('min-h-screen bg-[#F7F9FC] pb-28 lg:pb-10', className)}>
-      <div className="mx-auto grid w-full max-w-[1280px] gap-6 px-4 pt-6 md:px-8 md:pt-8 xl:grid-cols-[minmax(0,1fr)_286px]">
-        <main className="min-w-0 space-y-6">{children}</main>
+    <div className={cn('min-h-screen bg-[#F7F9FC] pb-[calc(5rem+env(safe-area-inset-bottom))] lg:pb-10', className)}>
+      <div className={cn('mx-auto grid w-full max-w-[1280px] gap-5 px-4 pt-5 md:gap-6 md:px-8 md:pt-8', aside && 'xl:grid-cols-[minmax(0,1fr)_286px]')}>
+        <main className="min-w-0 space-y-5 md:space-y-6">{children}</main>
         {aside && <aside className="hidden space-y-5 xl:block">{aside}</aside>}
       </div>
     </div>
@@ -14,17 +14,17 @@ export function AppPage({ children, aside, className }) {
 
 export function PageHeader({ eyebrow, title, subtitle, action, trailing, className }) {
   return (
-    <header className={cn('flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between', className)}>
+    <header className={cn('flex flex-col gap-3 md:gap-4 lg:flex-row lg:items-start lg:justify-between', className)}>
       <div className="min-w-0">
         {eyebrow && (
-          <p className="mb-1 text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">
+          <p className="mb-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400 md:text-xs">
             {eyebrow}
           </p>
         )}
-        <h1 className="font-heading text-3xl font-bold tracking-tight text-slate-950 md:text-4xl">
+        <h1 className="font-heading text-2xl font-bold tracking-tight text-slate-950 md:text-4xl">
           {title}
         </h1>
-        {subtitle && <p className="mt-1 text-sm text-slate-500">{subtitle}</p>}
+        {subtitle && <p className="mt-1 text-xs text-slate-500 md:text-sm">{subtitle}</p>}
       </div>
       {(action || trailing) && (
         <div className="flex items-center gap-3">
@@ -48,8 +48,8 @@ export function SectionHeader({ title, subtitle, action, className }) {
   return (
     <div className={cn('flex items-end justify-between gap-4', className)}>
       <div className="min-w-0">
-        <h2 className="font-heading text-xl font-bold tracking-tight text-slate-950">{title}</h2>
-        {subtitle && <p className="mt-1 text-sm text-slate-500">{subtitle}</p>}
+        <h2 className="font-heading text-lg font-bold tracking-tight text-slate-950 md:text-xl">{title}</h2>
+        {subtitle && <p className="mt-0.5 text-xs text-slate-500 md:mt-1 md:text-sm">{subtitle}</p>}
       </div>
       {action}
     </div>

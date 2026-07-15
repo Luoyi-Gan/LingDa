@@ -7,6 +7,7 @@ import {
   Phone,
   School,
   BookOpen,
+  GraduationCap,
   Users,
   ArrowRight,
 } from 'lucide-react';
@@ -17,6 +18,9 @@ import { useUI } from '../../context/UIContext';
 import { useWxNav } from '../../lib/nav';
 import { Button } from '../../components/ui/button';
 import AuthVisualPanel from '../../components/AuthVisualPanel';
+import { COLLEGE_CODES, MAJOR_CODES, enrollmentCohortOptions } from '../../lib/academicOptions';
+
+const ENROLLMENT_COHORTS = enrollmentCohortOptions();
 
 const FIELDS = [
   { key: 'userId', label: '学号', placeholder: '4-50 位', icon: IdCard, required: true },
@@ -24,8 +28,9 @@ const FIELDS = [
   { key: 'realName', label: '真实姓名', placeholder: '内部审核用', icon: UserIcon, required: true },
   { key: 'password', label: '密码', placeholder: '至少 6 位', icon: Lock, required: true, password: true },
   { key: 'phone', label: '手机号', placeholder: '11 位手机号', icon: Phone, required: true },
-  { key: 'college', label: '学院', placeholder: '如：新闻学院', icon: School, required: true },
-  { key: 'major', label: '专业', placeholder: '选填', icon: BookOpen },
+  { key: 'college', label: '学院', placeholder: '请选择', icon: School, required: true, options: COLLEGE_CODES },
+  { key: 'major', label: '专业简称', placeholder: '请选择', icon: BookOpen, required: true, options: MAJOR_CODES },
+  { key: 'grade', label: '入学届别', placeholder: '请选择', icon: GraduationCap, required: true, options: ENROLLMENT_COHORTS },
   { key: 'gender', label: '性别', placeholder: '男 / 女 / 不填', icon: Users },
 ];
 
@@ -43,7 +48,7 @@ export default function Register() {
 
   const onSubmit = () => {
     const f = form;
-    for (const k of ['userId', 'username', 'realName', 'password', 'phone', 'college']) {
+    for (const k of ['userId', 'username', 'realName', 'password', 'phone', 'college', 'major', 'grade']) {
       if (!f[k]) {
         showToast({ title: '请填完必填项', icon: 'none' });
         return;
@@ -59,7 +64,6 @@ export default function Register() {
     }
     setLoading(true);
     const payload = { ...f };
-    if (!payload.major) delete payload.major;
     if (!payload.gender) delete payload.gender;
 
     api.auth
@@ -118,13 +122,20 @@ export default function Register() {
                     {f.label}
                     {f.required && <span className="text-cta">*</span>}
                   </label>
-                  <input
-                    type={f.password ? 'password' : 'text'}
-                    placeholder={f.placeholder}
-                    value={form[f.key] || ''}
-                    onChange={onInput(f.key)}
-                    className={authInputCls}
-                  />
+                  {f.options ? (
+                    <select value={form[f.key] || ''} onChange={onInput(f.key)} className={authInputCls}>
+                      <option value="">{f.placeholder}</option>
+                      {f.options.map((option) => <option key={option} value={option}>{option}</option>)}
+                    </select>
+                  ) : (
+                    <input
+                      type={f.password ? 'password' : 'text'}
+                      placeholder={f.placeholder}
+                      value={form[f.key] || ''}
+                      onChange={onInput(f.key)}
+                      className={authInputCls}
+                    />
+                  )}
                 </div>
               );
             })}

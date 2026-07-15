@@ -20,7 +20,7 @@ import { useWxNav } from '../../lib/nav';
 import EditProfileModal from '../../components/EditProfileModal';
 import FriendRequestsModal from '../../components/FriendRequestsModal';
 import UserCard from '../../components/UserCard';
-import { formatCohort } from '../../lib/cohort';
+import { formatEnrollmentCohort } from '../../lib/cohort';
 import { useFriends } from '../../context/FriendsContext';
 import { Avatar, AvatarFallback } from '../../components/ui/avatar';
 import { Skeleton } from '../../components/ui/skeleton';
@@ -233,7 +233,7 @@ function ProfilePanel({ user, loaded }) {
           <p className="mt-2 text-sm text-slate-500">
             {user.college || '学校信息待完善'}
             {user.major && <> · {user.major}</>}
-            {user.grade && <> · {formatCohort(user.grade)}</>}
+            {user.grade && <> · {formatEnrollmentCohort(user.grade)}</>}
           </p>
           <div className="mt-3 flex flex-wrap items-center gap-2">
             <span className="rounded bg-blue-50 px-2 py-1 text-xs font-semibold text-blue-700">

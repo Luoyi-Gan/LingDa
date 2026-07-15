@@ -38,7 +38,7 @@ model User {
   accountStatus      String   @default("normal") @map("account_status") @db.VarChar(20) // normal/restricted/banned
   accountRole        String   @default("student") @map("account_role") @db.VarChar(20) // student/club/official/admin
   verificationStatus String   @default("unverified") @map("verification_status") @db.VarChar(20) // unverified/pending/verified/rejected
-  grade              String?  @db.VarChar(30)
+  grade              String?  @db.VarChar(30) // 入学届别，例如 2024届（字段名为兼容旧版保留）
   bio                String?  @db.VarChar(500)
   avatarUrl          String?  @map("avatar_url") @db.VarChar(500)
   showProfile        Boolean  @default(true) @map("show_profile")
@@ -72,7 +72,7 @@ model User {
 // ============================================================
 // CommunityPost / PostComment / PostLike —— 学生开放社区
 // category: club/course/lost_found/campus_life
-// status: draft/pending/published/rejected/hidden
+// status: draft/pending/published/rejected/hidden/deleted
 // moderationMode: automatic/manual
 // ============================================================
 model CommunityPost {

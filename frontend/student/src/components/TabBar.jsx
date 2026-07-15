@@ -28,9 +28,12 @@ const TABS = [
 export default function TabBar() {
   const navigate = useNavigate();
   const { pathname } = useLocation();
-  const selected = TABS.find((t) => pathname.startsWith(t.path))?.idx ?? 0;
+  const selected = pathname.startsWith('/teams') || pathname.startsWith('/saved') || pathname.startsWith('/settings')
+    ? 4
+    : TABS.find((t) => pathname.startsWith(t.path))?.idx ?? 2;
   const [unread, setUnread] = useState(0);
   const [sheet, setSheet] = useState(false);
+  const showCreate = pathname.startsWith('/partners');
 
   const refreshUnread = useCallback(() => {
     if (!authLib.hasToken()) {
@@ -107,9 +110,9 @@ export default function TabBar() {
   return (
     <>
       {/* 桌面 ≥ lg(1024px) 隐藏：桌面用左侧 DesktopNav */}
-      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 border-t border-slate-200 bg-white/88 backdrop-blur-xl">
+      <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-slate-200 bg-white/95 pb-[env(safe-area-inset-bottom)] shadow-[0_-8px_24px_rgba(15,23,42,0.06)] backdrop-blur-xl lg:hidden">
         <div className="mx-auto w-full max-w-[1180px] relative">
-          <div className="flex items-stretch h-[56px] pb-[env(safe-area-inset-bottom)] px-2">
+          <div className="flex h-16 items-stretch px-2">
             <TabItem t={TABS[0]} />
             <TabItem t={TABS[1]} />
             <TabItem t={TABS[2]} />
@@ -117,14 +120,16 @@ export default function TabBar() {
             <TabItem t={TABS[4]} />
           </div>
           {/* FAB —— 浮在 TabBar 上方 */}
-          <button
-            type="button"
-            onClick={() => setSheet(true)}
-            aria-label="发起组队"
-            className="absolute right-3 -top-14 inline-flex h-11 w-11 items-center justify-center rounded-full bg-blue-600 text-white shadow-lg shadow-blue-900/20 transition-transform hover:scale-105 active:scale-95"
-          >
-            <Plus className="h-6 w-6" strokeWidth={2.5} />
-          </button>
+          {showCreate && (
+            <button
+              type="button"
+              onClick={() => setSheet(true)}
+              aria-label="发起组队"
+              className="absolute bottom-[calc(100%+12px)] right-4 inline-flex h-12 w-12 items-center justify-center rounded-full bg-blue-600 text-white shadow-lg shadow-blue-900/20 transition-transform hover:scale-105 active:scale-95"
+            >
+              <Plus className="h-6 w-6" strokeWidth={2.5} />
+            </button>
+          )}
         </div>
       </div>
       <PublishSheet open={sheet} onClose={() => setSheet(false)} />

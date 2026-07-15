@@ -173,7 +173,11 @@ export class CommunityService {
 
   async getPost(userId: string, postId: number) {
     const post = await this.prisma.communityPost.findFirst({
-      where: { postId, OR: [{ status: 'published' }, { authorId: userId }] },
+      where: {
+        postId,
+        status: { not: 'deleted' },
+        OR: [{ status: 'published' }, { authorId: userId }],
+      },
       include: {
         author: { select: authorSelect },
         comments: {
@@ -198,6 +202,38 @@ export class CommunityService {
       comments: post.comments.map((c) => ({ ...c, author: this.presentAuthor(c.author) })),
       favorites: favorite ? [favorite] : [],
     }, userId);
+  }
+
+  async deletePost(userId: string, postId: number) {
+    const user = await this.requireUser(userId);
+    const post = await this.prisma.communityPost.findUnique({ where: { postId } });
+    if (!post || post.status === 'deleted') {
+      throw new BusinessException(ERROR_CODES.NOT_FOUND, '帖子不存在');
+    }
+    const isAdmin = user.accountRole === 'admin';
+    if (post.authorId !== userId && !isAdmin) {
+      throw new BusinessException(ERROR_CODES.FORBIDDEN, '只能删除自己发布的帖子');
+    }
+
+    await this.prisma.$transaction([
+      this.prisma.communityPost.update({
+        where: { postId },
+        data: {
+          status: 'deleted',
+          reviewReason: isAdmin && post.authorId !== userId ? '管理员删除' : '作者主动删除',
+          reviewedAt: new Date(),
+          reviewerId: isAdmin ? userId : null,
+        },
+      }),
+      this.prisma.favorite.deleteMany({
+        where: { targetType: 'post', targetId: postId },
+      }),
+    ]);
+
+    if (isAdmin && post.authorId !== userId) {
+      await this.pushModerationNotice(post.authorId, 'post', postId, 'hide', `帖子《${post.title}》`, '管理员删除');
+    }
+    return { deleted: true, postId };
   }
 
   async toggleLike(userId: string, postId: number) {

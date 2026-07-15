@@ -94,8 +94,9 @@ DB 没有 `avatarText / avatarColor`。后端根据 `username` 用确定性 hash
   "realName": "李柚子",
   "password": "至少 6 位",
   "phone": "13900008421",
-  "college": "新闻与传播学院",
-  "major": "网络与新媒体",
+  "college": "FST",
+  "major": "AI",
+  "grade": "2024届",
   "gender": "女"
 }
 ```
@@ -104,6 +105,10 @@ DB 没有 `avatarText / avatarColor`。后端根据 `username` 用确定性 hash
 业务规则:
 - `userId` 全局唯一(学号);冲突 → `11001`
 - `phone` 全局唯一
+- `college` 必须从 `FST / SCC / FBM / FHSS` 中选择
+- `major` 必须从平台公布的专业简称中选择
+- `grade` 表示入学届别，格式为 `2024届`
+- 专业简称：`BA / CCM / MKT / FIN / MHR / EBIS / EPIN / DMM / CST / DS / AIM / CTV / CCGC / PRA / MAD / MCOM / GD / DIS / TDH / DGS / GAD / BUSA / AE / ACCT / AI / AM / APSY / ELLS / ENVS / FM / FS / MUS / STAT`
 - 后端做 bcrypt 哈希存 `password_hash`
 - 注册成功直接签发 token,前端无需再走登录
 
@@ -149,8 +154,9 @@ DB 没有 `avatarText / avatarColor`。后端根据 `username` 用确定性 hash
   "avatarText": "柚",
   "avatarColor": "#9C5BA0",
   "gender": "女",
-  "college": "新闻与传播学院",
-  "major": "网络与新媒体",
+  "college": "FST",
+  "major": "AI",
+  "grade": "2024届",
   "phone": "139****8421",
   "tags": ["i人", "爱看演唱会", "喜欢自习"],
   "isSearchable": true,
@@ -173,8 +179,9 @@ DB 没有 `avatarText / avatarColor`。后端根据 `username` 用确定性 hash
   "username": "小柚",
   "realName": "李柚子",
   "gender": "女",
-  "college": "新闻与传播学院",
-  "major": "网络与新媒体",
+  "college": "FST",
+  "major": "AI",
+  "grade": "2024届",
   "phone": "13900008421",
   "tags": ["i人", "爱看演唱会"],
   "isSearchable": true,

@@ -36,8 +36,9 @@ async function register(userId: string, username: string, phone: string) {
       realName: username,
       password: 'Test123456',
       phone,
-      college: '灵搭测试学院',
-      major: '社区功能测试',
+      college: 'FST',
+      major: 'AI',
+      grade: '2024届',
     }),
   });
 }
@@ -107,6 +108,15 @@ async function main() {
   }, student.token);
   const favorites = await request('/favorites?type=post', {}, student.token);
   assert(favorites.list.some((item: any) => item.targetId === safePost.postId), '帖子收藏未持久化');
+
+  const deletedPost = await request(`/posts/${safePost.postId}`, {
+    method: 'DELETE',
+  }, student.token);
+  assert(deletedPost.deleted === true, '作者删除帖子失败');
+  const deletedRecord = await prisma.communityPost.findUnique({ where: { postId: safePost.postId } });
+  assert(deletedRecord?.status === 'deleted', '删除后的帖子应保留为 deleted 状态');
+  const favoritesAfterDelete = await request('/favorites?type=post', {}, student.token);
+  assert(!favoritesAfterDelete.list.some((item: any) => item.targetId === safePost.postId), '删除帖子后应清理相关收藏');
 
   const clubVerification = await request('/verifications', {
     method: 'POST',

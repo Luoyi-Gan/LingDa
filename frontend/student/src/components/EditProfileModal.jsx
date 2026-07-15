@@ -23,14 +23,18 @@ import {
 } from './ui/dialog';
 import { Input } from './ui/input';
 import { Button } from './ui/button';
+import { COLLEGE_CODES, MAJOR_CODES, enrollmentCohortOptions } from '../lib/academicOptions';
+import { formatEnrollmentCohort } from '../lib/cohort';
+
+const ENROLLMENT_COHORTS = enrollmentCohortOptions();
 
 const FIELDS = [
   { key: 'username', label: '昵称', placeholder: '展示给搭子', icon: UserIcon },
   { key: 'realName', from: 'real_name', label: '真实姓名', placeholder: '内部审核用', icon: IdCard },
   { key: 'gender', label: '性别', placeholder: '男 / 女 / 不填', icon: Users },
-  { key: 'college', label: '学院', placeholder: '如：新闻学院', icon: School },
-  { key: 'major', label: '专业', placeholder: '如：网络与新媒体', icon: BookOpen },
-  { key: 'grade', label: '毕业届别', placeholder: '如：2027届', icon: GraduationCap },
+  { key: 'college', label: '学院', placeholder: '请选择学院', icon: School, options: COLLEGE_CODES },
+  { key: 'major', label: '专业简称', placeholder: '请选择专业', icon: BookOpen, options: MAJOR_CODES },
+  { key: 'grade', label: '入学届别', placeholder: '请选择入学届别', icon: GraduationCap, options: ENROLLMENT_COHORTS },
   { key: 'phone', label: '手机号', placeholder: '11 位手机号', icon: Phone },
 ];
 
@@ -41,6 +45,7 @@ export default function EditProfileModal({ initial = {}, onClose, onSaved }) {
     FIELDS.forEach((x) => {
       f[x.key] = initial[x.from || x.key] || '';
     });
+    f.grade = formatEnrollmentCohort(f.grade);
     f.tags = Array.isArray(initial.tags) ? initial.tags.join('，') : '';
     f.bio = initial.bio || '';
     return f;
@@ -75,13 +80,6 @@ export default function EditProfileModal({ initial = {}, onClose, onSaved }) {
     if (payload.phone && !/^1[3-9]\d{9}$/.test(payload.phone)) {
       showToast({ title: '手机号格式不对', icon: 'none' });
       return;
-    }
-    if (payload.grade) {
-      payload.grade = /^20\d{2}$/.test(payload.grade) ? `${payload.grade}届` : payload.grade;
-      if (!/^20\d{2}届$/.test(payload.grade)) {
-        showToast({ title: '毕业届别请填写为 2027届', icon: 'none' });
-        return;
-      }
     }
     if (Object.keys(payload).length === 0) {
       showToast({ title: '没有变更', icon: 'none' });
@@ -119,11 +117,22 @@ export default function EditProfileModal({ initial = {}, onClose, onSaved }) {
                     {Icon && <Icon className="h-3 w-3" strokeWidth={2.2} />}
                     {x.label}
                   </label>
-                  <Input
-                    placeholder={x.placeholder}
-                    value={form[x.key]}
-                    onChange={set(x.key)}
-                  />
+                  {x.options ? (
+                    <select
+                      value={form[x.key]}
+                      onChange={set(x.key)}
+                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                    >
+                      <option value="">{x.placeholder}</option>
+                      {x.options.map((option) => <option key={option} value={option}>{option}</option>)}
+                    </select>
+                  ) : (
+                    <Input
+                      placeholder={x.placeholder}
+                      value={form[x.key]}
+                      onChange={set(x.key)}
+                    />
+                  )}
                 </div>
               );
             })}

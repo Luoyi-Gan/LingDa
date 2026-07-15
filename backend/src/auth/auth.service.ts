@@ -45,7 +45,8 @@ export class AuthService {
           passwordHash: hashPassword(dto.password),
           phone: dto.phone,
           college: dto.college,
-          major: dto.major ?? null,
+          major: dto.major,
+          grade: dto.grade,
           gender: dto.gender ?? null,
         },
       });

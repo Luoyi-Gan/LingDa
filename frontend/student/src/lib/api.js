@@ -243,6 +243,7 @@ export const api = {
     listPosts: (query) => request({ method: 'GET', url: '/posts', query }),
     postDetail: (postId) => request({ method: 'GET', url: `/posts/${postId}` }),
     createPost: (data) => request({ method: 'POST', url: '/posts', data }),
+    deletePost: (postId) => request({ method: 'DELETE', url: `/posts/${postId}` }),
     toggleLike: (postId) => request({ method: 'POST', url: `/posts/${postId}/like` }),
     comment: (postId, data) => request({ method: 'POST', url: `/posts/${postId}/comments`, data }),
     announcements: () => request({ method: 'GET', url: '/announcements' }),

@@ -1,11 +1,13 @@
 import { ApiProperty } from '@nestjs/swagger';
 import {
+  IsIn,
   IsOptional,
   IsString,
   Matches,
   MaxLength,
   MinLength,
 } from 'class-validator';
+import { COLLEGE_CODES, MAJOR_CODES } from '../../common/constants/academic-options';
 
 export class RegisterDto {
   @ApiProperty({ example: '2021xxxx', description: '学号(主键)' })
@@ -38,16 +40,20 @@ export class RegisterDto {
   @Matches(/^1[3-9]\d{9}$/, { message: '手机号格式不正确' })
   phone: string;
 
-  @ApiProperty({ example: '新闻与传播学院' })
+  @ApiProperty({ example: 'FST', enum: COLLEGE_CODES })
   @IsString()
-  @MaxLength(100)
+  @IsIn(COLLEGE_CODES, { message: '学院必须从 FST、SCC、FBM、FHSS 中选择' })
   college: string;
 
-  @ApiProperty({ required: false, example: '网络与新媒体' })
-  @IsOptional()
+  @ApiProperty({ example: 'AI', enum: MAJOR_CODES })
   @IsString()
-  @MaxLength(100)
-  major?: string;
+  @IsIn(MAJOR_CODES, { message: '请选择平台支持的专业简称' })
+  major: string;
+
+  @ApiProperty({ example: '2024届', description: '入学届别' })
+  @IsString()
+  @Matches(/^20\d{2}届$/, { message: '入学届别格式应为 2024届' })
+  grade: string;
 
   @ApiProperty({ required: false, example: '女' })
   @IsOptional()
