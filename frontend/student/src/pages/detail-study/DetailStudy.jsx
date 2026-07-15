@@ -34,11 +34,11 @@ import {
   PillRow,
 } from '../../components/detail/DetailShared';
 
-export default function DetailStudy() {
+export default function DetailStudy({ roomId: roomIdProp, embedded = false, onClose }) {
   const options = useQueryOptions();
   const { showToast, showModal } = useUI();
   const nav = useWxNav();
-  const roomId = Number(options.id);
+  const roomId = Number(roomIdProp ?? options.id);
 
   const [room, setRoom] = useState({});
   const [creator, setCreator] = useState({});
@@ -112,7 +112,17 @@ export default function DetailStudy() {
     if (authLib.requireLogin()) return;
     if (roomId) load();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [roomId]);
+
+  const handleBack = () => {
+    if (embedded && onClose) onClose();
+    else nav.navigateBack();
+  };
+
+  const leaveAfter = () => {
+    if (embedded && onClose) onClose();
+    else nav.switchTab({ url: '/partners' });
+  };
 
   const doApply = (body) => {
     api.members
@@ -177,7 +187,7 @@ export default function DetailStudy() {
       if (!res.confirm) return;
       api.members.leave(roomId).then(() => {
         showToast({ title: '已退出队伍', icon: 'success' });
-        setTimeout(() => nav.switchTab({ url: '/pages/hall/hall' }), 500);
+        setTimeout(leaveAfter, 500);
       }).catch(() => {});
     });
   };
@@ -201,15 +211,15 @@ export default function DetailStudy() {
       if (!res.confirm) return;
       api.rooms.cancel(roomId).then(() => {
         showToast({ title: '已删除', icon: 'success' });
-        setTimeout(() => nav.switchTab({ url: '/pages/posts/posts' }), 500);
+        setTimeout(leaveAfter, 500);
       }).catch(() => {});
     });
   };
 
   return (
-    <div className="relative min-h-screen pb-32 md:pb-12">
-      <NavBar title="学习详情" />
-      <div className="relative mx-auto w-full max-w-[860px] px-4 pt-4 md:px-8 md:pt-6">
+    <div className={embedded ? 'relative pb-28' : 'relative min-h-screen pb-32 md:pb-12'}>
+      {!embedded && <NavBar title="学习详情" onBack={handleBack} />}
+      <div className={embedded ? 'relative mx-auto w-full px-4 pt-4 md:px-5' : 'relative mx-auto w-full max-w-[860px] px-4 pt-4 md:px-8 md:pt-6'}>
         <DetailHero
           tint="t-teal"
           icon={BookOpen}

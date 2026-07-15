@@ -142,7 +142,7 @@ export default function MyTeams() {
 
   return (
     <AppPage
-      aside={<TeamsAside stats={stats} onCreate={() => window.dispatchEvent(new CustomEvent('lingda:publish'))} />}
+      aside={<TeamsAside stats={stats} />}
     >
       <PageHeader
         eyebrow="Teams"
@@ -375,29 +375,16 @@ function FilterButton({ active, onClick, children }) {
   );
 }
 
-function TeamsAside({ stats, onCreate }) {
+function TeamsAside({ stats }) {
   return (
-    <>
-      <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
-        <h3 className="font-heading text-base font-bold text-slate-950">组队概览</h3>
-        <div className="mt-4 grid grid-cols-3 divide-x divide-slate-100 text-center">
-          <MiniStat label="进行中" value={stats.ongoing} />
-          <MiniStat label="已完成" value={stats.completed} />
-          <MiniStat label="待审核" value={stats.pending} />
-        </div>
-      </section>
-      <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
-        <h3 className="font-heading text-base font-bold text-slate-950">快捷动作</h3>
-        <button
-          type="button"
-          onClick={onCreate}
-          className="mt-4 flex h-10 w-full items-center justify-center gap-2 rounded-lg bg-blue-600 text-sm font-semibold text-white transition hover:bg-blue-500"
-        >
-          <Plus className="h-4 w-4" />
-          发起组队
-        </button>
-      </section>
-    </>
+    <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+      <h3 className="font-heading text-base font-bold text-slate-950">组队概览</h3>
+      <div className="mt-4 grid grid-cols-3 divide-x divide-slate-100 text-center">
+        <MiniStat label="进行中" value={stats.ongoing} />
+        <MiniStat label="已完成" value={stats.completed} />
+        <MiniStat label="待审核" value={stats.pending} />
+      </div>
+    </section>
   );
 }
 

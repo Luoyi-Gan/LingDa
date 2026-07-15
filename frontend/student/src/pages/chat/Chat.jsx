@@ -15,6 +15,7 @@ import { useUI } from '../../context/UIContext';
 import { useFriends } from '../../context/FriendsContext';
 import { makeAvatar } from '../../lib/avatar';
 import SearchUserModal from '../../components/SearchUserModal';
+import HoverableUserAvatar from '../../components/HoverableUserAvatar';
 import { Avatar, AvatarFallback } from '../../components/ui/avatar';
 import { Button } from '../../components/ui/button';
 import { Skeleton } from '../../components/ui/skeleton';
@@ -266,13 +267,15 @@ export default function Chat() {
             <SectionHeader title="在线好友" subtitle={`${onlineFriends.length} 位好友在线`} />
             <div className="flex gap-3 overflow-x-auto pb-1">
               {onlineFriends.map((item) => (
-                <button
+                <div
                   key={item.user_id}
-                  type="button"
-                  onClick={() => openPrivate(item.user_id, item.username)}
                   className="flex w-16 shrink-0 flex-col items-center gap-1.5"
                 >
-                  <span className="relative">
+                  <HoverableUserAvatar
+                    userId={item.user_id}
+                    fallbackName={item.username}
+                    className="relative"
+                  >
                     <Avatar className="h-12 w-12 ring-2 ring-white">
                       <AvatarFallback
                         style={{ background: item.avatar_color }}
@@ -282,11 +285,15 @@ export default function Chat() {
                       </AvatarFallback>
                     </Avatar>
                     <span className="absolute bottom-0 right-0 h-3 w-3 rounded-full bg-emerald-500 ring-2 ring-white" />
-                  </span>
-                  <span className="w-full truncate text-center text-xs font-medium text-slate-600">
+                  </HoverableUserAvatar>
+                  <button
+                    type="button"
+                    onClick={() => openPrivate(item.user_id, item.username)}
+                    className="w-full truncate text-center text-xs font-medium text-slate-600"
+                  >
                     {item.username}
-                  </span>
-                </button>
+                  </button>
+                </div>
               ))}
             </div>
           </section>
@@ -370,14 +377,19 @@ function ConvRow({ item, onClick, onDelete }) {
               );
             })()
           ) : (
-            <Avatar className="h-11 w-11">
-              <AvatarFallback
-                style={{ background: item.avatar_color || '#2563EB' }}
-                className="font-bold text-white"
-              >
-                {item.avatar_text}
-              </AvatarFallback>
-            </Avatar>
+            <HoverableUserAvatar
+              userId={item.user_id}
+              fallbackName={item.name}
+            >
+              <Avatar className="h-11 w-11">
+                <AvatarFallback
+                  style={{ background: item.avatar_color || '#2563EB' }}
+                  className="font-bold text-white"
+                >
+                  {item.avatar_text}
+                </AvatarFallback>
+              </Avatar>
+            </HoverableUserAvatar>
           )}
           {item.online && (
             <span className="absolute bottom-0 right-0 h-3 w-3 rounded-full bg-emerald-500 ring-2 ring-white" />
@@ -443,13 +455,15 @@ function ChatAside({ loaded, conversations, unread, onlineFriends, onPrivate }) 
             <p className="text-sm text-slate-500">暂无好友在线</p>
           )}
           {onlineFriends.slice(0, 6).map((item) => (
-            <button
+            <div
               key={item.user_id}
-              type="button"
-              onClick={() => onPrivate(item.user_id, item.username)}
               className="flex w-full items-center gap-3 text-left"
             >
-              <span className="relative">
+              <HoverableUserAvatar
+                userId={item.user_id}
+                fallbackName={item.username}
+                className="relative shrink-0"
+              >
                 <Avatar className="h-9 w-9">
                   <AvatarFallback
                     style={{ background: item.avatar_color }}
@@ -459,11 +473,15 @@ function ChatAside({ loaded, conversations, unread, onlineFriends, onPrivate }) 
                   </AvatarFallback>
                 </Avatar>
                 <span className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full bg-emerald-500 ring-2 ring-white" />
-              </span>
-              <span className="min-w-0 flex-1 truncate text-sm font-semibold text-slate-700">
+              </HoverableUserAvatar>
+              <button
+                type="button"
+                onClick={() => onPrivate(item.user_id, item.username)}
+                className="min-w-0 flex-1 truncate text-left text-sm font-semibold text-slate-700"
+              >
                 {item.username}
-              </span>
-            </button>
+              </button>
+            </div>
           ))}
         </div>
       </section>

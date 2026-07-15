@@ -1,8 +1,9 @@
 import { useCallback, useEffect, useState } from 'react';
 import { BookOpen, Bookmark, Car, FileText, Film, Trash2 } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
 import { api } from '../../lib/api';
 import authLib from '../../lib/auth';
+import { useWxNav } from '../../lib/nav';
+import { openRoomDetail, normalizeRoomType } from '../../lib/roomDetail';
 import { AppPage, EmptyPanel, PageHeader, SectionHeader, SectionSurface, SegmentedTabs, TypeBadge } from '../../components/layout/AppScaffold';
 
 const TABS = [
@@ -11,14 +12,8 @@ const TABS = [
   { key: 'room', label: '房间' },
 ];
 
-const ROOM_PATH = {
-  carpool: '/detail-carpool',
-  entertainment: '/detail-entertainment',
-  group: '/detail-study',
-};
-
 export default function Saved() {
-  const navigate = useNavigate();
+  const nav = useWxNav();
   const [tab, setTab] = useState('all');
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -36,8 +31,14 @@ export default function Saved() {
   }, [load]);
 
   const open = (item) => {
-    if (item.target_type === 'post') navigate(`/posts?postId=${item.target_id}`);
-    else navigate(`${ROOM_PATH[item.target?.room_type] || '/detail-study'}?id=${item.target_id}`);
+    if (item.target_type === 'post') {
+      nav.navigateTo({ url: `/pages/posts/posts?postId=${item.target_id}` });
+      return;
+    }
+    openRoomDetail({
+      type: normalizeRoomType(item.target?.room_type || 'group'),
+      id: item.target_id,
+    });
   };
 
   const remove = (item) => {

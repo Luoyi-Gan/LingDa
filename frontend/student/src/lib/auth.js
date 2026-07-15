@@ -4,6 +4,7 @@ import { navigate } from './bridge';
 
 const TOKEN_KEY = 'token';
 const USER_KEY = 'currentUser';
+const LEGACY_UI_PREVIEW = 'ui-preview';
 
 function readJSON(key) {
   try {
@@ -25,12 +26,19 @@ export function clearAuth() {
   localStorage.removeItem(USER_KEY);
 }
 export function hasToken() {
-  return !!getToken();
+  const t = getToken();
+  // 清掉旧版纯前端假 token，避免误判已登录
+  if (t === LEGACY_UI_PREVIEW) {
+    clearAuth();
+    return false;
+  }
+  return !!t;
 }
 export function saveCurrentUser(user) {
   localStorage.setItem(USER_KEY, JSON.stringify(user));
 }
 export function getCurrentUser() {
+  if (!hasToken()) return null;
   return readJSON(USER_KEY);
 }
 

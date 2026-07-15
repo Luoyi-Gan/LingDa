@@ -5,18 +5,10 @@ import {
   CalendarDays,
   ChevronLeft,
   ChevronRight,
-  Bus,
-  CreditCard,
-  Cross,
-  Dumbbell,
-  GraduationCap,
-  Library,
-  Map,
   Megaphone,
   Layers3,
   Pin,
   Plus,
-  Utensils,
   X,
 } from 'lucide-react';
 import { api, mediaUrl } from '../../lib/api';
@@ -63,20 +55,8 @@ const CAMPUS_MOMENTS = [
   { src: '/images/campus/resource-center-soft.jpg', alt: '校园资源中心' },
 ];
 
-const SERVICES = [
-  { label: '图书馆', icon: Library, tone: 'bg-sky-50 text-sky-700' },
-  { label: '校车', icon: Bus, tone: 'bg-amber-50 text-amber-700' },
-  { label: '食堂', icon: Utensils, tone: 'bg-emerald-50 text-emerald-700' },
-  { label: '校医院', icon: Cross, tone: 'bg-rose-50 text-rose-700' },
-  { label: '场馆预约', icon: Dumbbell, tone: 'bg-violet-50 text-violet-700' },
-  { label: '教务', icon: GraduationCap, tone: 'bg-blue-50 text-blue-700' },
-  { label: '一卡通', icon: CreditCard, tone: 'bg-pink-50 text-pink-700' },
-  { label: '校园地图', icon: Map, tone: 'bg-lime-50 text-lime-700' },
-];
-
 export default function Announcements() {
   const { currentUser } = useAuth() || {};
-  const { showToast } = useUI();
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [editorOpen, setEditorOpen] = useState(false);
@@ -132,7 +112,7 @@ export default function Announcements() {
             </SectionSurface>
           </section>
 
-          <CampusServices onSelect={(label) => showToast({ title: `${label}服务接入中`, icon: 'none' })} />
+          <CampusServices />
         </div>
       </AppPage>
       {editorOpen && (
@@ -169,11 +149,12 @@ function CampusMoment({ items }) {
           alt={current.alt}
           className="h-full w-full object-cover animate-in fade-in duration-500"
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-slate-950/80 via-slate-950/35 to-slate-950/10" />
-        <div className="absolute inset-x-0 top-0 bottom-[104px] flex max-w-xl flex-col justify-center p-5 text-white sm:bottom-[112px] md:p-8">
-          <span className="text-[10px] font-semibold uppercase text-white/75 md:text-xs">Campus Today</span>
-          <h2 className="mt-1 text-2xl font-bold md:text-4xl">暑期校园服务正常开放</h2>
-          <p className="mt-1.5 line-clamp-1 text-xs leading-5 text-white/85 sm:text-sm md:mt-2 md:line-clamp-none md:leading-6">资源中心、自习空间与校园服务入口集中在这里。</p>
+        <div className="absolute inset-0 bg-gradient-to-r from-slate-950/90 via-slate-950/55 to-slate-950/25" />
+        <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-slate-950/70 to-transparent" />
+        <div className="absolute inset-x-0 top-0 bottom-[104px] flex max-w-xl flex-col justify-center p-5 text-white on-media sm:bottom-[112px] md:p-8">
+          <span className="text-[10px] font-semibold uppercase text-white/90 md:text-xs">Campus Today</span>
+          <h2 className="mt-1 text-2xl font-bold text-white md:text-4xl">暑期校园服务正常开放</h2>
+          <p className="mt-1.5 line-clamp-1 text-xs leading-5 text-white/92 sm:text-sm md:mt-2 md:line-clamp-none md:leading-6">资源中心、自习空间与校园服务入口集中在这里。</p>
         </div>
       <div className="absolute right-3 top-3 flex items-center gap-1.5 md:right-5 md:top-5 md:gap-2">
         <button type="button" onClick={() => move(-1)} aria-label="上一张校园图片" className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-white/95 text-slate-800 shadow-sm hover:bg-white md:h-9 md:w-9">
@@ -320,7 +301,7 @@ function AnnouncementRow({ item, onOpen }) {
         <img src={mediaUrl(item.cover_url)} alt="公告封面" className="aspect-square w-full self-center rounded-md bg-slate-100 object-cover sm:aspect-[4/3]" />
       )}
       {!item.cover_url && (
-        <span className={cn('flex aspect-square w-full self-center items-center justify-center rounded-md sm:aspect-[4/3]', item.category === 'academic' ? 'bg-amber-50 text-amber-600' : item.category === 'club' ? 'bg-violet-50 text-violet-600' : item.category === 'service' ? 'bg-emerald-50 text-emerald-600' : 'bg-blue-50 text-blue-600')}>
+        <span className={cn('flex aspect-square w-full self-center items-center justify-center rounded-md sm:aspect-[4/3]', item.category === 'academic' ? 'bg-amber-50 text-amber-800' : item.category === 'club' ? 'bg-violet-50 text-violet-800' : item.category === 'service' ? 'bg-emerald-50 text-emerald-800' : 'bg-blue-50 text-blue-800')}>
           <Megaphone className="h-5 w-5" />
         </span>
       )}
@@ -328,24 +309,12 @@ function AnnouncementRow({ item, onOpen }) {
   );
 }
 
-function CampusServices({ onSelect }) {
+function CampusServices() {
   return (
     <section className="space-y-2.5 md:space-y-3">
       <SectionHeader title="校园服务" subtitle="常用入口" />
-      <SectionSurface className="p-2">
-        <div className="grid grid-cols-4 gap-1 lg:grid-cols-2">
-          {SERVICES.map((service) => {
-            const Icon = service.icon;
-            return (
-              <button key={service.label} type="button" onClick={() => onSelect(service.label)} className="group flex h-[72px] min-w-0 flex-col items-center justify-center gap-1.5 rounded-md text-center transition hover:bg-slate-50 lg:h-[78px]">
-                <span className={cn('inline-flex h-9 w-9 items-center justify-center rounded-lg', service.tone)}>
-                  <Icon className="h-4 w-4" />
-                </span>
-                <span className="max-w-full truncate px-1 text-[11px] font-semibold text-slate-600 group-hover:text-slate-950 sm:text-xs">{service.label}</span>
-              </button>
-            );
-          })}
-        </div>
+      <SectionSurface className="px-4 py-5">
+        <p className="text-center text-sm text-slate-500">更多校园服务即将上线，敬请期待</p>
       </SectionSurface>
     </section>
   );

@@ -274,7 +274,7 @@ export default function FormEntertainment() {
             items={cands}
             type="entertainment"
             proceeded={proceeded}
-            onJoin={(c) => nav.navigateTo({ url: `/pages/detail-entertainment/detail-entertainment?id=${c.room_id}` })}
+            onJoin={(c) => nav.redirectTo({ url: `/pages/detail-entertainment/detail-entertainment?id=${c.room_id}` })}
             onProceed={() => setProceeded(true)}
           />
         )}

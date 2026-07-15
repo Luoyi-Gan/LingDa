@@ -8,7 +8,6 @@ import {
   Clock3,
   Film,
   MapPin,
-  Search,
   Users,
 } from 'lucide-react';
 import { api } from '../../lib/api';
@@ -17,6 +16,7 @@ import { getStudyMeta, getStudySubtitle } from '../../lib/study';
 import { useWxNav } from '../../lib/nav';
 import { Avatar, AvatarFallback } from '../../components/ui/avatar';
 import { Skeleton } from '../../components/ui/skeleton';
+import HoverableUserAvatar from '../../components/HoverableUserAvatar';
 import {
   AppPage,
   EmptyPanel,
@@ -95,12 +95,6 @@ export default function Posts() {
         eyebrow="Explore"
         title="发现组队"
         subtitle="浏览正在招募的拼车、娱乐和课程组队。"
-        trailing={
-          <div className="hidden h-10 w-[300px] items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-400 shadow-sm md:flex">
-            <Search className="h-4 w-4" />
-            <span>搜索目的地、活动或课程</span>
-          </div>
-        }
       />
 
       <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
@@ -238,14 +232,19 @@ function PostRow({ item, type, onClick }) {
       <div className="hidden items-center gap-2 md:flex">
         {creator.username && (
           <>
-            <Avatar className="h-7 w-7">
-              <AvatarFallback
-                style={{ background: creator.avatar_color || '#2563EB' }}
-                className="text-[10px] font-bold text-white"
-              >
-                {creator.avatar_text || creator.username?.slice(0, 1)}
-              </AvatarFallback>
-            </Avatar>
+            <HoverableUserAvatar
+              userId={creator.user_id}
+              fallbackName={creator.username}
+            >
+              <Avatar className="h-7 w-7">
+                <AvatarFallback
+                  style={{ background: creator.avatar_color || '#2563EB' }}
+                  className="text-[10px] font-bold text-white"
+                >
+                  {creator.avatar_text || creator.username?.slice(0, 1)}
+                </AvatarFallback>
+              </Avatar>
+            </HoverableUserAvatar>
             <span className="max-w-[90px] truncate text-sm text-slate-500">{creator.username}</span>
           </>
         )}

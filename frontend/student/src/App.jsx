@@ -1,5 +1,7 @@
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { useEffect } from 'react';
+import { Routes, Route, Navigate, useNavigate, useSearchParams } from 'react-router-dom';
 import TabLayout from './components/TabLayout';
+import { openRoomDetail } from './lib/roomDetail';
 
 // —— 全屏页 ——
 import Login from './pages/login/Login';
@@ -9,9 +11,6 @@ import FormCarpool from './pages/form-carpool/FormCarpool';
 import FormEntertainment from './pages/form-entertainment/FormEntertainment';
 import FormStudy from './pages/form-study/FormStudy';
 import MatchResult from './pages/match-result/MatchResult';
-import DetailCarpool from './pages/detail-carpool/DetailCarpool';
-import DetailEntertainment from './pages/detail-entertainment/DetailEntertainment';
-import DetailStudy from './pages/detail-study/DetailStudy';
 
 // —— Tab 页 ——
 import Hall from './pages/hall/Hall';
@@ -31,7 +30,7 @@ export default function App() {
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
 
-      {/* 带 TabBar 的 4 个 Tab 页 */}
+      {/* 带 TabBar 的 Tab 页 */}
       <Route element={<TabLayout />}>
         <Route path="/hall" element={<Navigate to="/partners" replace />} />
         <Route path="/posts" element={<Community />} />
@@ -45,17 +44,29 @@ export default function App() {
         <Route path="/settings" element={<SettingsPage />} />
       </Route>
 
-      {/* 全屏二级页 */}
+      {/* 全屏二级页 —— 组队详情改右侧抽屉，深链仍兼容 */}
       <Route path="/chat-detail" element={<ChatDetail />} />
       <Route path="/form-carpool" element={<FormCarpool />} />
       <Route path="/form-entertainment" element={<FormEntertainment />} />
       <Route path="/form-study" element={<FormStudy />} />
       <Route path="/match-result" element={<MatchResult />} />
-      <Route path="/detail-carpool" element={<DetailCarpool />} />
-      <Route path="/detail-entertainment" element={<DetailEntertainment />} />
-      <Route path="/detail-study" element={<DetailStudy />} />
+      <Route path="/detail-carpool" element={<DetailDeepLink type="carpool" />} />
+      <Route path="/detail-entertainment" element={<DetailDeepLink type="entertainment" />} />
+      <Route path="/detail-study" element={<DetailDeepLink type="study" />} />
 
       <Route path="*" element={<Navigate to="/partners" replace />} />
     </Routes>
   );
+}
+
+/** 深链进入详情：回大厅并打开右侧抽屉 */
+function DetailDeepLink({ type }) {
+  const [sp] = useSearchParams();
+  const navigate = useNavigate();
+  useEffect(() => {
+    const id = sp.get('id') || sp.get('roomId');
+    if (id) openRoomDetail({ type, id });
+    navigate('/partners', { replace: true });
+  }, [type, sp, navigate]);
+  return null;
 }

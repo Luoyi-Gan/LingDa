@@ -24,6 +24,7 @@ import {
 } from './ui/dialog';
 import { Avatar, AvatarFallback } from './ui/avatar';
 import { Button } from './ui/button';
+import HoverableUserAvatar from './HoverableUserAvatar';
 import { cn } from '../lib/cn';
 
 export default function SearchUserModal({ open, onClose }) {
@@ -121,14 +122,20 @@ export default function SearchUserModal({ open, onClose }) {
           {/* Result card */}
           {hit ? (
             <div className="rounded-bento border border-border bg-card p-4 flex items-start gap-3">
-              <Avatar className="h-12 w-12 ring-2 ring-border shrink-0">
-                <AvatarFallback
-                  style={{ background: hit.avatar_color }}
-                  className="text-white font-bold text-lg"
-                >
-                  {hit.avatar_text}
-                </AvatarFallback>
-              </Avatar>
+              <HoverableUserAvatar
+                userId={hit.user_id}
+                fallbackName={hit.username}
+                className="shrink-0"
+              >
+                <Avatar className="h-12 w-12 ring-2 ring-border">
+                  <AvatarFallback
+                    style={{ background: hit.avatar_color }}
+                    className="text-white font-bold text-lg"
+                  >
+                    {hit.avatar_text}
+                  </AvatarFallback>
+                </Avatar>
+              </HoverableUserAvatar>
               <div className="flex-1 min-w-0">
                 <div className="font-heading text-base font-bold text-foreground truncate">
                   {hit.username}

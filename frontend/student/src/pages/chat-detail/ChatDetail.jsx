@@ -11,6 +11,7 @@ import { useQueryOptions, useWxNav } from '../../lib/nav';
 import { useUI } from '../../context/UIContext';
 import { useFriends } from '../../context/FriendsContext';
 import NavBar from '../../components/NavBar';
+import HoverableUserAvatar from '../../components/HoverableUserAvatar';
 import { Button } from '../../components/ui/button';
 import { Avatar, AvatarFallback } from '../../components/ui/avatar';
 import { cn } from '../../lib/cn';
@@ -302,14 +303,20 @@ export default function ChatDetail() {
               )}
             >
               {!me && (
-                <Avatar className="h-8 w-8 shrink-0">
-                  <AvatarFallback
-                    style={{ background: item.from_avatar_color }}
-                    className="text-white text-xs font-bold"
-                  >
-                    {item.from_avatar_text}
-                  </AvatarFallback>
-                </Avatar>
+                <HoverableUserAvatar
+                  userId={item.from_user_id}
+                  fallbackName={item.from_username}
+                  className="shrink-0"
+                >
+                  <Avatar className="h-8 w-8">
+                    <AvatarFallback
+                      style={{ background: item.from_avatar_color }}
+                      className="text-white text-xs font-bold"
+                    >
+                      {item.from_avatar_text}
+                    </AvatarFallback>
+                  </Avatar>
+                </HoverableUserAvatar>
               )}
               <div className={cn('flex flex-col max-w-[78%] md:max-w-[60%]', me ? 'items-end' : 'items-start')}>
                 {showName && (

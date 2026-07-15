@@ -225,7 +225,7 @@ export default function FormCarpool() {
             items={cands}
             type="carpool"
             proceeded={proceeded}
-            onJoin={(c) => nav.navigateTo({ url: `/pages/detail-carpool/detail-carpool?id=${c.room_id}` })}
+            onJoin={(c) => nav.redirectTo({ url: `/pages/detail-carpool/detail-carpool?id=${c.room_id}` })}
             onProceed={() => setProceeded(true)}
           />
         )}

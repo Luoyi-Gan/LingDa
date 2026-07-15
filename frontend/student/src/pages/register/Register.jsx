@@ -73,7 +73,7 @@ export default function Register() {
         authLib.saveCurrentUser(data.user);
         setUser(data.user);
         showToast({ title: '注册成功', icon: 'success' });
-        setTimeout(() => nav.switchTab({ url: '/pages/hall/hall' }), 600);
+        setTimeout(() => nav.switchTab({ url: '/partners' }), 600);
       })
       .catch(() => {})
       .then(() => setLoading(false));

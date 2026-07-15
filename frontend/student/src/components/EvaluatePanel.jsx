@@ -8,6 +8,7 @@ import { Card } from './ui/card';
 import { Avatar, AvatarFallback } from './ui/avatar';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
+import HoverableUserAvatar from './HoverableUserAvatar';
 import { cn } from '../lib/cn';
 
 export default function EvaluatePanel({ roomId, targets, onDone }) {
@@ -78,14 +79,19 @@ export default function EvaluatePanel({ roomId, targets, onDone }) {
                 className="rounded-xl bg-white/55 dark:bg-white/10 backdrop-blur-sm p-3 md:p-4"
               >
                 <div className="flex items-center gap-3 mb-3">
-                  <Avatar className="h-9 w-9">
-                    <AvatarFallback
-                      style={{ background: t.avatar_color }}
-                      className="text-white text-xs font-bold"
-                    >
-                      {t.avatar_text}
-                    </AvatarFallback>
-                  </Avatar>
+                  <HoverableUserAvatar
+                    userId={t.user_id}
+                    fallbackName={t.username}
+                  >
+                    <Avatar className="h-9 w-9">
+                      <AvatarFallback
+                        style={{ background: t.avatar_color }}
+                        className="text-white text-xs font-bold"
+                      >
+                        {t.avatar_text}
+                      </AvatarFallback>
+                    </Avatar>
+                  </HoverableUserAvatar>
                   <span className="font-semibold text-sm truncate flex-1">
                     {t.username}
                   </span>

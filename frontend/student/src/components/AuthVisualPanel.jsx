@@ -25,8 +25,9 @@ export default function AuthVisualPanel({
         className="absolute inset-0 h-full w-full object-cover"
         style={{ objectPosition: imagePosition }}
       />
-      <div className="absolute inset-0 bg-gradient-to-r from-slate-950/88 via-slate-950/56 to-slate-950/18" />
-      <div className="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-slate-950/72 to-transparent" />
+      <div className="absolute inset-0 bg-gradient-to-r from-slate-950/92 via-slate-950/68 to-slate-950/28" />
+      <div className="absolute inset-x-0 bottom-0 h-3/4 bg-gradient-to-t from-slate-950/80 via-slate-950/40 to-transparent" />
+      <div className="absolute inset-0 bg-slate-950/12" />
 
       <div className="relative z-10 flex items-center justify-between gap-4">
         {action ? (
@@ -46,28 +47,28 @@ export default function AuthVisualPanel({
         )}
       </div>
 
-      <div className="relative z-10 mt-8 lg:mt-0 lg:max-w-[460px]">
+      <div className="relative z-10 mt-8 on-media lg:mt-0 lg:max-w-[460px]">
         <div className="mb-6 flex items-center gap-3">
-          <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-white text-2xl font-extrabold text-blue-600 shadow-lg shadow-slate-950/20 lg:h-14 lg:w-14 lg:text-3xl">
+          <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-white text-2xl font-extrabold text-blue-700 shadow-lg shadow-slate-950/20 lg:h-14 lg:w-14 lg:text-3xl">
             灵
           </div>
           <div className="leading-none">
-            <div className="font-heading text-xl font-extrabold tracking-tight drop-shadow lg:text-2xl">
+            <div className="font-heading text-xl font-extrabold tracking-tight text-white lg:text-2xl">
               灵搭
             </div>
-            <div className="mt-1.5 text-[10px] uppercase tracking-[0.18em] opacity-70">
+            <div className="mt-1.5 text-[10px] uppercase tracking-[0.18em] text-white/80">
               LingDa
             </div>
           </div>
         </div>
 
-        <p className="text-xs font-bold uppercase tracking-[0.18em] text-white/74 drop-shadow">
+        <p className="text-xs font-bold uppercase tracking-[0.18em] text-white/90">
           {eyebrow}
         </p>
-        <h1 className="mt-3 font-heading text-3xl font-extrabold leading-[1.08] tracking-tight drop-shadow-[0_2px_16px_rgba(15,23,42,0.42)] md:text-4xl lg:text-5xl">
+        <h1 className="mt-3 font-heading text-3xl font-extrabold leading-[1.08] tracking-tight text-white md:text-4xl lg:text-5xl">
           {title}
         </h1>
-        <p className="mt-4 max-w-md text-sm leading-6 text-white/88 drop-shadow lg:text-base">
+        <p className="mt-4 max-w-md text-sm leading-6 text-white/92 lg:text-base">
           {subtitle}
         </p>
 

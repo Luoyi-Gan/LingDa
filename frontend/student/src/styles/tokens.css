@@ -6,6 +6,7 @@
 
 @layer base {
   :root {
+    color-scheme: light;
     --background: 215 33% 98%;
     --foreground: 222 47% 11%;
 
@@ -22,7 +23,8 @@
     --secondary-foreground: 222 47% 11%;
 
     --muted: 220 14% 96%;
-    --muted-foreground: 215 16% 47%;    /* slate-500 */
+    /* slate-600：正文辅色，保证在浅底上对比清晰 */
+    --muted-foreground: 215 19% 35%;
 
     --accent: 220 14% 96%;
     --accent-foreground: 222 47% 11%;
@@ -39,73 +41,30 @@
 
     --radius: 0.5rem;
 
-    /* 软调大色块（tint = -50/-100 档，前景用 -700/-800 档保证对比） */
-    --t-sky:       204 94% 94%;  /* sky-100   #E0F2FE  */
-    --t-sky-fg:    202 90% 28%;  /* sky-800   #075985  */
-    --t-violet:    270 96% 94%;  /* violet-100 #EDE9FE */
-    --t-violet-fg: 263 70% 36%;  /* violet-800 */
-    --t-teal:      167 85% 89%;  /* teal-100  #CCFBF1  */
-    --t-teal-fg:   175 70% 22%;  /* teal-800            */
-    --t-amber:     48 96% 89%;   /* amber-100 #FEF3C7  */
-    --t-amber-fg:  26 90% 32%;   /* amber-900           */
-    --t-rose:      346 78% 95%;  /* rose-100  #FFE4E6  */
-    --t-rose-fg:   355 60% 36%;  /* rose-800            */
-    --t-slate:     210 40% 96%;  /* slate-100           */
-    --t-slate-fg:  217 33% 17%;  /* slate-800           */
+    /* 软调大色块（tint = -50/-100 档，前景用更深 -800/-900 保证对比） */
+    --t-sky:       204 94% 94%;
+    --t-sky-fg:    202 80% 24%;
+    --t-violet:    270 96% 94%;
+    --t-violet-fg: 263 70% 30%;
+    --t-teal:      167 85% 89%;
+    --t-teal-fg:   175 84% 18%;
+    --t-amber:     48 96% 89%;
+    --t-amber-fg:  26 90% 28%;
+    --t-rose:      346 78% 95%;
+    --t-rose-fg:   355 70% 32%;
+    --t-slate:     210 40% 96%;
+    --t-slate-fg:  217 33% 17%;
   }
 
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --background: 222 47% 6%;         /* 极深冷调 */
-      --foreground: 210 40% 96%;
-
-      --card: 222 47% 9%;
-      --card-foreground: 210 40% 96%;
-
-      --popover: 222 47% 9%;
-      --popover-foreground: 210 40% 96%;
-
-      --primary: 217 91% 60%;
-      --primary-foreground: 222 47% 11%;
-
-      --secondary: 217 33% 17%;
-      --secondary-foreground: 210 40% 96%;
-
-      --muted: 217 33% 17%;
-      --muted-foreground: 215 20% 65%;
-
-      --accent: 217 33% 17%;
-      --accent-foreground: 210 40% 96%;
-
-      --destructive: 0 62% 50%;
-      --destructive-foreground: 210 40% 96%;
-
-      --border: 217 33% 20%;
-      --input: 217 33% 20%;
-      --ring: 217 91% 60%;
-
-      --cta: 217 91% 60%;
-      --cta-foreground: 0 0% 100%;
-
-      /* 暗模式大色块：拉低到 950 档，文字提到 200 档 */
-      --t-sky:       202 80% 14%;
-      --t-sky-fg:    199 89% 78%;
-      --t-violet:    263 50% 18%;
-      --t-violet-fg: 270 95% 85%;
-      --t-teal:      175 70% 14%;
-      --t-teal-fg:   168 70% 78%;
-      --t-amber:     30 60% 16%;
-      --t-amber-fg:  43 96% 78%;
-      --t-rose:      350 50% 18%;
-      --t-rose-fg:   355 90% 84%;
-      --t-slate:     217 33% 17%;
-      --t-slate-fg:  210 40% 90%;
-    }
-  }
+  /*
+   * 页面大量使用固定浅色底（bg-white / #F7F9FC / slate-*）。
+   * 跟随系统深色会导致「浅底 + 浅字」不可读，故锁定浅色令牌。
+   */
 
   html {
     -webkit-text-size-adjust: 100%;
     -webkit-tap-highlight-color: transparent;
+    color-scheme: light;
   }
   body {
     font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'PingFang SC',
@@ -119,6 +78,7 @@
     font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'PingFang SC',
       'Microsoft YaHei', system-ui, sans-serif;
     letter-spacing: 0;
+    color: hsl(var(--foreground));
   }
 
   :focus-visible {
@@ -165,6 +125,36 @@
 .t-amber  { background: hsl(var(--t-amber));  color: hsl(var(--t-amber-fg)); }
 .t-rose   { background: hsl(var(--t-rose));   color: hsl(var(--t-rose-fg)); }
 .t-slate  { background: hsl(var(--t-slate));  color: hsl(var(--t-slate-fg)); }
+
+/* tint 内禁止被 Tailwind muted / slate-400 冲淡 */
+.t-sky .text-muted-foreground,
+.t-violet .text-muted-foreground,
+.t-teal .text-muted-foreground,
+.t-amber .text-muted-foreground,
+.t-rose .text-muted-foreground,
+.t-slate .text-muted-foreground,
+.t-sky .text-slate-400,
+.t-violet .text-slate-400,
+.t-teal .text-slate-400,
+.t-amber .text-slate-400,
+.t-rose .text-slate-400,
+.t-slate .text-slate-400,
+.t-sky .text-slate-500,
+.t-violet .text-slate-500,
+.t-teal .text-slate-500,
+.t-amber .text-slate-500,
+.t-rose .text-slate-500,
+.t-slate .text-slate-500 {
+  color: color-mix(in srgb, currentColor 78%, transparent) !important;
+}
+
+/* 图片 / 深色底上的文字：加底噪与描边感，避免浅色照片冲淡 */
+.on-media,
+.on-media-text {
+  text-shadow:
+    0 1px 2px rgb(15 23 42 / 0.55),
+    0 6px 20px rgb(15 23 42 / 0.35);
+}
 
 /* 科技感装饰：极淡网格 + 等距点阵 */
 .tech-grid-bg {

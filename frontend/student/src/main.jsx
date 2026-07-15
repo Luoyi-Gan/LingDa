@@ -10,6 +10,7 @@ import { UIProvider } from './context/UIContext';
 import { AuthProvider } from './context/AuthContext';
 import { FriendsProvider } from './context/FriendsContext';
 import RouterBridge from './components/RouterBridge';
+import RoomDetailDrawer from './components/RoomDetailDrawer';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
@@ -19,6 +20,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
         <AuthProvider>
           <FriendsProvider>
             <App />
+            <RoomDetailDrawer />
           </FriendsProvider>
         </AuthProvider>
       </UIProvider>

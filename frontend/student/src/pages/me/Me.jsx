@@ -1,11 +1,13 @@
 import { useEffect, useState, useCallback } from 'react';
 import {
+  Bookmark,
   ChevronRight,
   Edit3,
   Flag,
   Heart,
   Lock,
   MessageSquare,
+  Settings,
   ShieldCheck,
   Star,
   Trophy,
@@ -143,6 +145,7 @@ export default function Me() {
             onEdit={() => setEditing(true)}
             onRequests={() => setFriendReqOpen(true)}
             onTeams={() => nav.navigateTo({ url: '/teams' })}
+            onSaved={() => nav.navigateTo({ url: '/saved' })}
             onSettings={() => nav.navigateTo({ url: '/settings' })}
           />
         }
@@ -161,6 +164,17 @@ export default function Me() {
 
         <div className="grid gap-6 xl:grid-cols-[minmax(0,1.08fr)_minmax(320px,0.92fr)]">
           <div className="space-y-6">
+            <section className="rounded-lg border border-slate-200 bg-white p-3 shadow-sm xl:hidden">
+              <SettingRow icon={Flag} label="我的组队" badge={myTeams.length} onClick={() => nav.navigateTo({ url: '/teams' })} />
+              <SettingRow icon={Bookmark} label="我的收藏" onClick={() => nav.navigateTo({ url: '/saved' })} />
+              <SettingRow
+                icon={UserPlus}
+                label="好友申请"
+                badge={incoming.length}
+                onClick={() => setFriendReqOpen(true)}
+              />
+              <SettingRow icon={ShieldCheck} label="设置与隐私" onClick={() => nav.navigateTo({ url: '/settings' })} />
+            </section>
             <ProfilePanel user={user} loaded={loaded} />
             <RatingPanel user={user} ratingDist={ratingDist} loaded={loaded} />
             <ReviewsPanel evaluations={evaluations} />
@@ -230,13 +244,13 @@ function ProfilePanel({ user, loaded }) {
               </span>
             )}
           </div>
-          <p className="mt-2 text-sm text-slate-500">
+          <p className="mt-2 text-sm text-slate-600">
             {user.college || '学校信息待完善'}
             {user.major && <> · {user.major}</>}
             {user.grade && <> · {formatEnrollmentCohort(user.grade)}</>}
           </p>
           <div className="mt-3 flex flex-wrap items-center gap-2">
-            <span className="rounded bg-blue-50 px-2 py-1 text-xs font-semibold text-blue-700">
+            <span className="rounded bg-blue-50 px-2 py-1 text-xs font-semibold text-blue-800">
               {profileRole(user.account_role)}
             </span>
             {user.verification_status === 'verified' && (
@@ -501,12 +515,21 @@ function MeAside({
   onEdit,
   onRequests,
   onTeams,
+  onSaved,
   onSettings,
 }) {
   return (
     <>
-      <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
-        <div className="flex items-center gap-3">
+      <section className="relative rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+        <button
+          type="button"
+          onClick={onSettings}
+          aria-label="设置"
+          className="absolute right-3 top-3 inline-flex h-9 w-9 items-center justify-center rounded-lg text-slate-400 transition hover:bg-slate-100 hover:text-slate-700"
+        >
+          <Settings className="h-[18px] w-[18px]" strokeWidth={2} />
+        </button>
+        <div className="flex items-center gap-3 pr-10">
           <Avatar className="h-14 w-14">
             <AvatarFallback
               style={{ background: user.avatar_color || '#2563EB' }}
@@ -536,13 +559,13 @@ function MeAside({
       <section className="rounded-lg border border-slate-200 bg-white p-3 shadow-sm">
         <SettingRow icon={Edit3} label="编辑资料" onClick={onEdit} />
         <SettingRow icon={Flag} label="我的组队" badge={teams.length} onClick={onTeams} />
+        <SettingRow icon={Bookmark} label="我的收藏" onClick={onSaved} />
         <SettingRow
           icon={UserPlus}
           label="好友申请"
           badge={incoming.length}
           onClick={onRequests}
         />
-        <SettingRow icon={ShieldCheck} label="设置与隐私" onClick={onSettings} />
       </section>
     </>
   );

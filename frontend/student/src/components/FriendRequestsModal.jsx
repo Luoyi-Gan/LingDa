@@ -10,6 +10,7 @@ import {
 } from './ui/dialog';
 import { Avatar, AvatarFallback } from './ui/avatar';
 import { Button } from './ui/button';
+import HoverableUserAvatar from './HoverableUserAvatar';
 
 export default function FriendRequestsModal({ onClose }) {
   const { incoming = [], audit } = useFriends() || {};
@@ -40,14 +41,20 @@ export default function FriendRequestsModal({ onClose }) {
                 key={r.friend_id}
                 className="flex items-center gap-3 rounded-xl px-3 py-2.5 hover:bg-muted/60 transition-colors"
               >
-                <Avatar className="h-10 w-10 shrink-0">
-                  <AvatarFallback
-                    style={{ background: r.avatar_color }}
-                    className="text-white font-bold"
-                  >
-                    {r.avatar_text}
-                  </AvatarFallback>
-                </Avatar>
+                <HoverableUserAvatar
+                  userId={r.user_id}
+                  fallbackName={r.username}
+                  className="shrink-0"
+                >
+                  <Avatar className="h-10 w-10">
+                    <AvatarFallback
+                      style={{ background: r.avatar_color }}
+                      className="text-white font-bold"
+                    >
+                      {r.avatar_text}
+                    </AvatarFallback>
+                  </Avatar>
+                </HoverableUserAvatar>
                 <div className="flex-1 min-w-0">
                   <div className="text-sm font-semibold text-foreground truncate">
                     {r.username}

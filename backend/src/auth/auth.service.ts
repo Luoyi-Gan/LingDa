@@ -88,6 +88,49 @@ export class AuthService {
     return this.signFor(user);
   }
 
+  /**
+   * 本地开发免密入口：自动确保预览用户存在并签发真实 JWT。
+   * 生产环境禁用。
+   */
+  async previewLogin(): Promise<AuthResult> {
+    if ((process.env.NODE_ENV || 'development') === 'production') {
+      throw new BusinessException(
+        ERROR_CODES.FORBIDDEN,
+        '开发预览入口仅限非生产环境',
+      );
+    }
+
+    const userId = 'DEVPREVIEW';
+    const phone = '13800000001';
+    let user = await this.prisma.user.findUnique({ where: { userId } });
+    if (!user) {
+      user = await this.prisma.user.create({
+        data: {
+          userId,
+          username: '开发预览',
+          realName: '开发预览账号',
+          passwordHash: hashPassword(`dev-preview-${Date.now()}`),
+          phone,
+          college: '灵搭开发中心',
+          major: '全栈开发',
+          grade: '2024届',
+          tags: '开发,预览',
+          bio: '本地开发免密入口自动创建的账号。',
+          accountStatus: 'normal',
+          accountRole: 'student',
+          verificationStatus: 'verified',
+        },
+      });
+    } else if (user.accountStatus !== 'normal') {
+      user = await this.prisma.user.update({
+        where: { userId },
+        data: { accountStatus: 'normal' },
+      });
+    }
+
+    return this.signFor(user);
+  }
+
   // ============== 内部:签发 token + 返回标准 AuthResult ==============
   private async signFor(user: User): Promise<AuthResult> {
     const token = await this.jwt.signAsync({ sub: user.userId });

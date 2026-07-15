@@ -11,7 +11,6 @@ import {
   MessageCircle,
   ShieldCheck,
   Trash2,
-  UserPlus,
 } from 'lucide-react';
 import { api } from '../../lib/api';
 import authLib from '../../lib/auth';
@@ -19,7 +18,6 @@ import { useAuth } from '../../context/AuthContext';
 import { useUI } from '../../context/UIContext';
 import { useFriends } from '../../context/FriendsContext';
 import EditProfileModal from '../../components/EditProfileModal';
-import FriendRequestsModal from '../../components/FriendRequestsModal';
 import { Avatar, AvatarFallback } from '../../components/ui/avatar';
 import {
   AppPage,
@@ -35,7 +33,6 @@ export default function SettingsPage() {
   const { incoming = [], friends = [] } = useFriends() || {};
   const [user, setUserState] = useState({});
   const [editing, setEditing] = useState(false);
-  const [friendReqOpen, setFriendReqOpen] = useState(false);
   const [verificationOpen, setVerificationOpen] = useState(false);
   const [verification, setVerification] = useState(null);
   const [prefs, setPrefs] = useState({
@@ -97,7 +94,7 @@ export default function SettingsPage() {
         <PageHeader
           eyebrow="Settings"
           title="设置"
-          subtitle="管理资料、好友申请、消息提醒和账号安全。"
+          subtitle="管理账号资料、消息提醒与隐私。"
         />
 
         <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_360px]">
@@ -111,21 +108,8 @@ export default function SettingsPage() {
             />
 
             <section className="space-y-3">
-              <SectionHeader title="资料与社交" subtitle="对外展示与好友关系" />
+              <SectionHeader title="隐私与发现" subtitle="控制别人如何找到你" />
               <SectionSurface className="p-3">
-                <SettingRow
-                  icon={Edit3}
-                  title="编辑个人信息"
-                  desc="昵称、学院、专业、手机号和标签"
-                  onClick={() => setEditing(true)}
-                />
-                <SettingRow
-                  icon={UserPlus}
-                  title="好友申请"
-                  desc={incoming.length > 0 ? `${incoming.length} 条待处理` : '暂无新的申请'}
-                  badge={incoming.length}
-                  onClick={() => setFriendReqOpen(true)}
-                />
                 <ToggleRow
                   icon={ShieldCheck}
                   title="允许通过学号搜索到我"
@@ -197,7 +181,6 @@ export default function SettingsPage() {
         </div>
       </AppPage>
 
-      {friendReqOpen && <FriendRequestsModal onClose={() => setFriendReqOpen(false)} />}
       {editing && (
         <EditProfileModal
           initial={user}

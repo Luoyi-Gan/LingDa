@@ -282,7 +282,7 @@ export default function FormStudy() {
             items={cands}
             type="group"
             proceeded={proceeded}
-            onJoin={(c) => nav.navigateTo({ url: `/pages/detail-study/detail-study?id=${c.room_id}` })}
+            onJoin={(c) => nav.redirectTo({ url: `/pages/detail-study/detail-study?id=${c.room_id}` })}
             onProceed={() => setProceeded(true)}
           />
         )}

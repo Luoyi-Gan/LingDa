@@ -13,7 +13,6 @@ import {
 } from 'lucide-react';
 import { api } from '../lib/api';
 import authLib from '../lib/auth';
-import PublishSheet from './PublishSheet';
 import useVisibilityInterval from '../hooks/useVisibilityInterval';
 import { cn } from '../lib/cn';
 
@@ -32,7 +31,6 @@ export default function TabBar() {
     ? 4
     : TABS.find((t) => pathname.startsWith(t.path))?.idx ?? 2;
   const [unread, setUnread] = useState(0);
-  const [sheet, setSheet] = useState(false);
   const showCreate = pathname.startsWith('/partners');
 
   const refreshUnread = useCallback(() => {
@@ -123,7 +121,7 @@ export default function TabBar() {
           {showCreate && (
             <button
               type="button"
-              onClick={() => setSheet(true)}
+              onClick={() => window.dispatchEvent(new CustomEvent('lingda:publish'))}
               aria-label="发起组队"
               className="absolute bottom-[calc(100%+12px)] right-4 inline-flex h-12 w-12 items-center justify-center rounded-full bg-blue-600 text-white shadow-lg shadow-blue-900/20 transition-transform hover:scale-105 active:scale-95"
             >
@@ -132,7 +130,6 @@ export default function TabBar() {
           )}
         </div>
       </div>
-      <PublishSheet open={sheet} onClose={() => setSheet(false)} />
     </>
   );
 }

@@ -25,4 +25,12 @@ export class AuthController {
   login(@Body() dto: LoginDto) {
     return this.authService.login(dto);
   }
+
+  @Public()
+  @Post('preview')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: '本地开发免密预览（非生产）' })
+  preview() {
+    return this.authService.previewLogin();
+  }
 }

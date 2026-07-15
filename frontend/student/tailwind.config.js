@@ -1,7 +1,7 @@
 /** @type {import('tailwindcss').Config} */
-// UI 重做 Phase 0：Indigo + Orange CTA + Bento spec + 跟随系统暗模式
+// 校园浅色主视觉：用 class 控暗色，避免系统深色把 dark:* 叠在浅底白卡上导致字发灰/发白
 export default {
-  darkMode: 'media',
+  darkMode: 'class',
   content: [
     './index.html',
     './src/**/*.{js,jsx,ts,tsx}',

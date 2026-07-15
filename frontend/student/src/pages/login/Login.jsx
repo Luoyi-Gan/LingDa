@@ -42,6 +42,12 @@ export default function Login() {
   const goRegister = () => nav.navigateTo({ url: '/pages/register/register' });
   const onForgot = () => showToast({ title: '请联系管理员重置密码', icon: 'none' });
 
+  const enterApp = (user, toastTitle) => {
+    setUser(user);
+    showToast({ title: toastTitle, icon: 'success' });
+    setTimeout(() => nav.switchTab({ url: '/partners' }), 400);
+  };
+
   const onSubmit = () => {
     const { userId, password } = form;
     if (!userId || !password) {
@@ -54,7 +60,6 @@ export default function Login() {
       .then((data) => {
         authLib.saveToken(data.token);
         authLib.saveCurrentUser(data.user);
-        setUser(data.user);
         if (isRemember) {
           localStorage.setItem(REMEMBER_FLAG, '1');
           localStorage.setItem(REMEMBER_USER, userId);
@@ -62,12 +67,28 @@ export default function Login() {
           localStorage.removeItem(REMEMBER_FLAG);
           localStorage.removeItem(REMEMBER_USER);
         }
-        showToast({ title: '欢迎回来', icon: 'success' });
-        setTimeout(() => nav.switchTab({ url: '/pages/hall/hall' }), 600);
+        enterApp(data.user, '欢迎回来');
       })
       .catch(() => {})
       .then(() => setLoading(false));
   };
+
+  /** 开发免密入口：走真实后端 POST /auth/preview，签发 JWT */
+  const onDevPreview = () => {
+    setLoading(true);
+    api.auth
+      .preview()
+      .then((data) => {
+        authLib.saveToken(data.token);
+        authLib.saveCurrentUser(data.user);
+        enterApp(data.user, '开发预览已登录');
+      })
+      .catch(() => {})
+      .then(() => setLoading(false));
+  };
+
+  const showDevPreview =
+    import.meta.env.DEV || import.meta.env.VITE_UI_PREVIEW === 'true';
 
   const onKeyDown = (e) => {
     if (e.key === 'Enter' && !loading) onSubmit();
@@ -162,6 +183,19 @@ export default function Login() {
               {loading ? '正在进入…' : '立即进入'}
               {!loading && <ArrowRight className="h-4 w-4" />}
             </Button>
+
+            {showDevPreview && (
+              <Button
+                type="button"
+                variant="outline"
+                size="lg"
+                disabled={loading}
+                onClick={onDevPreview}
+                className="w-full h-12 text-base border-dashed"
+              >
+                开发预览 · 免密进入
+              </Button>
+            )}
 
             <div className="text-sm text-center text-muted-foreground">
               <span>还没账号？</span>

@@ -111,6 +111,8 @@ export const api = {
   auth: {
     register: (data) => request({ method: 'POST', url: '/auth/register', data }),
     login: (data) => request({ method: 'POST', url: '/auth/login', data }),
+    /** 本地开发免密预览（真实 JWT，非生产） */
+    preview: () => request({ method: 'POST', url: '/auth/preview' }),
   },
   users: {
     me: () => request({ method: 'GET', url: '/users/me' }),

@@ -8,17 +8,12 @@ import {
   Megaphone,
   Newspaper,
   MessageCircle,
-  User,
   Plus,
-  Bookmark,
-  Settings,
-  HeartHandshake,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { makeAvatar } from '../lib/avatar';
 import { api } from '../lib/api';
 import authLib from '../lib/auth';
-import PublishSheet from './PublishSheet';
 import useVisibilityInterval from '../hooks/useVisibilityInterval';
 import { Avatar, AvatarFallback } from './ui/avatar';
 import { cn } from '../lib/cn';
@@ -27,11 +22,7 @@ const NAV = [
   { id: 'announcements', path: '/announcements', text: '校园公告', desc: '重要通知', icon: Megaphone },
   { id: 'posts', path: '/posts', text: '校园贴吧', desc: '学生社区', icon: Newspaper },
   { id: 'partners', path: '/partners', text: '找搭子', desc: '拼车娱乐学习', icon: Compass },
-  { id: 'teams', path: '/teams', text: '我的组队', desc: '参与记录', icon: HeartHandshake },
   { id: 'chat', path: '/chat', text: '消息中心', desc: '私聊群聊', icon: MessageCircle },
-  { id: 'saved', path: '/saved', text: '我的收藏', desc: '稍后查看', icon: Bookmark },
-  { id: 'profile', path: '/me', text: '个人资料', desc: '身份设置', icon: User },
-  { id: 'settings', path: '/settings', text: '设置', desc: '偏好管理', icon: Settings },
 ];
 
 export default function DesktopNav() {
@@ -39,7 +30,6 @@ export default function DesktopNav() {
   const { pathname } = useLocation();
   const { currentUser } = useAuth() || {};
   const av = makeAvatar(currentUser?.username || currentUser?.user_id || '我');
-  const [sheet, setSheet] = useState(false);
   const [unread, setUnread] = useState(0);
 
   // 同 TabBar：未读数轮询，桌面同样需要红点
@@ -66,12 +56,6 @@ export default function DesktopNav() {
     return () => window.removeEventListener('chat:read', onRead);
   }, [refreshUnread]);
 
-  useEffect(() => {
-    const onPublish = () => setSheet(true);
-    window.addEventListener('lingda:publish', onPublish);
-    return () => window.removeEventListener('lingda:publish', onPublish);
-  }, []);
-
   return (
     <nav
       aria-label="主导航"
@@ -96,19 +80,18 @@ export default function DesktopNav() {
       <div className="px-4">
         <button
           type="button"
-          onClick={() => setSheet(true)}
+          onClick={() => window.dispatchEvent(new CustomEvent('lingda:publish'))}
           className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 text-sm font-semibold text-white shadow-sm shadow-blue-900/10 transition hover:bg-blue-500 active:scale-[0.98]"
         >
           <Plus className="h-4 w-4" strokeWidth={2.5} />
           发起组队
         </button>
       </div>
-      <PublishSheet open={sheet} onClose={() => setSheet(false)} />
 
       {/* Nav items */}
       <div className="mt-5 flex-1 space-y-1 overflow-y-auto px-3">
         {NAV.map((n) => {
-          const on = pathname.startsWith(n.path) && (n.path !== '/me' || n.id === 'profile');
+          const on = pathname.startsWith(n.path);
           const Icon = n.icon;
           const showDot = n.path === '/chat' && unread > 0;
           return (

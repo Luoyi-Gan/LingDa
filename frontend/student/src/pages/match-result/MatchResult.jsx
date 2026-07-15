@@ -4,7 +4,7 @@
 // · 匹配卡：score 进度环 + 理由 chips + 主操作"申请加入"
 // · 申请卡：状态色徽
 // · FilterModal / "调整筛选" 入口都接通
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import {
   Car,
   Sparkles,
@@ -21,7 +21,6 @@ import { api } from '../../lib/api';
 import authLib from '../../lib/auth';
 import { fromNow } from '../../lib/time';
 import { getStudySubtitle } from '../../lib/study';
-import { useUI } from '../../context/UIContext';
 import { useWxNav, useQueryOptions } from '../../lib/nav';
 import NavBar from '../../components/NavBar';
 import MatchFilterModal from '../../components/MatchFilterModal';
@@ -29,6 +28,7 @@ import { Card } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
 import { Avatar, AvatarFallback } from '../../components/ui/avatar';
 import { Skeleton } from '../../components/ui/skeleton';
+import HoverableUserAvatar from '../../components/HoverableUserAvatar';
 import { cn } from '../../lib/cn';
 
 const STATUS_STYLE = {
@@ -89,7 +89,6 @@ const FORM_PATH = {
 
 export default function MatchResult() {
   const options = useQueryOptions();
-  const { showToast, showModal } = useUI();
   const nav = useWxNav();
 
   const type = options.type || 'carpool';
@@ -99,12 +98,10 @@ export default function MatchResult() {
   const [seg, setSeg] = useState('matches');
   const [matches, setMatches] = useState([]);
   const [applications, setApplications] = useState([]);
-  const [filterOpen, setFilterOpen] = useState(true);
+  const [filterOpen, setFilterOpen] = useState(false);
   const [lastFilters, setLastFilters] = useState(null);
   const [hasQueried, setHasQueried] = useState(false);
   const [mineLoaded, setMineLoaded] = useState(false);
-  const matchesRef = useRef([]);
-  matchesRef.current = matches;
 
   const loadAll = () => {
     let p;
@@ -150,6 +147,7 @@ export default function MatchResult() {
 
   useEffect(() => {
     if (authLib.requireLogin()) return;
+    loadAll();
     loadMine();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -171,24 +169,9 @@ export default function MatchResult() {
     nav.navigateTo({ url: `${DETAIL_PATH[tt] || DETAIL_PATH.group}?id=${id}` });
   };
 
-  const join = (id) => {
-    showModal({ title: '申请加入', content: '确认申请该房间?' }).then((res) => {
-      if (res.confirm) {
-        api.members.apply(id, {}).then(() => {
-          showToast({ title: '申请已提交', icon: 'success' });
-          setMatches(matchesRef.current.filter((m) => m.room_id !== id));
-          setSeg('mine');
-          loadMine();
-        });
-      }
-    });
-  };
-
   const createNew = () => {
     nav.redirectTo({ url: FORM_PATH[type] || FORM_PATH.carpool });
   };
-
-  const cancelApp = () => showToast({ title: 'pending 申请暂不支持撤回', icon: 'none' });
 
   return (
     <div className="relative min-h-screen pb-32 md:pb-12">
@@ -318,7 +301,6 @@ export default function MatchResult() {
                   key={item.room_id}
                   item={item}
                   type={type}
-                  onJoin={() => join(item.room_id)}
                   onDetail={() => goDetail(item.room_id)}
                 />
               ))}
@@ -395,14 +377,19 @@ export default function MatchResult() {
                         {item.title}
                       </h3>
                       <div className="flex items-center gap-2 text-xs text-muted-foreground min-w-0">
-                        <Avatar className="h-6 w-6 shrink-0">
-                          <AvatarFallback
-                            style={{ background: item.creator_color }}
-                            className="text-white text-[10px] font-bold"
-                          >
-                            {item.creator_text}
-                          </AvatarFallback>
-                        </Avatar>
+                        <HoverableUserAvatar
+                          userId={item.creator_id}
+                          fallbackName={item.creator_name}
+                        >
+                          <Avatar className="h-6 w-6 shrink-0">
+                            <AvatarFallback
+                              style={{ background: item.creator_color }}
+                              className="text-white text-[10px] font-bold"
+                            >
+                              {item.creator_text}
+                            </AvatarFallback>
+                          </Avatar>
+                        </HoverableUserAvatar>
                         <span className="truncate">{item.creator_name}</span>
                       </div>
                       <div className="flex gap-2 pt-1">
@@ -415,21 +402,8 @@ export default function MatchResult() {
                           }}
                           className="flex-1"
                         >
-                          查看
+                          查看详情
                         </Button>
-                        {item.status === 'pending' && (
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              cancelApp();
-                            }}
-                            className="flex-1"
-                          >
-                            撤回
-                          </Button>
-                        )}
                         {(item.status === 'passed' || item.status === 'approved') && (
                           <Button
                             size="sm"
@@ -440,7 +414,7 @@ export default function MatchResult() {
                             }}
                             className="flex-1"
                           >
-                            进入聊天
+                            进入
                             <ArrowUpRight className="h-3.5 w-3.5" />
                           </Button>
                         )}
@@ -495,7 +469,7 @@ function SegPill({ active, count, onClick, children }) {
   );
 }
 
-function MatchCard({ item, type, onJoin, onDetail }) {
+function MatchCard({ item, type, onDetail }) {
   // 进度
   const pct = item.total_num
     ? Math.min(100, Math.round((item.current_num / item.total_num) * 100))
@@ -506,7 +480,8 @@ function MatchCard({ item, type, onJoin, onDetail }) {
   return (
     <Card
       bento
-      className="col-span-2 md:col-span-2 xl:col-span-3 p-5 md:p-6 flex flex-col gap-3 relative overflow-hidden group"
+      className="col-span-2 md:col-span-2 xl:col-span-3 p-5 md:p-6 flex flex-col gap-3 relative overflow-hidden group cursor-pointer"
+      onClick={onDetail}
     >
       {/* 顶部 score + 标题 */}
       <div className="flex items-start justify-between gap-3">
@@ -576,17 +551,18 @@ function MatchCard({ item, type, onJoin, onDetail }) {
       </div>
 
       {/* 操作 */}
-      <div className="flex gap-2 pt-2">
-        <Button size="sm" variant="ghost" onClick={onDetail} className="flex-1">
-          详情
-        </Button>
+      <div className="pt-2">
         <Button
           size="sm"
           variant="cta"
-          onClick={onJoin}
-          className="flex-[1.4]"
+          onClick={(e) => {
+            e.stopPropagation();
+            onDetail();
+          }}
+          className="w-full"
         >
-          申请加入
+          查看详情
+          <ArrowUpRight className="h-3.5 w-3.5" />
         </Button>
       </div>
     </Card>

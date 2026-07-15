@@ -1,6 +1,8 @@
-// 包装一个头像元素：桌面 hover 300ms / 移动 tap → 打开 UserCard
+// 包装头像：点击打开对方个人主页（UserCard）；自己的头像进 /me
 import { useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import UserCard from './UserCard';
+import { useAuth } from '../context/AuthContext';
 
 export default function HoverableUserAvatar({
   userId,
@@ -10,22 +12,30 @@ export default function HoverableUserAvatar({
   style,
   disabled,
 }) {
+  const navigate = useNavigate();
+  const { currentUser } = useAuth() || {};
   const [open, setOpen] = useState(false);
   const [anchorRect, setAnchorRect] = useState(null);
   const elRef = useRef(null);
   const hoverTimer = useRef(null);
   const isWide =
     typeof window !== 'undefined' && window.innerWidth >= 1024;
+  const isSelf = !!userId && currentUser?.user_id === userId;
+  const inactive = disabled || !userId;
 
   const openCard = () => {
-    if (disabled || !userId) return;
+    if (inactive) return;
+    if (isSelf) {
+      navigate('/me');
+      return;
+    }
     if (elRef.current)
       setAnchorRect(elRef.current.getBoundingClientRect());
     setOpen(true);
   };
 
   const onEnter = () => {
-    if (!isWide || disabled) return;
+    if (!isWide || inactive || isSelf) return;
     hoverTimer.current = setTimeout(openCard, 280);
   };
   const onLeave = () => {
@@ -35,16 +45,10 @@ export default function HoverableUserAvatar({
     }
   };
   const onClick = (e) => {
-    if (disabled || !userId) return;
-    if (isWide) {
-      // 桌面：点击也开（一些用户不习惯等 hover）
-      openCard();
-      e.stopPropagation();
-      return;
-    }
-    // 移动：直接打开
-    openCard();
+    if (inactive) return;
     e.stopPropagation();
+    e.preventDefault();
+    openCard();
   };
 
   useEffect(
@@ -56,15 +60,32 @@ export default function HoverableUserAvatar({
     <>
       <span
         ref={elRef}
+        role={inactive ? undefined : 'button'}
+        tabIndex={inactive ? undefined : 0}
+        aria-label={
+          inactive
+            ? undefined
+            : isSelf
+              ? '查看我的资料'
+              : `查看${fallbackName || '用户'}主页`
+        }
         className={className}
-        style={{ cursor: disabled ? 'default' : 'pointer', ...style }}
+        style={{ cursor: inactive ? 'default' : 'pointer', ...style }}
         onMouseEnter={onEnter}
         onMouseLeave={onLeave}
         onClick={onClick}
+        onKeyDown={(e) => {
+          if (inactive) return;
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            e.stopPropagation();
+            openCard();
+          }
+        }}
       >
         {children}
       </span>
-      {open && (
+      {open && !isSelf && (
         <UserCard
           userId={userId}
           fallbackName={fallbackName}

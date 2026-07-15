@@ -17,6 +17,7 @@ import { useWxNav } from '../../lib/nav';
 import { Avatar, AvatarFallback } from '../../components/ui/avatar';
 import { Skeleton } from '../../components/ui/skeleton';
 import { cn } from '../../lib/cn';
+import { inkOn } from '../../lib/avatar';
 
 const CATEGORIES = [
   {
@@ -27,7 +28,7 @@ const CATEGORIES = [
     icon: Car,
     color: '#2563EB',
     bg: 'bg-blue-50',
-    text: 'text-blue-700',
+    text: 'text-blue-800',
   },
   {
     key: 'entertainment',
@@ -35,9 +36,9 @@ const CATEGORIES = [
     sub: '周末出游，看展观影',
     action: '去找队友',
     icon: Film,
-    color: '#F97316',
+    color: '#C2410C',
     bg: 'bg-orange-50',
-    text: 'text-orange-700',
+    text: 'text-orange-800',
   },
   {
     key: 'study',
@@ -45,9 +46,9 @@ const CATEGORIES = [
     sub: '课程项目，小组作业',
     action: '去找队友',
     icon: BookOpen,
-    color: '#16A34A',
+    color: '#15803D',
     bg: 'bg-emerald-50',
-    text: 'text-emerald-700',
+    text: 'text-emerald-800',
   },
 ];
 
@@ -62,7 +63,7 @@ const EVENING_CAMPUS_IMAGE = {
   src: '/images/campus/campus-evening.jpg',
   label: '夜色校园',
   position: 'center bottom',
-  overlay: 'from-slate-950/82 via-slate-950/50 to-slate-950/16',
+  overlay: 'from-slate-950/90 via-slate-950/62 to-slate-950/28',
 };
 
 const CAMPUS_IMAGES = [
@@ -70,25 +71,25 @@ const CAMPUS_IMAGES = [
     src: '/images/campus/resource-center-sun.jpg',
     label: '资源中心',
     position: 'center',
-    overlay: 'from-slate-950/72 via-slate-950/30 to-slate-950/0',
+    overlay: 'from-slate-950/90 via-slate-950/55 to-slate-950/22',
   },
   {
     src: '/images/campus/sky-courtyard.jpg',
     label: '晴空中庭',
     position: 'center',
-    overlay: 'from-slate-950/84 via-slate-950/44 to-slate-950/8',
+    overlay: 'from-slate-950/90 via-slate-950/58 to-slate-950/24',
   },
   {
     src: '/images/campus/study-window.jpg',
     label: '学习空间',
     position: 'center',
-    overlay: 'from-slate-950/72 via-slate-950/34 to-slate-950/0',
+    overlay: 'from-slate-950/88 via-slate-950/52 to-slate-950/20',
   },
   {
     src: '/images/campus/resource-center-soft.jpg',
     label: '校园建筑',
     position: 'center',
-    overlay: 'from-slate-950/76 via-slate-950/34 to-slate-950/0',
+    overlay: 'from-slate-950/88 via-slate-950/50 to-slate-950/20',
   },
 ];
 
@@ -208,7 +209,7 @@ export default function Hall() {
               <h1 className="font-heading text-3xl font-bold tracking-tight text-slate-950 md:text-4xl">
                 {greeting()}，{loaded ? user.username || '同学' : '同学'}
               </h1>
-              <p className="mt-1 text-sm text-slate-500">找搭子 · 拼车、娱乐与课程组队</p>
+              <p className="mt-1 text-sm text-slate-600">找搭子 · 拼车、娱乐与课程组队</p>
             </div>
             <div className="flex items-center gap-3">
               <button
@@ -360,9 +361,13 @@ export default function Hall() {
         </main>
 
         <aside className="hidden space-y-5 xl:block">
-          <ProfilePanel user={user} counts={counts} loaded={loaded} onPublish={goPublish} />
-          <QuickPanel onPick={goMatch} />
-          <SchedulePanel rows={scheduleRows} loaded={loaded} onDetail={goDetail} />
+          <ProfilePanel user={user} counts={counts} loaded={loaded} />
+          <SchedulePanel
+            rows={scheduleRows}
+            loaded={loaded}
+            onDetail={goDetail}
+            onAll={() => nav.navigateTo({ url: '/teams' })}
+          />
         </aside>
       </div>
     </div>
@@ -400,27 +405,18 @@ function CampusGalleryHero({ onPublish }) {
         style={{ objectPosition: image.position }}
       />
       <div className={cn('absolute inset-0 z-[1] bg-gradient-to-r', image.overlay)} />
-      <div className="absolute inset-x-0 bottom-0 z-[1] h-28 bg-gradient-to-t from-slate-950/46 to-transparent" />
+      <div className="absolute inset-x-0 bottom-0 z-[1] h-36 bg-gradient-to-t from-slate-950/70 to-transparent" />
 
-      <div className="relative z-10 flex h-full max-w-[570px] flex-col justify-center px-7 py-8 text-white md:px-10">
-        <p
-          className="text-sm font-semibold text-white/88"
-          style={{ textShadow: '0 1px 12px rgba(0,0,0,0.42)' }}
-        >
+      <div className="relative z-10 flex h-full max-w-[570px] flex-col justify-center px-7 py-8 text-white on-media md:px-10">
+        <p className="text-sm font-semibold text-white/95">
           真实校园 · 拼车 · 娱乐 · 学习
         </p>
-        <h2
-          className="mt-2 font-heading text-4xl font-extrabold leading-tight tracking-tight md:text-5xl"
-          style={{ textShadow: '0 2px 24px rgba(0,0,0,0.55)' }}
-        >
+        <h2 className="mt-2 font-heading text-4xl font-extrabold leading-tight tracking-tight text-white md:text-5xl">
           从灵搭开始
           <br />
           一起出发
         </h2>
-        <p
-          className="mt-4 max-w-[420px] text-sm leading-6 text-white/88"
-          style={{ textShadow: '0 1px 16px rgba(0,0,0,0.5)' }}
-        >
+        <p className="mt-4 max-w-[420px] text-sm leading-6 text-white/95">
           在熟悉的校园里，找到同频的出行、活动和学习伙伴。
         </p>
         <button
@@ -511,25 +507,28 @@ function RecommendationRow({ item, onClick }) {
       </div>
 
       <div className="hidden items-center -space-x-2 md:flex">
-        {(item.seats || []).slice(0, 3).map((s, i) => (
+        {(item.seats || []).slice(0, 3).map((s, i) => {
+          const bg = s.avatar_color || '#64748B';
+          return (
           <span
             key={`${item.room_id}-${i}`}
-            className="inline-flex h-7 w-7 items-center justify-center rounded-full border-2 border-white text-[10px] font-bold text-white"
-            style={{ background: s.avatar_color || '#94A3B8' }}
+            className="inline-flex h-7 w-7 items-center justify-center rounded-full border-2 border-white text-[10px] font-bold"
+            style={{ background: bg, color: inkOn(bg) }}
           >
             {s.avatar_text || '+'}
           </span>
-        ))}
+          );
+        })}
       </div>
 
       <span className="self-center rounded-lg border border-blue-200 px-4 py-2 text-sm font-semibold text-blue-600 transition group-hover:bg-blue-600 group-hover:text-white">
-        加入
+        查看
       </span>
     </button>
   );
 }
 
-function ProfilePanel({ user, counts, loaded, onPublish }) {
+function ProfilePanel({ user, counts, loaded }) {
   const total = (counts.carpool || 0) + (counts.entertainment || 0) + (counts.study || 0);
   return (
     <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
@@ -546,7 +545,7 @@ function ProfilePanel({ user, counts, loaded, onPublish }) {
           <div className="truncate font-bold text-slate-950">
             {loaded ? user.username || '同学' : '同学'}
           </div>
-          <div className="truncate text-sm text-slate-500">{user.college || '校园用户'}</div>
+          <div className="truncate text-sm text-slate-600">{user.college || '校园用户'}</div>
         </div>
       </div>
       <div className="mt-5 grid grid-cols-3 divide-x divide-slate-100 text-center">
@@ -554,14 +553,6 @@ function ProfilePanel({ user, counts, loaded, onPublish }) {
         <Stat value={counts.carpool || 0} label="拼车" />
         <Stat value={counts.study || 0} label="学习" />
       </div>
-      <button
-        type="button"
-        onClick={onPublish}
-        className="mt-5 inline-flex h-10 w-full items-center justify-center gap-2 rounded-lg bg-blue-600 text-sm font-semibold text-white shadow-sm shadow-blue-900/10 transition hover:bg-blue-500"
-      >
-        发起组队
-        <CirclePlus className="h-4 w-4" />
-      </button>
     </section>
   );
 }
@@ -575,40 +566,18 @@ function Stat({ value, label }) {
   );
 }
 
-function QuickPanel({ onPick }) {
-  return (
-    <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
-      <h3 className="font-heading text-base font-bold text-slate-950">快捷入口</h3>
-      <div className="mt-4 grid grid-cols-3 gap-4 text-center">
-        {CATEGORIES.map((cat) => {
-          const Icon = cat.icon;
-          return (
-            <button
-              key={cat.key}
-              type="button"
-              onClick={() => onPick(cat.key)}
-              className="group"
-            >
-              <span className={cn('mx-auto flex h-11 w-11 items-center justify-center rounded-lg', cat.bg, cat.text)}>
-                <Icon className="h-6 w-6" strokeWidth={2} />
-              </span>
-              <span className="mt-2 block text-sm font-semibold text-slate-700 group-hover:text-blue-600">
-                {cat.name.replace('小组', '')}
-              </span>
-            </button>
-          );
-        })}
-      </div>
-    </section>
-  );
-}
-
-function SchedulePanel({ rows, loaded, onDetail }) {
+function SchedulePanel({ rows, loaded, onDetail, onAll }) {
   return (
     <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
       <div className="flex items-center justify-between">
         <h3 className="font-heading text-base font-bold text-slate-950">我的日程</h3>
-        <span className="text-xs text-slate-400">查看全部</span>
+        <button
+          type="button"
+          onClick={onAll}
+          className="text-xs font-semibold text-blue-600 transition hover:text-blue-500"
+        >
+          查看全部
+        </button>
       </div>
       <div className="mt-4 space-y-4">
         {!loaded &&

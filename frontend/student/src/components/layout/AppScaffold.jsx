@@ -17,14 +17,14 @@ export function PageHeader({ eyebrow, title, subtitle, action, trailing, classNa
     <header className={cn('flex flex-col gap-3 md:gap-4 lg:flex-row lg:items-start lg:justify-between', className)}>
       <div className="min-w-0">
         {eyebrow && (
-          <p className="mb-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400 md:text-xs">
+          <p className="mb-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500 md:text-xs">
             {eyebrow}
           </p>
         )}
         <h1 className="font-heading text-2xl font-bold tracking-tight text-slate-950 md:text-4xl">
           {title}
         </h1>
-        {subtitle && <p className="mt-1 text-xs text-slate-500 md:text-sm">{subtitle}</p>}
+        {subtitle && <p className="mt-1 text-xs text-slate-600 md:text-sm">{subtitle}</p>}
       </div>
       {(action || trailing) && (
         <div className="flex items-center gap-3">
@@ -49,7 +49,7 @@ export function SectionHeader({ title, subtitle, action, className }) {
     <div className={cn('flex items-end justify-between gap-4', className)}>
       <div className="min-w-0">
         <h2 className="font-heading text-lg font-bold tracking-tight text-slate-950 md:text-xl">{title}</h2>
-        {subtitle && <p className="mt-0.5 text-xs text-slate-500 md:mt-1 md:text-sm">{subtitle}</p>}
+        {subtitle && <p className="mt-0.5 text-xs text-slate-600 md:mt-1 md:text-sm">{subtitle}</p>}
       </div>
       {action}
     </div>
@@ -94,11 +94,11 @@ export function EmptyPanel({ text, icon: Icon = Inbox }) {
 
 export function TypeBadge({ children, tone = 'blue', className }) {
   const tones = {
-    blue: 'bg-blue-50 text-blue-700',
-    green: 'bg-emerald-50 text-emerald-700',
-    orange: 'bg-orange-50 text-orange-700',
-    violet: 'bg-violet-50 text-violet-700',
-    slate: 'bg-slate-100 text-slate-600',
+    blue: 'bg-blue-50 text-blue-800',
+    green: 'bg-emerald-50 text-emerald-800',
+    orange: 'bg-orange-50 text-orange-800',
+    violet: 'bg-violet-50 text-violet-800',
+    slate: 'bg-slate-100 text-slate-700',
   };
   return (
     <span className={cn('inline-flex items-center rounded px-1.5 py-0.5 text-xs font-semibold', tones[tone] || tones.blue, className)}>
