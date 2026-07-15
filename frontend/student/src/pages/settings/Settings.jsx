@@ -1,12 +1,16 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   Bell,
   ChevronRight,
   Edit3,
+  FileImage,
+  ImagePlus,
+  LoaderCircle,
   Lock,
   LogOut,
   MessageCircle,
   ShieldCheck,
+  Trash2,
   UserPlus,
 } from 'lucide-react';
 import { api } from '../../lib/api';
@@ -219,7 +223,9 @@ export default function SettingsPage() {
 }
 
 function VerificationPanel({ user, verification, onApply }) {
-  const status = user.verification_status || 'unverified';
+  const status = verification?.status === 'pending'
+    ? 'pending'
+    : user.verification_status || 'unverified';
   const labels = {
     verified: '认证通过',
     pending: '审核中',
@@ -240,8 +246,8 @@ function VerificationPanel({ user, verification, onApply }) {
               </p>
             </div>
           </div>
-          {status !== 'verified' && status !== 'pending' && (
-            <button type="button" onClick={onApply} className="h-10 rounded-lg bg-blue-600 px-4 text-sm font-semibold text-white hover:bg-blue-500">提交认证</button>
+          {status !== 'pending' && (
+            <button type="button" onClick={onApply} className="h-10 rounded-lg bg-blue-600 px-4 text-sm font-semibold text-white hover:bg-blue-500">{status === 'verified' ? '申请其他认证' : '提交认证'}</button>
           )}
         </div>
       </SectionSurface>
@@ -256,16 +262,44 @@ function VerificationForm({ user, onClose, onSubmitted }) {
     applicantName: user.real_name || '',
     organizationName: '',
     studentId: user.user_id || '',
-    materialUrls: '',
+    materialUrls: [],
     statement: '',
   });
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef(null);
   const set = (key, value) => setForm((prev) => ({ ...prev, [key]: value }));
+  const uploadMaterials = async (event) => {
+    const files = Array.from(event.target.files || []);
+    event.target.value = '';
+    if (!files.length) return;
+    const remaining = 8 - form.materialUrls.length;
+    if (files.length > remaining) {
+      showToast({ title: `还可以上传 ${remaining} 份材料`, icon: 'none' });
+      return;
+    }
+    if (files.some((file) => !['image/jpeg', 'image/png', 'image/webp', 'image/gif'].includes(file.type))) {
+      showToast({ title: '认证材料仅支持 JPG、PNG、WebP 或 GIF', icon: 'none' });
+      return;
+    }
+    if (files.some((file) => file.size > 8 * 1024 * 1024)) {
+      showToast({ title: '单份材料不能超过 8MB', icon: 'none' });
+      return;
+    }
+    setUploading(true);
+    try {
+      const result = await api.uploads.verificationMaterials(files);
+      const uploaded = (result.files || []).map((file) => ({ path: file.path, name: file.name }));
+      set('materialUrls', [...form.materialUrls, ...uploaded]);
+    } finally {
+      setUploading(false);
+    }
+  };
   const submit = (event) => {
     event.preventDefault();
-    const materialUrls = form.materialUrls.split('\n').map((item) => item.trim()).filter(Boolean);
+    const materialUrls = form.materialUrls.map((item) => item.path);
     if (!materialUrls.length) {
-      showToast({ title: '请至少填写一个证明材料地址', icon: 'none' });
+      showToast({ title: '请至少上传一份证明材料', icon: 'none' });
       return;
     }
     setSaving(true);
@@ -273,7 +307,7 @@ function VerificationForm({ user, onClose, onSubmitted }) {
       type: form.type,
       applicantName: form.applicantName,
       ...(form.type !== 'student' ? { organizationName: form.organizationName } : {}),
-      ...(form.type === 'student' ? { studentId: form.studentId } : {}),
+      ...(form.type !== 'official' ? { studentId: form.studentId } : {}),
       materialUrls,
       statement: form.statement || undefined,
     }).then(() => {
@@ -282,16 +316,36 @@ function VerificationForm({ user, onClose, onSubmitted }) {
     }).finally(() => setSaving(false));
   };
   return (
-    <div className="fixed inset-0 z-[80] flex items-end justify-center bg-slate-950/35 backdrop-blur-sm sm:items-center sm:p-6" role="presentation" onMouseDown={(e) => { if (e.currentTarget === e.target) onClose(); }}>
-      <section role="dialog" aria-modal="true" className="max-h-[92vh] w-full overflow-y-auto rounded-t-lg bg-white p-5 shadow-2xl sm:max-w-xl sm:rounded-lg sm:p-6">
+    <div className="fixed inset-0 z-[80] flex items-center justify-center bg-slate-950/35 p-3 backdrop-blur-sm sm:p-6" role="presentation" onMouseDown={(e) => { if (e.currentTarget === e.target) onClose(); }}>
+      <section role="dialog" aria-modal="true" className="max-h-[92vh] w-full overflow-y-auto rounded-lg bg-white p-5 shadow-2xl sm:max-w-xl sm:p-6">
         <div className="mb-5"><h2 className="text-xl font-bold text-slate-950">提交身份认证</h2><p className="mt-1 text-sm text-slate-500">管理员会核对身份与证明材料，结果会保留审核记录。</p></div>
         <form onSubmit={submit} className="space-y-4">
           <VerifySelect value={form.type} onChange={(v) => set('type', v)} />
           <VerifyInput label="申请人姓名" value={form.applicantName} onChange={(v) => set('applicantName', v)} />
-          {form.type === 'student' ? <VerifyInput label="学号" value={form.studentId} onChange={(v) => set('studentId', v)} /> : <VerifyInput label="组织名称" value={form.organizationName} onChange={(v) => set('organizationName', v)} />}
-          <label className="block text-sm font-semibold text-slate-700">证明材料地址 <span className="font-normal text-slate-400">每行一个，最多 8 个</span><textarea required rows={4} value={form.materialUrls} onChange={(e) => set('materialUrls', e.target.value)} placeholder="学生证、校园卡或组织证明的文件地址" className="mt-2 w-full rounded-lg border border-slate-200 p-3 font-normal outline-none focus:border-blue-400" /></label>
+          {form.type === 'student' && <VerifyInput label="学号" value={form.studentId} onChange={(v) => set('studentId', v)} />}
+          {form.type === 'club' && <><VerifyInput label="社团名称" value={form.organizationName} onChange={(v) => set('organizationName', v)} /><VerifyInput label="负责人学号" value={form.studentId} onChange={(v) => set('studentId', v)} /></>}
+          {form.type === 'official' && <VerifyInput label="官方机构名称" value={form.organizationName} onChange={(v) => set('organizationName', v)} />}
+          <div className="block text-sm font-semibold text-slate-700">
+            证明材料 <span className="font-normal text-slate-400">仅申请人和管理员可见，最多 8 份</span>
+            <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-3">
+              {form.materialUrls.map((item) => (
+                <div key={item.path} className="flex min-h-20 items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 p-3">
+                  <FileImage className="h-5 w-5 shrink-0 text-blue-600" />
+                  <span className="min-w-0 flex-1 truncate text-xs font-medium text-slate-600">{item.name}</span>
+                  <button type="button" onClick={() => set('materialUrls', form.materialUrls.filter((current) => current.path !== item.path))} aria-label="移除材料" className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-slate-400 hover:bg-rose-50 hover:text-rose-600"><Trash2 className="h-4 w-4" /></button>
+                </div>
+              ))}
+              {form.materialUrls.length < 8 && (
+                <button type="button" disabled={uploading} onClick={() => fileInputRef.current?.click()} className="flex min-h-20 flex-col items-center justify-center gap-1 rounded-lg border border-dashed border-slate-300 bg-slate-50 text-xs font-semibold text-slate-500 hover:border-blue-400 hover:text-blue-600 disabled:opacity-50">
+                  {uploading ? <LoaderCircle className="h-5 w-5 animate-spin" /> : <ImagePlus className="h-5 w-5" />}
+                  {uploading ? '上传中' : '选择本地图片'}
+                </button>
+              )}
+            </div>
+            <input ref={fileInputRef} type="file" multiple accept="image/jpeg,image/png,image/webp,image/gif" className="hidden" onChange={uploadMaterials} />
+          </div>
           <label className="block text-sm font-semibold text-slate-700">补充说明<textarea rows={3} maxLength={1000} value={form.statement} onChange={(e) => set('statement', e.target.value)} className="mt-2 w-full rounded-lg border border-slate-200 p-3 font-normal outline-none focus:border-blue-400" /></label>
-          <div className="flex gap-3"><button type="button" onClick={onClose} className="h-11 flex-1 rounded-lg bg-slate-100 text-sm font-semibold text-slate-600">取消</button><button disabled={saving} className="h-11 flex-1 rounded-lg bg-blue-600 text-sm font-semibold text-white disabled:opacity-50">{saving ? '提交中...' : '提交审核'}</button></div>
+          <div className="flex gap-3"><button type="button" onClick={onClose} className="h-11 flex-1 rounded-lg bg-slate-100 text-sm font-semibold text-slate-600">取消</button><button disabled={saving || uploading} className="h-11 flex-1 rounded-lg bg-blue-600 text-sm font-semibold text-white disabled:opacity-50">{saving ? '提交中...' : uploading ? '材料上传中...' : '提交审核'}</button></div>
         </form>
       </section>
     </div>
@@ -299,7 +353,7 @@ function VerificationForm({ user, onClose, onSubmitted }) {
 }
 
 function VerifyInput({ label, value, onChange }) { return <label className="block text-sm font-semibold text-slate-700">{label}<input required value={value} onChange={(e) => onChange(e.target.value)} className="mt-2 h-10 w-full rounded-lg border border-slate-200 px-3 font-normal outline-none focus:border-blue-400" /></label>; }
-function VerifySelect({ value, onChange }) { return <label className="block text-sm font-semibold text-slate-700">认证类型<select value={value} onChange={(e) => onChange(e.target.value)} className="mt-2 h-10 w-full rounded-lg border border-slate-200 bg-white px-3 font-normal"><option value="student">在校学生</option><option value="club">认证社团</option><option value="official">官方机构</option></select></label>; }
+function VerifySelect({ value, onChange }) { return <label className="block text-sm font-semibold text-slate-700">认证类型<select value={value} onChange={(e) => onChange(e.target.value)} className="mt-2 h-10 w-full rounded-lg border border-slate-200 bg-white px-3 font-normal"><option value="student">在校学生身份</option><option value="club">社团负责人</option><option value="official">校级官方机构</option></select></label>; }
 function roleLabel(role) { return ({ student: '在校学生', club: '认证社团', official: '官方机构', admin: '管理员' })[role] || '在校学生'; }
 
 function AccountPanel({ user, onEdit }) {

@@ -5,7 +5,7 @@
 - 前端：Vite + React 18 + Tailwind + shadcn/ui
 - 管理端：独立 Vite + React SPA
 - 后端：NestJS + Prisma + MySQL 8
-- 部署：Mac mini 自托管 + ngrok 公网入口（详见 [`deploy/`](./deploy/)）
+- 部署：学校 Linux 服务器 + Nginx + systemd（详见 [`deploy/`](./deploy/)）
 
 ## 目录结构
 
@@ -16,7 +16,7 @@ frontend/
 backend/    NestJS API + Prisma ORM
 database/   MySQL 完整结构与增量迁移
 docs/       API 契约与产品技术文档
-deploy/     部署脚本 / Nginx / FRP
+deploy/     学校服务器迁移、Nginx 与发布文档
 ```
 
 ## 本地开发
@@ -39,6 +39,6 @@ cd backend
 ADMIN_PREVIEW_PASSWORD='自行设置至少10位密码' npm run seed:admin-preview
 ```
 
-## 公网部署（Mac mini + ngrok）
+## 学校服务器部署
 
 详见 [`deploy/MIGRATION.md`](./deploy/MIGRATION.md)。

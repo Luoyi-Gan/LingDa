@@ -12,6 +12,7 @@ export class RegisterDto {
   @IsString()
   @MinLength(4)
   @MaxLength(50)
+  @Matches(/^[A-Za-z0-9_-]+$/, { message: '学号只能包含字母、数字、下划线或连字符' })
   userId: string;
 
   @ApiProperty({ example: '小柚' })

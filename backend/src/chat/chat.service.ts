@@ -226,6 +226,11 @@ export class ChatService {
         user2: { select: { userId: true, username: true } },
       },
     });
+    const acceptedFriendIds = new Set(
+      friendships.map((friendship) =>
+        friendship.userId1 === userId ? friendship.userId2 : friendship.userId1,
+      ),
+    );
     const friendIdSet = new Set(otherIds);
     const friendConvs = friendships
       .map((f) => (f.userId1 === userId ? f.user2 : f.user1))
@@ -300,7 +305,7 @@ export class ChatService {
     let list = [
       ...groupConvs,
       ...sgroupConvs,
-      ...privateConvs.filter((x) => x !== null),
+      ...privateConvs.filter((item) => item !== null && acceptedFriendIds.has(item.userId)),
       ...friendConvs,
     ] as any[];
 
@@ -545,26 +550,25 @@ export class ChatService {
     if (block) {
       throw new BusinessException(ERROR_CODES.BLOCKED_BY_TARGET);
     }
-    // msgPermission 校验
+    const friend = await this.prisma.friendship.findFirst({
+      where: {
+        status: 'accepted',
+        OR: [
+          { userId1: userId, userId2: targetUserId },
+          { userId1: targetUserId, userId2: userId },
+        ],
+      },
+      select: { friendId: true },
+    });
+    if (!friend) {
+      throw new BusinessException(
+        ERROR_CODES.FORBIDDEN,
+        '只有成为好友后才能发起私聊',
+      );
+    }
+    // 在好友关系的基础上，仍尊重对方的私聊开关。
     if (target.msgPermission === 'none') {
       throw new BusinessException(ERROR_CODES.FORBIDDEN, '对方关闭了私聊');
-    }
-    if (target.msgPermission === 'friends') {
-      const friend = await this.prisma.friendship.findFirst({
-        where: {
-          status: 'accepted',
-          OR: [
-            { userId1: userId, userId2: targetUserId },
-            { userId1: targetUserId, userId2: userId },
-          ],
-        },
-      });
-      if (!friend) {
-        throw new BusinessException(
-          ERROR_CODES.FORBIDDEN,
-          '对方仅好友可联系',
-        );
-      }
     }
     const msg = await this.prisma.message.create({
       data: { senderId: userId, receiverId: targetUserId, content },
@@ -649,13 +653,29 @@ export class ChatService {
         throw new BusinessException(ERROR_CODES.FORBIDDEN, '你不是该群成员');
       }
     } else {
-      // 私聊:对端必须存在(被拉黑也允许查历史,只是发不出去)
+      // 私聊历史也只对当前好友开放，防止猜测 convId 越权访问。
       const u = await this.prisma.user.findUnique({
         where: { userId: decoded.userId },
         select: { userId: true },
       });
       if (!u) {
         throw new BusinessException(ERROR_CODES.NOT_FOUND, '对方不存在');
+      }
+      const friend = await this.prisma.friendship.findFirst({
+        where: {
+          status: 'accepted',
+          OR: [
+            { userId1: userId, userId2: decoded.userId },
+            { userId1: decoded.userId, userId2: userId },
+          ],
+        },
+        select: { friendId: true },
+      });
+      if (!friend) {
+        throw new BusinessException(
+          ERROR_CODES.FORBIDDEN,
+          '只有好友才能访问私聊',
+        );
       }
     }
   }

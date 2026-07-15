@@ -10,7 +10,7 @@ import {
   Send,
   X,
 } from 'lucide-react';
-import { api } from '../../lib/api';
+import { api, mediaUrl } from '../../lib/api';
 import authLib from '../../lib/auth';
 import { useUI } from '../../context/UIContext';
 import { useAuth } from '../../context/AuthContext';
@@ -24,6 +24,8 @@ import {
   TypeBadge,
 } from '../../components/layout/AppScaffold';
 import { cn } from '../../lib/cn';
+import ImageUploader from '../../components/ImageUploader';
+import UserCard from '../../components/UserCard';
 
 const CATEGORIES = [
   { key: 'all', label: '全部' },
@@ -46,6 +48,7 @@ export default function Community() {
   const [loading, setLoading] = useState(true);
   const [editorOpen, setEditorOpen] = useState(false);
   const [activePost, setActivePost] = useState(null);
+  const [profileUser, setProfileUser] = useState(null);
 
   const load = useCallback(() => {
     setLoading(true);
@@ -121,25 +124,27 @@ export default function Community() {
         <SectionSurface>
           {!loading && posts.length === 0 && <EmptyPanel text="这个分类暂时还没有帖子。" />}
           {loading && <div className="p-10 text-center text-sm text-slate-400">正在加载...</div>}
-          {!loading && posts.map((post) => <PostRow key={post.post_id} post={post} onOpen={() => openPost(post.post_id)} />)}
+          {!loading && posts.map((post) => <PostRow key={post.post_id} post={post} onOpen={() => openPost(post.post_id)} onProfile={setProfileUser} />)}
         </SectionSurface>
       </AppPage>
 
       {editorOpen && <PostEditor onClose={() => setEditorOpen(false)} onCreated={() => { setEditorOpen(false); load(); }} />}
-      {activePost && <PostDetail post={activePost} onClose={() => setActivePost(null)} onRefresh={() => openPost(activePost.post_id)} />}
+      {activePost && <PostDetail post={activePost} onClose={() => setActivePost(null)} onRefresh={() => openPost(activePost.post_id)} onProfile={setProfileUser} />}
+      {profileUser && <UserCard userId={profileUser.user_id} fallbackName={profileUser.username} onClose={() => setProfileUser(null)} />}
     </>
   );
 }
 
-function PostRow({ post, onOpen }) {
+function PostRow({ post, onOpen, onProfile }) {
+  const images = Array.isArray(post.images) ? post.images : [];
   return (
-    <button type="button" onClick={onOpen} className="block w-full border-b border-slate-100 px-5 py-5 text-left transition last:border-b-0 hover:bg-slate-50">
+    <article onClick={onOpen} onKeyDown={(event) => event.key === 'Enter' && onOpen()} role="button" tabIndex={0} className="group block w-full cursor-pointer border-b border-slate-100 px-5 py-5 text-left transition last:border-b-0 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-100">
       <div className="flex items-start gap-3">
-        <Avatar className="h-10 w-10 shrink-0">
+        <button type="button" onClick={(event) => { event.stopPropagation(); onProfile(post.author); }} aria-label={`查看${post.author?.username || '用户'}资料`} className="shrink-0 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-200"><Avatar className="h-10 w-10">
           <AvatarFallback style={{ background: post.author?.avatar_color || '#2563EB' }} className="text-xs font-bold text-white">
             {post.author?.avatar_text || '?'}
           </AvatarFallback>
-        </Avatar>
+        </Avatar></button>
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2 text-xs text-slate-400">
             <span className="font-semibold text-slate-700">{post.author?.username}</span>
@@ -155,20 +160,30 @@ function PostRow({ post, onOpen }) {
             <Stat icon={Heart} value={post.like_count} />
           </div>
         </div>
+        {images[0] && (
+          <div className="relative hidden h-24 w-32 shrink-0 overflow-hidden rounded-lg bg-slate-100 sm:block">
+            <img src={mediaUrl(images[0])} alt="帖子预览" className="h-full w-full object-cover transition duration-300 group-hover:scale-[1.03]" />
+            {images.length > 1 && (
+              <span className="absolute bottom-2 right-2 rounded-md bg-slate-950/70 px-2 py-1 text-[10px] font-semibold text-white backdrop-blur-sm">
+                +{images.length - 1}
+              </span>
+            )}
+          </div>
+        )}
       </div>
-    </button>
+    </article>
   );
 }
 
 function PostEditor({ onClose, onCreated }) {
   const { showToast } = useUI();
-  const [form, setForm] = useState({ category: 'course', title: '', content: '', images: '' });
+  const [form, setForm] = useState({ category: 'course', title: '', content: '', images: [] });
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const submit = (event) => {
     event.preventDefault();
     setSaving(true);
-    const images = form.images.split('\n').map((v) => v.trim()).filter(Boolean);
-    api.community.createPost({ category: form.category, title: form.title, content: form.content, images })
+    api.community.createPost({ category: form.category, title: form.title, content: form.content, images: form.images })
       .then((res) => {
         showToast({ title: res.status === 'published' ? '帖子已发布' : '已提交，等待管理员复核', icon: 'success' });
         onCreated();
@@ -186,36 +201,39 @@ function PostEditor({ onClose, onCreated }) {
         <Field label="标题" value={form.title} onChange={(title) => setForm({ ...form, title })} maxLength={150} />
         <label className="block text-sm font-semibold text-slate-700">正文
           <textarea required minLength={5} maxLength={10000} rows={8} value={form.content} onChange={(e) => setForm({ ...form, content: e.target.value })} className="mt-2 w-full resize-y rounded-lg border border-slate-200 p-3 font-normal outline-none focus:border-blue-400" />
+          <span className="mt-1 block text-right text-xs font-normal tabular-nums text-slate-400">{form.content.length}/10000</span>
         </label>
-        <label className="block text-sm font-semibold text-slate-700">图片地址 <span className="font-normal text-slate-400">每行一个，最多 9 个</span>
-          <textarea rows={3} value={form.images} onChange={(e) => setForm({ ...form, images: e.target.value })} className="mt-2 w-full resize-none rounded-lg border border-slate-200 p-3 font-normal outline-none focus:border-blue-400" />
-        </label>
-        <button disabled={saving} className="h-11 w-full rounded-lg bg-blue-600 text-sm font-semibold text-white disabled:opacity-50">{saving ? '提交中...' : '提交发布'}</button>
+        <div className="block text-sm font-semibold text-slate-700">帖子图片 <span className="font-normal text-slate-400">选填</span>
+          <div className="mt-2">
+            <ImageUploader value={form.images} onChange={(images) => setForm({ ...form, images })} onUploadingChange={setUploading} disabled={saving} />
+          </div>
+        </div>
+        <button disabled={saving || uploading} className="h-11 w-full rounded-lg bg-blue-600 text-sm font-semibold text-white disabled:opacity-50">{saving ? '提交中...' : uploading ? '图片上传中...' : '提交发布'}</button>
       </form>
     </ModalShell>
   );
 }
 
-function PostDetail({ post, onClose, onRefresh }) {
+function PostDetail({ post, onClose, onRefresh, onProfile }) {
   const { showToast } = useUI();
   const [comment, setComment] = useState('');
   const images = Array.isArray(post.images) ? post.images : [];
   return (
     <ModalShell title={CATEGORY_LABEL[post.category]} onClose={onClose} wide>
       <div className="flex items-center gap-3 text-sm text-slate-500">
-        <Avatar className="h-9 w-9"><AvatarFallback style={{ background: post.author?.avatar_color }} className="text-xs font-bold text-white">{post.author?.avatar_text}</AvatarFallback></Avatar>
+        <button type="button" onClick={() => onProfile(post.author)} aria-label={`查看${post.author?.username || '用户'}资料`} className="rounded-full focus:outline-none focus:ring-2 focus:ring-blue-200"><Avatar className="h-9 w-9"><AvatarFallback style={{ background: post.author?.avatar_color }} className="text-xs font-bold text-white">{post.author?.avatar_text}</AvatarFallback></Avatar></button>
         <div><div className="font-semibold text-slate-800">{post.author?.username}</div><div className="text-xs">{formatDate(post.published_at || post.create_time)}</div></div>
       </div>
       <h2 className="mt-5 text-2xl font-bold text-slate-950">{post.title}</h2>
       <p className="mt-3 whitespace-pre-wrap text-sm leading-7 text-slate-700">{post.content}</p>
-      {images.length > 0 && <div className="mt-4 grid gap-2 sm:grid-cols-2">{images.map((src) => <img key={src} src={src} alt="帖子图片" className="aspect-[4/3] w-full rounded-lg object-cover" />)}</div>}
+      {images.length > 0 && <div className={cn('mt-4 grid gap-2', images.length > 1 && 'sm:grid-cols-2')}>{images.map((src) => <img key={src} src={mediaUrl(src)} alt="帖子图片" className="max-h-[520px] w-full rounded-lg bg-slate-100 object-cover" />)}</div>}
       <div className="mt-5 flex gap-2 border-y border-slate-100 py-3">
         <ActionButton active={post.liked} icon={Heart} label={`${post.like_count || 0}`} onClick={() => api.community.toggleLike(post.post_id).then(onRefresh)} />
         <ActionButton active={post.favorited} icon={Bookmark} label={post.favorited ? '已收藏' : '收藏'} onClick={() => (post.favorited ? api.community.unfavorite('post', post.post_id) : api.community.favorite('post', post.post_id)).then(onRefresh)} />
       </div>
       <div className="mt-5 space-y-4">
         <h3 className="font-bold text-slate-950">评论 {post.comment_count || 0}</h3>
-        {(post.comments || []).map((item) => <div key={item.comment_id} className="flex gap-3"><Avatar className="h-8 w-8"><AvatarFallback style={{ background: item.author?.avatar_color }} className="text-[10px] font-bold text-white">{item.author?.avatar_text}</AvatarFallback></Avatar><div className="min-w-0"><div className="text-xs font-semibold text-slate-700">{item.author?.username}</div><p className="mt-1 text-sm text-slate-600">{item.content}</p></div></div>)}
+        {(post.comments || []).map((item) => <div key={item.comment_id} className="flex gap-3"><button type="button" onClick={() => onProfile(item.author)} aria-label={`查看${item.author?.username || '用户'}资料`} className="h-8 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-200"><Avatar className="h-8 w-8"><AvatarFallback style={{ background: item.author?.avatar_color }} className="text-[10px] font-bold text-white">{item.author?.avatar_text}</AvatarFallback></Avatar></button><div className="min-w-0"><div className="text-xs font-semibold text-slate-700">{item.author?.username}</div><p className="mt-1 text-sm text-slate-600">{item.content}</p></div></div>)}
         <form className="flex gap-2" onSubmit={(e) => { e.preventDefault(); if (!comment.trim()) return; api.community.comment(post.post_id, { content: comment.trim() }).then((res) => { showToast({ title: res.status === 'published' ? '评论成功' : '评论已进入审核', icon: 'success' }); setComment(''); onRefresh(); }); }}>
           <input value={comment} onChange={(e) => setComment(e.target.value)} placeholder="写下你的评论" className="h-10 min-w-0 flex-1 rounded-lg border border-slate-200 px-3 text-sm outline-none focus:border-blue-400" />
           <button aria-label="发送评论" className="inline-flex h-10 w-10 items-center justify-center rounded-lg bg-blue-600 text-white"><Send className="h-4 w-4" /></button>
@@ -231,7 +249,7 @@ function CommunityAside({ posts }) {
 }
 
 function ModalShell({ title, onClose, children, wide }) {
-  return <div className="fixed inset-0 z-[80] flex items-end justify-center bg-slate-950/35 p-0 backdrop-blur-sm sm:items-center sm:p-6" role="presentation" onMouseDown={(e) => { if (e.target === e.currentTarget) onClose(); }}><section role="dialog" aria-modal="true" className={cn('max-h-[92vh] w-full overflow-y-auto rounded-t-lg bg-white p-5 shadow-2xl sm:rounded-lg sm:p-6', wide ? 'sm:max-w-3xl' : 'sm:max-w-xl')}><header className="mb-5 flex items-center justify-between"><h2 className="text-xl font-bold text-slate-950">{title}</h2><button type="button" onClick={onClose} aria-label="关闭" className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-slate-500 hover:bg-slate-100"><X className="h-5 w-5" /></button></header>{children}</section></div>;
+  return <div className="fixed inset-0 z-[80] flex items-center justify-center bg-slate-950/35 p-3 backdrop-blur-sm sm:p-6" role="presentation" onMouseDown={(e) => { if (e.target === e.currentTarget) onClose(); }}><section role="dialog" aria-modal="true" className={cn('max-h-[92vh] w-full overflow-y-auto rounded-lg bg-white p-5 shadow-2xl sm:p-6', wide ? 'sm:max-w-3xl' : 'sm:max-w-xl')}><header className="mb-5 flex items-center justify-between"><h2 className="text-xl font-bold text-slate-950">{title}</h2><button type="button" onClick={onClose} aria-label="关闭" className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-slate-500 hover:bg-slate-100"><X className="h-5 w-5" /></button></header>{children}</section></div>;
 }
 
 function Field({ label, value, onChange, maxLength }) { return <label className="block text-sm font-semibold text-slate-700">{label}<input required minLength={2} maxLength={maxLength} value={value} onChange={(e) => onChange(e.target.value)} className="mt-2 h-10 w-full rounded-lg border border-slate-200 px-3 font-normal outline-none focus:border-blue-400" /></label>; }

@@ -40,7 +40,24 @@ interface JwtPayload {
  */
 @WebSocketGateway({
   namespace: '/ws/chat',
-  cors: { origin: '*', credentials: false },
+  cors: {
+    origin: (origin, callback) => {
+      const configured = (process.env.CORS_ORIGINS || '')
+        .split(',')
+        .map((value) => value.trim())
+        .filter(Boolean);
+      const development = process.env.NODE_ENV !== 'production';
+      const developmentOrigins = [
+        'http://localhost:5173',
+        'http://127.0.0.1:5173',
+        'http://localhost:5174',
+        'http://127.0.0.1:5174',
+      ];
+      const allowed = configured.length ? configured : developmentOrigins;
+      callback(null, !origin || (development && developmentOrigins.includes(origin)) || allowed.includes(origin));
+    },
+    credentials: false,
+  },
 })
 export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer() server: Server;
@@ -73,7 +90,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     const userId = payload.sub;
     client.data.userId = userId;
     const { wasOffline } = this.presence.add(userId, client);
-    this.logger.log(`+ ${userId} (${client.id})`);
+    this.logger.log(`socket connected (${client.id})`);
     if (wasOffline) {
       await this.notifyPresenceToFriends(userId, true);
     }
@@ -83,7 +100,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     const userId: string | undefined = client.data?.userId;
     if (!userId) return;
     const { nowOffline } = this.presence.remove(userId, client);
-    this.logger.log(`- ${userId} (${client.id})`);
+    this.logger.log(`socket disconnected (${client.id})`);
     if (nowOffline) {
       await this.notifyPresenceToFriends(userId, false);
     }
@@ -150,12 +167,16 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   // ============== 私有辅助 ==============
   private extractToken(client: Socket): string | null {
-    const fromQuery = (client.handshake.query?.token as string) || '';
-    if (fromQuery) return fromQuery;
+    const fromAuth = (client.handshake.auth?.token as string) || '';
+    if (fromAuth) return fromAuth;
     // 也支持 Authorization 头
     const authHeader = (client.handshake.headers?.authorization || '') as string;
     if (authHeader.startsWith('Bearer ')) {
       return authHeader.slice(7);
+    }
+    // 查询参数会进入访问日志，仅开发环境兼容旧客户端。
+    if (process.env.NODE_ENV !== 'production') {
+      return (client.handshake.query?.token as string) || null;
     }
     return null;
   }

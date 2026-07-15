@@ -6,6 +6,8 @@ const http = axios.create({
   timeout: 20000,
 });
 
+const API_BASE = import.meta.env.VITE_API_BASE || 'http://127.0.0.1:3000/api/v1';
+
 http.interceptors.request.use((config) => {
   const token = adminAuth.token();
   if (token) config.headers.Authorization = `Bearer ${token}`;
@@ -32,6 +34,12 @@ async function request(method, url, data, params) {
 }
 
 export const adminApi = {
+  uploadImages: (files) => {
+    const data = new FormData();
+    files.forEach((file) => data.append('files', file));
+    return request('POST', '/uploads/images', data);
+  },
+  privateMaterial: (path) => http.get(path, { responseType: 'blob' }).then((response) => response.data),
   login: (data) => request('POST', '/auth/login', data),
   me: () => request('GET', '/users/me'),
   overview: () => request('GET', '/admin/overview'),
@@ -48,3 +56,12 @@ export const adminApi = {
   moderatePost: (id, data) => request('PATCH', `/admin/posts/${id}/status`, data),
   moderateComment: (id, data) => request('PATCH', `/admin/comments/${id}/status`, data),
 };
+
+export function mediaUrl(value) {
+  if (!value || !value.startsWith('/uploads/')) return value || '';
+  try {
+    return `${new URL(API_BASE, window.location.origin).origin}${value}`;
+  } catch {
+    return value;
+  }
+}

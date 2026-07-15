@@ -57,7 +57,7 @@
   width: min(560rpx, 100%);
   max-height: calc(100vh - 64rpx);
   background: #fff;
-  border-radius: 24rpx;
+  border-radius: 8px;
   overflow: auto;
 }
 .modalTitle {
@@ -127,7 +127,7 @@
   .modal {
     width: min(420px, calc(100vw - 32px));
     max-height: min(86vh, 720px);
-    border-radius: var(--ds-r-xl);
+    border-radius: 8px;
     overflow: auto;
     border: 1px solid var(--ds-border);
     box-shadow: 0 30px 70px -20px rgba(16, 32, 58, 0.4);

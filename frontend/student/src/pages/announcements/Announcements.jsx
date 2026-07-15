@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import {
+  ChevronLeft,
+  ChevronRight,
   Bus,
   CreditCard,
   Cross,
@@ -13,10 +15,11 @@ import {
   Utensils,
   X,
 } from 'lucide-react';
-import { api } from '../../lib/api';
+import { api, mediaUrl } from '../../lib/api';
 import authLib from '../../lib/auth';
 import { useAuth } from '../../context/AuthContext';
 import { useUI } from '../../context/UIContext';
+import ImageUploader from '../../components/ImageUploader';
 import {
   AppPage,
   EmptyPanel,
@@ -34,12 +37,11 @@ const CATEGORY = {
   club: '社团公告',
 };
 
-const TIMELINE = [
-  { date: '07.06', label: '暑期开始', state: 'done' },
-  { date: '07.15', label: '暑期课程', state: 'current' },
-  { date: '08.10', label: '第二阶段选课', state: 'upcoming' },
-  { date: '09.06', label: '学生返校', state: 'upcoming' },
-  { date: '09.07', label: '秋季开学', state: 'upcoming' },
+const CAMPUS_MOMENTS = [
+  { src: '/images/campus/resource-center-sun.jpg', alt: '阳光下的校园资源中心' },
+  { src: '/images/campus/sky-courtyard.jpg', alt: '晴空下的校园中庭' },
+  { src: '/images/campus/study-window.jpg', alt: '校园学习空间' },
+  { src: '/images/campus/resource-center-soft.jpg', alt: '校园资源中心' },
 ];
 
 const SERVICES = [
@@ -58,7 +60,7 @@ export default function Announcements() {
   const { showToast } = useUI();
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [open, setOpen] = useState(false);
+  const [editorOpen, setEditorOpen] = useState(false);
   const load = useCallback(
     () => api.community.announcements().then((res) => setItems(res.list || [])).finally(() => setLoading(false)),
     [],
@@ -70,7 +72,7 @@ export default function Announcements() {
   }, [load]);
 
   const role = currentUser?.account_role;
-  const canPublish = role === 'admin' || role === 'official' ||
+  const canPublish = role === 'official' ||
     (role === 'club' && currentUser?.verification_status === 'verified');
 
   return (
@@ -81,11 +83,7 @@ export default function Announcements() {
           title="校园公告"
           subtitle="学期节点、重要通知与常用校园服务。"
           action={canPublish && (
-            <button
-              type="button"
-              onClick={() => setOpen(true)}
-              className="inline-flex h-10 items-center gap-2 rounded-lg bg-blue-600 px-4 text-sm font-semibold text-white hover:bg-blue-500"
-            >
+            <button type="button" onClick={() => setEditorOpen(true)} className="inline-flex h-10 items-center gap-2 rounded-lg bg-blue-600 px-4 text-sm font-semibold text-white hover:bg-blue-500">
               <Plus className="h-4 w-4" />
               发布公告
             </button>
@@ -95,9 +93,9 @@ export default function Announcements() {
         <CampusMoment />
 
         <section className="space-y-3">
-          <SectionHeader title="本学期关键节点" subtitle="2026 暑期至秋季学期" />
+          <SectionHeader title="本学期关键节点" subtitle="由学校管理员实时维护" />
           <SectionSurface className="px-5 py-6 md:px-7">
-            <Timeline />
+            <Timeline items={items} />
           </SectionSurface>
         </section>
 
@@ -134,13 +132,12 @@ export default function Announcements() {
           </div>
         </section>
       </AppPage>
-
-      {open && (
+      {editorOpen && (
         <AnnouncementEditor
-          canPin={role === 'admin'}
-          onClose={() => setOpen(false)}
+          role={role}
+          onClose={() => setEditorOpen(false)}
           onCreated={() => {
-            setOpen(false);
+            setEditorOpen(false);
             load();
           }}
         />
@@ -150,136 +147,168 @@ export default function Announcements() {
 }
 
 function CampusMoment() {
+  const [active, setActive] = useState(0);
+  useEffect(() => {
+    const timer = window.setInterval(
+      () => setActive((index) => (index + 1) % CAMPUS_MOMENTS.length),
+      7000,
+    );
+    return () => window.clearInterval(timer);
+  }, []);
+  const current = CAMPUS_MOMENTS[active];
+  const move = (delta) => setActive((index) => (index + delta + CAMPUS_MOMENTS.length) % CAMPUS_MOMENTS.length);
   return (
-    <section className="grid h-[210px] overflow-hidden rounded-lg border border-slate-200 bg-slate-900 shadow-sm sm:grid-cols-[1.55fr_0.85fr] md:h-[238px]">
-      <div className="relative min-w-0 overflow-hidden">
+    <section className="relative h-[210px] overflow-hidden rounded-lg border border-slate-200 bg-slate-900 shadow-sm md:h-[238px]">
         <img
-          src="/images/campus/resource-center-sun.jpg"
-          alt="阳光下的校园资源中心"
-          className="h-full w-full object-cover"
+          key={current.src}
+          src={current.src}
+          alt={current.alt}
+          className="h-full w-full object-cover animate-in fade-in duration-500"
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-slate-950/72 via-slate-950/22 to-transparent" />
+        <div className="absolute inset-0 bg-slate-950/45" />
         <div className="absolute inset-0 flex max-w-md flex-col justify-end p-6 text-white md:p-8">
           <span className="text-xs font-semibold text-white/80">Campus Today</span>
           <h2 className="mt-1 text-2xl font-bold md:text-3xl">暑期校园服务正常开放</h2>
           <p className="mt-2 text-sm leading-6 text-white/82">资源中心、自习空间与校园服务入口集中在这里。</p>
         </div>
-      </div>
-      <div className="hidden overflow-hidden border-l border-white/15 sm:block">
-        <img
-          src="/images/campus/sky-courtyard.jpg"
-          alt="晴空下的校园中庭"
-          className="h-full w-full object-cover"
-        />
+      <div className="absolute right-5 top-5 flex items-center gap-2">
+        <button type="button" onClick={() => move(-1)} aria-label="上一张校园图片" className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-white/90 text-slate-800 shadow-sm hover:bg-white">
+          <ChevronLeft className="h-4 w-4" />
+        </button>
+        <div className="flex h-9 items-center gap-1.5 rounded-lg bg-white/90 px-3 shadow-sm">
+          {CAMPUS_MOMENTS.map((item, index) => (
+            <button key={item.src} type="button" onClick={() => setActive(index)} aria-label={`切换到第 ${index + 1} 张校园图片`} className={cn('h-1.5 rounded-full transition-all', index === active ? 'w-5 bg-blue-600' : 'w-1.5 bg-slate-300')} />
+          ))}
+        </div>
+        <button type="button" onClick={() => move(1)} aria-label="下一张校园图片" className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-white/90 text-slate-800 shadow-sm hover:bg-white">
+          <ChevronRight className="h-4 w-4" />
+        </button>
       </div>
     </section>
   );
 }
 
-function Timeline() {
+function Timeline({ items }) {
+  const milestones = items
+    .filter((item) => item.is_pinned && item.published_at)
+    .sort((a, b) => new Date(a.published_at) - new Date(b.published_at))
+    .slice(0, 8);
+  if (!milestones.length) {
+    return <div className="py-5 text-center text-sm text-slate-400">暂无关键节点，管理员可在独立管理端添加。</div>;
+  }
+  const now = Date.now();
+  const currentIndex = milestones.findIndex((item) => new Date(item.published_at).getTime() >= now);
+  const activeIndex = currentIndex === -1 ? milestones.length - 1 : currentIndex;
   return (
-    <div className="relative grid gap-0 md:grid-cols-5">
-      <div className="absolute left-[10%] right-[10%] top-3 hidden h-px bg-slate-200 md:block" />
-      {TIMELINE.map((item) => (
-        <div key={item.date} className="relative grid grid-cols-[28px_64px_1fr] items-center gap-3 py-3 md:block md:py-0 md:text-center">
-          <span
-            className={cn(
-              'relative z-10 inline-flex h-6 w-6 items-center justify-center rounded-full border-4 border-white md:mx-auto',
-              item.state === 'done' && 'bg-slate-400',
-              item.state === 'current' && 'bg-blue-600 ring-4 ring-blue-100',
-              item.state === 'upcoming' && 'bg-slate-200',
-            )}
-          />
-          <div className="font-heading text-sm font-bold tabular-nums text-slate-950 md:mt-4">{item.date}</div>
-          <div className={cn('text-sm md:mt-1', item.state === 'current' ? 'font-semibold text-blue-600' : 'text-slate-500')}>
-            {item.label}
-          </div>
-        </div>
-      ))}
+    <>
+      <div className="md:hidden">
+        {milestones.map((item, index) => <TimelineNode key={item.announcement_id} item={item} state={timelineState(index, activeIndex)} />)}
+      </div>
+      <div className="relative hidden gap-0 md:grid" style={{ gridTemplateColumns: `repeat(${milestones.length}, minmax(0, 1fr))` }}>
+        <div className="absolute left-[10%] right-[10%] top-3 h-px bg-slate-200" />
+        {milestones.map((item, index) => <TimelineNode key={item.announcement_id} item={item} state={timelineState(index, activeIndex)} desktop />)}
+      </div>
+    </>
+  );
+}
+
+function TimelineNode({ item, state, desktop = false }) {
+  return (
+    <div className={cn('relative', desktop ? 'text-center' : 'grid grid-cols-[28px_64px_1fr] items-center gap-3 py-3')}>
+      <span className={cn('relative z-10 inline-flex h-6 w-6 items-center justify-center rounded-full border-4 border-white', desktop && 'mx-auto', state === 'done' && 'bg-slate-400', state === 'current' && 'bg-blue-600 ring-4 ring-blue-100', state === 'upcoming' && 'bg-slate-200')} />
+      <div className={cn('font-heading text-sm font-bold tabular-nums text-slate-950', desktop && 'mt-4')}>{formatMilestoneDate(item.published_at)}</div>
+      <div className={cn('line-clamp-2 text-sm', desktop && 'mt-1', state === 'current' ? 'font-semibold text-blue-600' : 'text-slate-500')}>{item.title}</div>
     </div>
   );
 }
 
+function timelineState(index, activeIndex) {
+  return index < activeIndex ? 'done' : index === activeIndex ? 'current' : 'upcoming';
+}
+
 function AnnouncementRow({ item }) {
   return (
-    <article className="border-b border-slate-100 px-5 py-5 last:border-b-0">
-      <div className="flex flex-wrap items-center gap-2">
+    <article className="grid gap-4 border-b border-slate-100 px-5 py-5 last:border-b-0 sm:grid-cols-[minmax(0,1fr)_160px]">
+      <div className="min-w-0">
+        <div className="flex flex-wrap items-center gap-2">
         {item.is_pinned && <Pin className="h-4 w-4 fill-current text-blue-600" />}
         <TypeBadge tone={item.category === 'club' ? 'violet' : 'blue'}>
           {CATEGORY[item.category] || '公告'}
         </TypeBadge>
         <span className="text-xs text-slate-400">{formatDate(item.published_at)}</span>
+        </div>
+        <h3 className="mt-3 text-base font-bold text-slate-950">{item.title}</h3>
+        {item.summary && <p className="mt-1 text-sm text-slate-500">{item.summary}</p>}
+        <p className="mt-3 line-clamp-4 whitespace-pre-wrap text-sm leading-7 text-slate-700">{item.content}</p>
+        <div className="mt-3 text-xs font-semibold text-slate-500">{item.author?.username}</div>
       </div>
-      <h3 className="mt-3 text-base font-bold text-slate-950">{item.title}</h3>
-      {item.summary && <p className="mt-1 text-sm text-slate-500">{item.summary}</p>}
-      <p className="mt-3 whitespace-pre-wrap text-sm leading-7 text-slate-700">{item.content}</p>
-      <div className="mt-3 text-xs font-semibold text-slate-500">{item.author?.username}</div>
+      {item.cover_url && (
+        <img src={mediaUrl(item.cover_url)} alt="公告封面" className="aspect-[16/9] w-full rounded-lg bg-slate-100 object-cover sm:aspect-[4/3]" />
+      )}
     </article>
   );
 }
 
-function AnnouncementEditor({ canPin, onClose, onCreated }) {
+function AnnouncementEditor({ role, onClose, onCreated }) {
   const { showToast } = useUI();
+  const clubOnly = role === 'club';
   const [form, setForm] = useState({
-    category: 'platform',
+    category: clubOnly ? 'club' : 'platform',
     title: '',
     summary: '',
     content: '',
-    coverUrl: '',
-    isPinned: false,
+    coverUrls: [],
   });
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
 
-  const submit = (event) => {
+  const submit = async (event) => {
     event.preventDefault();
     setSaving(true);
-    api.community
-      .createAnnouncement({
-        ...form,
-        summary: form.summary || undefined,
-        coverUrl: form.coverUrl || undefined,
-      })
-      .then(() => {
-        showToast({ title: '公告已发布', icon: 'success' });
-        onCreated();
-      })
-      .finally(() => setSaving(false));
+    try {
+      await api.community.createAnnouncement({
+        category: form.category,
+        title: form.title.trim(),
+        summary: form.summary.trim() || undefined,
+        content: form.content.trim(),
+        coverUrl: form.coverUrls[0] || undefined,
+      });
+      showToast({ title: '公告已发布', icon: 'success' });
+      onCreated();
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
-    <div
-      className="fixed inset-0 z-[80] flex items-end justify-center bg-slate-950/35 backdrop-blur-sm sm:items-center sm:p-6"
-      role="presentation"
-      onMouseDown={(event) => {
-        if (event.currentTarget === event.target) onClose();
-      }}
-    >
-      <section role="dialog" aria-modal="true" className="max-h-[92vh] w-full overflow-y-auto rounded-t-lg bg-white p-5 shadow-2xl sm:max-w-xl sm:rounded-lg sm:p-6">
-        <header className="mb-5 flex items-center justify-between">
-          <h2 className="text-xl font-bold">发布公告</h2>
-          <button type="button" onClick={onClose} aria-label="关闭" className="inline-flex h-9 w-9 items-center justify-center rounded-lg hover:bg-slate-100">
+    <div className="fixed inset-0 z-[90] flex items-center justify-center bg-slate-950/35 p-4 backdrop-blur-sm" role="presentation" onMouseDown={(event) => event.currentTarget === event.target && onClose()}>
+      <section role="dialog" aria-modal="true" aria-labelledby="announcement-editor-title" className="max-h-[92vh] w-full max-w-xl overflow-y-auto rounded-lg bg-white p-5 shadow-2xl sm:p-6">
+        <header className="mb-5 flex items-center justify-between gap-4">
+          <div>
+            <h2 id="announcement-editor-title" className="text-xl font-bold text-slate-950">发布公告</h2>
+            <p className="mt-1 text-sm text-slate-500">公告将以当前认证身份发布。</p>
+          </div>
+          <button type="button" onClick={onClose} aria-label="关闭" className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-slate-500 hover:bg-slate-100">
             <X className="h-5 w-5" />
           </button>
         </header>
         <form onSubmit={submit} className="space-y-4">
-          <label className="block text-sm font-semibold">分类
-            <select value={form.category} onChange={(event) => setForm({ ...form, category: event.target.value })} className="mt-2 h-10 w-full rounded-lg border border-slate-200 bg-white px-3 font-normal">
-              {Object.entries(CATEGORY).map(([value, label]) => <option key={value} value={value}>{label}</option>)}
+          <label className="block text-sm font-semibold text-slate-700">分类
+            <select disabled={clubOnly} value={form.category} onChange={(event) => setForm({ ...form, category: event.target.value })} className="mt-2 h-10 w-full rounded-lg border border-slate-200 bg-white px-3 font-normal disabled:bg-slate-50">
+              {(clubOnly ? [['club', CATEGORY.club]] : Object.entries(CATEGORY)).map(([value, label]) => <option key={value} value={value}>{label}</option>)}
             </select>
           </label>
-          <AnnouncementInput label="标题" value={form.title} onChange={(value) => setForm({ ...form, title: value })} required />
-          <AnnouncementInput label="摘要" value={form.summary} onChange={(value) => setForm({ ...form, summary: value })} />
-          <label className="block text-sm font-semibold">正文
-            <textarea required minLength={5} rows={8} value={form.content} onChange={(event) => setForm({ ...form, content: event.target.value })} className="mt-2 w-full rounded-lg border border-slate-200 p-3 font-normal outline-none focus:border-blue-400" />
+          <AnnouncementInput label="标题" value={form.title} onChange={(title) => setForm({ ...form, title })} required />
+          <AnnouncementInput label="摘要" value={form.summary} onChange={(summary) => setForm({ ...form, summary })} />
+          <label className="block text-sm font-semibold text-slate-700">正文
+            <textarea required minLength={5} rows={7} value={form.content} onChange={(event) => setForm({ ...form, content: event.target.value })} className="mt-2 w-full rounded-lg border border-slate-200 p-3 font-normal outline-none focus:border-blue-400" />
           </label>
-          <AnnouncementInput label="封面地址" value={form.coverUrl} onChange={(value) => setForm({ ...form, coverUrl: value })} />
-          {canPin && (
-            <label className="flex items-center gap-2 text-sm font-semibold">
-              <input type="checkbox" checked={form.isPinned} onChange={(event) => setForm({ ...form, isPinned: event.target.checked })} />
-              置顶公告
-            </label>
-          )}
-          <button disabled={saving} className="h-11 w-full rounded-lg bg-blue-600 text-sm font-semibold text-white disabled:opacity-50">
+          <div className="text-sm font-semibold text-slate-700">公告封面（选填）
+            <div className="mt-2">
+              <ImageUploader value={form.coverUrls} onChange={(coverUrls) => setForm({ ...form, coverUrls })} max={1} disabled={saving} onUploadingChange={setUploading} />
+            </div>
+          </div>
+          <button disabled={saving || uploading} className="h-11 w-full rounded-lg bg-blue-600 text-sm font-semibold text-white hover:bg-blue-500 disabled:opacity-50">
             {saving ? '发布中...' : '发布公告'}
           </button>
         </form>
@@ -288,9 +317,9 @@ function AnnouncementEditor({ canPin, onClose, onCreated }) {
   );
 }
 
-function AnnouncementInput({ label, value, onChange, required }) {
+function AnnouncementInput({ label, value, onChange, required = false }) {
   return (
-    <label className="block text-sm font-semibold">{label}
+    <label className="block text-sm font-semibold text-slate-700">{label}
       <input required={required} value={value} onChange={(event) => onChange(event.target.value)} className="mt-2 h-10 w-full rounded-lg border border-slate-200 px-3 font-normal outline-none focus:border-blue-400" />
     </label>
   );
@@ -306,10 +335,6 @@ function AnnouncementAside({ items }) {
           <div><div className="text-xl font-bold text-slate-950">{items.filter((item) => item.is_pinned).length}</div><div className="mt-1 text-xs text-slate-500">置顶</div></div>
         </div>
       </section>
-      <section className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
-        <img src="/images/campus/study-window.jpg" alt="校园学习空间" className="aspect-[4/3] w-full object-cover" />
-        <div className="p-4"><div className="font-semibold text-slate-950">暑期学习空间</div><p className="mt-1 text-sm leading-6 text-slate-500">资源中心开放区域以现场通知为准。</p></div>
-      </section>
     </>
   );
 }
@@ -318,4 +343,8 @@ function formatDate(value) {
   return value
     ? new Date(value).toLocaleString('zh-CN', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })
     : '';
+}
+
+function formatMilestoneDate(value) {
+  return value ? new Date(value).toLocaleDateString('zh-CN', { month: '2-digit', day: '2-digit' }) : '';
 }

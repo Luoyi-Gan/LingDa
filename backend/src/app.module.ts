@@ -18,6 +18,8 @@ import { HealthModule } from './health/health.module';
 import { NotificationModule } from './notification/notification.module';
 import { PlacesModule } from './places/places.module';
 import { CommunityModule } from './community/community.module';
+import { UploadModule } from './upload/upload.module';
+import { RateLimitGuard } from './common/guards/rate-limit.guard';
 
 @Module({
   imports: [
@@ -38,10 +40,13 @@ import { CommunityModule } from './community/community.module';
     NotificationModule,
     PlacesModule,
     CommunityModule,
+    UploadModule,
   ],
   providers: [
     // 全局守卫 —— 所有路由默认要求 JWT,@Public() 装饰过的方法放行
     { provide: APP_GUARD, useClass: JwtAuthGuard },
+    // 认证、上传与普通 API 分级限流，防止爆破和资源滥用
+    { provide: APP_GUARD, useClass: RateLimitGuard },
     // 全局响应封装 → { code, data, msg }
     { provide: APP_INTERCEPTOR, useClass: ResponseInterceptor },
     // 全局异常过滤器

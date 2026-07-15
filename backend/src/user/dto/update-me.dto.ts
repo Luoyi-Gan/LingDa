@@ -73,10 +73,10 @@ export class UpdateMeDto {
   @IsIn(['all', 'friends', 'none'])
   msgPermission?: 'all' | 'friends' | 'none';
 
-  @ApiPropertyOptional({ example: '大三' })
+  @ApiPropertyOptional({ example: '2027届' })
   @IsOptional()
   @IsString()
-  @MaxLength(30)
+  @Matches(/^20\d{2}届$/, { message: '毕业届别格式应为 2027届' })
   grade?: string;
 
   @ApiPropertyOptional({ example: '喜欢产品设计，也在找课程项目搭子。' })

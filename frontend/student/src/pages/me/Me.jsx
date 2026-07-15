@@ -19,6 +19,8 @@ import { useUI } from '../../context/UIContext';
 import { useWxNav } from '../../lib/nav';
 import EditProfileModal from '../../components/EditProfileModal';
 import FriendRequestsModal from '../../components/FriendRequestsModal';
+import UserCard from '../../components/UserCard';
+import { formatCohort } from '../../lib/cohort';
 import { useFriends } from '../../context/FriendsContext';
 import { Avatar, AvatarFallback } from '../../components/ui/avatar';
 import { Skeleton } from '../../components/ui/skeleton';
@@ -47,6 +49,7 @@ export default function Me() {
   const [teammates, setTeammates] = useState([]);
   const [sendingTo, setSendingTo] = useState(null);
   const [loaded, setLoaded] = useState(false);
+  const [profileUser, setProfileUser] = useState(null);
 
   const loadTeams = useCallback(() => {
     api.users
@@ -97,7 +100,7 @@ export default function Me() {
     loadTeammates();
   }, [loadTeams, loadTeammates]);
 
-  const openTeammate = (m) => {
+  const openChat = (m) => {
     nav.navigateTo({
       url: `/pages/chat-detail/chat-detail?convId=private_${m.user_id}&type=private&userId=${m.user_id}&name=${encodeURIComponent(m.username || '')}`,
     });
@@ -106,7 +109,7 @@ export default function Me() {
   const teammateAction = (e, m) => {
     e.stopPropagation();
     if (m.friend_status === 'accepted') {
-      openTeammate(m);
+      openChat(m);
       return;
     }
     if (m.friend_status === 'none') {
@@ -167,7 +170,7 @@ export default function Me() {
             <TeammatesPanel
               teammates={teammates}
               sendingTo={sendingTo}
-              onOpen={openTeammate}
+              onOpen={setProfileUser}
               onAction={teammateAction}
             />
             <AchievementsPanel achievements={achievements} />
@@ -186,6 +189,13 @@ export default function Me() {
             setEditing(false);
             loadData();
           }}
+        />
+      )}
+      {profileUser && (
+        <UserCard
+          userId={profileUser.user_id}
+          fallbackName={profileUser.username}
+          onClose={() => setProfileUser(null)}
         />
       )}
     </>
@@ -223,7 +233,7 @@ function ProfilePanel({ user, loaded }) {
           <p className="mt-2 text-sm text-slate-500">
             {user.college || '学校信息待完善'}
             {user.major && <> · {user.major}</>}
-            {user.grade && <> · {user.grade}</>}
+            {user.grade && <> · {formatCohort(user.grade)}</>}
           </p>
           <div className="mt-3 flex flex-wrap items-center gap-2">
             <span className="rounded bg-blue-50 px-2 py-1 text-xs font-semibold text-blue-700">

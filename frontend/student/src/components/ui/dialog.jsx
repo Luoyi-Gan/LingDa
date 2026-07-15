@@ -31,7 +31,7 @@ const DialogContent = forwardRef(({ className, children, ...props }, ref) => (
       className={cn(
         'fixed left-[50%] top-[50%] z-50 grid w-[calc(100vw-2rem)] max-w-lg translate-x-[-50%] translate-y-[-50%] sm:w-full ' +
           'max-h-[min(86vh,760px)] overflow-y-auto gap-4 border border-border bg-popover p-6 shadow-lg ' +
-          'rounded-lg sm:rounded-bento ' +
+          'rounded-lg ' +
           'data-[state=open]:animate-in data-[state=closed]:animate-out ' +
           'data-[state=open]:fade-in-0 data-[state=closed]:fade-out-0 ' +
           'data-[state=open]:zoom-in-95 data-[state=closed]:zoom-out-95 ' +

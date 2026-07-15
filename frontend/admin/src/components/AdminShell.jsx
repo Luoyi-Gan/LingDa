@@ -1,5 +1,5 @@
 import {
-  BellRing, BookOpenCheck, Building2, ChevronRight, FileText, Flag,
+  BadgeCheck, BellRing, BookOpenCheck, Building2, ChevronRight, FileText, Flag,
   LayoutDashboard, LogOut, Megaphone, Menu, ShieldCheck, Users, X,
 } from 'lucide-react';
 import { NavLink, useLocation } from 'react-router-dom';
@@ -10,6 +10,7 @@ const NAV = [
   { path: '/announcements', label: '公告管理', desc: '发布与维护', icon: Megaphone },
   { path: '/students', label: '学生身份', desc: '在校身份审核', icon: Users },
   { path: '/clubs', label: '社团认证', desc: '组织资质审核', icon: Building2 },
+  { path: '/officials', label: '官方认证', desc: '校级机构审核', icon: BadgeCheck },
   { path: '/moderation', label: '内容风控', desc: '帖子与评论', icon: ShieldCheck },
   { path: '/milestones', label: '关键节点', desc: '时间轴事项', icon: Flag },
 ];

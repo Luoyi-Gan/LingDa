@@ -1,3 +1,7 @@
+# 已停用：Mac mini 自托管方案
+
+> 本文档仅作历史记录，不得用于新部署。当前方案是学校 Linux 服务器，请使用 [`MIGRATION.md`](./MIGRATION.md)。
+
 # 灵搭 LingDa — Mac mini 自托管方案
 
 > 架构：**Mac mini 跑全栈**（MySQL 8 + NestJS + Nginx + 静态前端）+ **微型 Aliyun ECS 做公网中转**（FRP 反向隧道）

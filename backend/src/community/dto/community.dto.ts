@@ -6,11 +6,12 @@ import {
   IsBoolean,
   IsIn,
   IsInt,
+  IsISO8601,
   IsOptional,
   IsString,
-  IsUrl,
   Max,
   MaxLength,
+  Matches,
   Min,
   MinLength,
 } from 'class-validator';
@@ -38,7 +39,8 @@ export class CreatePostDto {
   @IsOptional()
   @IsArray()
   @ArrayMaxSize(9)
-  @IsUrl({}, { each: true })
+  @IsString({ each: true })
+  @Matches(/^(https?:\/\/[^\s]+|\/uploads\/images\/[A-Za-z0-9._-]+)$/, { each: true })
   images?: string[];
 }
 
@@ -95,13 +97,18 @@ export class CreateAnnouncementDto {
   content: string;
 
   @IsOptional()
-  @IsUrl()
+  @IsString()
+  @Matches(/^(https?:\/\/[^\s]+|\/uploads\/images\/[A-Za-z0-9._-]+)$/)
   @MaxLength(500)
   coverUrl?: string;
 
   @IsOptional()
   @IsBoolean()
   isPinned?: boolean;
+
+  @IsOptional()
+  @IsISO8601({ strict: true })
+  timelineAt?: string;
 }
 
 export class FavoriteDto {
@@ -135,7 +142,8 @@ export class CreateVerificationDto {
 
   @IsArray()
   @ArrayMaxSize(8)
-  @IsUrl({}, { each: true })
+  @IsString({ each: true })
+  @Matches(/^(https?:\/\/[^\s]+|\/uploads\/verification-materials\/[A-Za-z0-9_-]+\/[a-f0-9-]+\.(jpg|png|webp|gif))$/, { each: true })
   materialUrls: string[];
 
   @IsOptional()
@@ -187,13 +195,18 @@ export class UpdateAnnouncementDto {
   content?: string;
 
   @IsOptional()
-  @IsUrl()
+  @IsString()
+  @Matches(/^(https?:\/\/[^\s]+|\/uploads\/images\/[A-Za-z0-9._-]+)$/)
   @MaxLength(500)
-  coverUrl?: string;
+  coverUrl?: string | null;
 
   @IsOptional()
   @IsBoolean()
   isPinned?: boolean;
+
+  @IsOptional()
+  @IsISO8601({ strict: true })
+  timelineAt?: string;
 
   @IsOptional()
   @IsIn(['draft', 'published', 'hidden'])

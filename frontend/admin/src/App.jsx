@@ -44,6 +44,7 @@ export default function App() {
         <Route path="/announcements" element={<AnnouncementsPage />} />
         <Route path="/students" element={<VerificationsPage type="student" />} />
         <Route path="/clubs" element={<VerificationsPage type="club" />} />
+        <Route path="/officials" element={<VerificationsPage type="official" />} />
         <Route path="/moderation" element={<ModerationPage />} />
         <Route path="/milestones" element={<AnnouncementsPage milestones />} />
         <Route path="*" element={<Navigate to="/overview" replace />} />

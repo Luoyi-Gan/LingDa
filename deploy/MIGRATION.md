@@ -1,198 +1,154 @@
-# 灵搭 → Mac mini 迁移 Runbook
+# 灵搭迁移至学校服务器 Runbook
 
-> **目标**：把整个项目（代码 + 数据库 + 41+ 个已注册真实用户 + ngrok 公网 URL）从 MacBook Air 完整搬到 Mac mini，迁完后 Mac mini 一直跑、URL 不变、MacBook 可以随便关。
+> 当前唯一主方案：学校管理的 Linux 服务器 + Nginx + Node.js + MySQL。
+> 不再使用 Mac mini、ngrok、FRP 或个人电脑常驻。
 
----
+## 1. 向学校信息化部门确认
 
-## 一、迁移路径总览
+上线前需要拿到以下信息：
 
+- Ubuntu 22.04/24.04 LTS 服务器、SSH 账号和 `sudo` 权限。
+- 学生端域名、管理端域名，以及 DNS 解析权限。
+- 80/443 入站端口；22 端口仅开放给校内 VPN 或运维 IP。
+- 学校是否提供 MySQL 8.0；若提供，优先使用独立数据库服务。
+- TLS 证书来源（学校统一证书或 ACME）、备份目标和日志保留期。
+- 是否需要等保、数据出境、实名认证或校内统一身份认证对接。
+
+## 2. 推荐架构
+
+```text
+Internet / Campus Network
+          |
+       HTTPS 443
+          |
+        Nginx
+       /     \
+student SPA  admin SPA
+          \   /
+      NestJS 127.0.0.1:3000
+             |
+       MySQL 8.0 (private network)
+             |
+ /srv/lingda-data
+   public-uploads
+   private-uploads
+   backups
 ```
-MacBook Air (source)                Mac mini (target)
-├── 代码 ─────── git push ─────►    git clone
-├── MySQL ───── mysqldump ────►    mysql < dump
-├── ngrok auth ───── 同账号 ────►   同账号登录，复用子域名
-└── 进程 ────── pm2 + launchd ──►  开机自启
-```
 
-URL 不变机制：ngrok 免费版的子域名属于 **账户**，不是机器。Mac mini 用同一 `authtoken` 启动 ngrok，加上 `--url=dipped-handset-clarify.ngrok-free.dev` 即可拿回同一域名。
+- 后端只监听 `127.0.0.1:3000`，不对公网暴露。
+- MySQL `3306` 只允许本机或校内数据库网段。
+- 学生端与管理端使用不同域名，两者都仅通过 HTTPS 访问 API。
+- 公开帖子图片与私密认证材料使用不同目录和访问策略。
 
----
-
-## 二、Mac mini 端的"开窗"工作（5 分钟）
-
-> 这一步要在 Mac mini 本机做（只此一次）。
-
-1. **系统设置 → 通用 → 共享 → 远程登录** 打开 ✅  
-   底下"允许远程登录"勾选"所有用户"或加你自己。
-2. 确认 Mac mini 局域网 IP：左下角 Wi-Fi 图标 → "网络偏好设置" → 看 IP（一般 `192.168.x.x`）。
-3. 把这个 IP + 用户名告诉我（或自己执行下面命令）。
-
----
-
-## 三、自动化路径（推荐 — 我远程执行）
-
-我会在 MacBook 上跑：
+## 3. 服务器初始化
 
 ```bash
-# 1) 打包
-bash deploy/migrate-source.sh
-# → 产出 lingda-export-YYYYMMDD-HHMMSS.tar.gz（~10-50 MB）
+sudo apt update
+sudo apt install -y nginx mysql-client ca-certificates curl
 
-# 2) 传到 Mac mini（scp）
-scp lingda-export-*.tar.gz <user>@<mac-mini-ip>:/tmp/
+# 使用学校批准的 Node.js 20 LTS 安装方式
+node --version
+npm --version
 
-# 3) 远程执行
-ssh <user>@<mac-mini-ip> 'bash -s' < deploy/migrate-target.sh /tmp/lingda-export-*.tar.gz
-
-# 4) 验证
-curl https://dipped-handset-clarify.ngrok-free.dev/api/v1/health
+sudo useradd --system --create-home --shell /usr/sbin/nologin lingda
+sudo mkdir -p /opt/lingda/releases /opt/lingda/current
+sudo mkdir -p /srv/lingda-data/{public-uploads,private-uploads,backups}
+sudo chown -R lingda:lingda /opt/lingda /srv/lingda-data
+sudo chmod 700 /srv/lingda-data/private-uploads /srv/lingda-data/backups
 ```
 
----
+Node.js 18 已进入维护后期，学校新服务器应使用 Node.js 20 LTS。
 
-## 四、手动路径（如果不方便 SSH）
-
-### A. 在 MacBook 上
+## 4. 生产环境变量
 
 ```bash
-cd /Users/your-name/Desktop/LingDa
-bash deploy/migrate-source.sh
-# 看输出：lingda-export-YYYYMMDD-HHMMSS.tar.gz
+sudo install -o lingda -g lingda -m 600 deploy/.env.example /etc/lingda/backend.env
+sudoedit /etc/lingda/backend.env
 ```
 
-### B. 把 tar.gz 传到 Mac mini
+必须修改：
 
-任选：
-- **AirDrop**：右键 → 共享 → AirDrop → 选 Mac mini
-- **USB**：拷到 U 盘
-- **iCloud Drive**：临时放进去
+- `DATABASE_URL`：使用独立最小权限账号，禁止 root。
+- `JWT_SECRET`：至少 32 字符，可用 `openssl rand -hex 32`。
+- `CORS_ORIGINS`：只填学生端和管理端 HTTPS 域名。
+- `PUBLIC_UPLOAD_DIR` 和 `PRIVATE_UPLOAD_DIR`：指向 `/srv/lingda-data`，不能放在 release 目录内。
 
-### C. 在 Mac mini 上
+## 5. 构建与上传
 
-打开 Terminal：
+在可信的 CI 或本地构建机执行：
 
 ```bash
-# 1) 装 Homebrew（如果还没）
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-
-# 2) clone 仓库（如果走 git）
-cd ~
-git clone https://github.com/<你的用户名>/lingda.git
-cd lingda
-
-# 3) 跑迁移脚本
-bash deploy/migrate-target.sh ~/Downloads/lingda-export-*.tar.gz
-# 中途会让你输 sudo 密码（开机不睡需要 sudo pmset）
+bash deploy/build-artifact.sh
+scp deploy/dist/*.tar.gz ops@school-server:/tmp/
 ```
 
----
+在服务器上将每次发布解压到带时间戳的 release 目录，验证通过后再原子切换 `/opt/lingda/current` 软链接。不要覆盖上一版。
 
-## 五、迁移脚本做了什么
-
-`migrate-source.sh`（MacBook）：
-1. `mysqldump sys`（含全部 41+ 用户、所有房间、消息、好友）
-2. 拷 `~/Library/Application Support/ngrok/ngrok.yml`（含 authtoken）
-3. 拷 `backend/.env*`
-4. `git archive HEAD` 出干净的代码
-5. 打成一个 `lingda-export-*.tar.gz`
-
-`migrate-target.sh`（Mac mini）：
-1. 解包
-2. `brew install` node@18 + mysql + nginx + ngrok + pm2
-3. 启 MySQL + 导入 dump
-4. `npm ci` backend + `frontend/student` + `frontend/admin`，并分别构建
-5. `pm2 start lingda-api lingda-web lingda-admin ngrok-tunnel`
-6. `pm2 startup launchd` 让 Mac mini 开机就跑
-7. `sudo pmset -a sleep 0 disksleep 0 displaysleep 10 womp 1 autorestart 1`
-   - sleep 0：永不睡
-   - displaysleep 10：显示器 10 min 关（节能但服务不停）
-   - womp 1：网络包唤醒
-   - autorestart 1：断电恢复后自动开机
-
----
-
-## 六、迁移完做这几个验证
+## 6. 数据库迁移
 
 ```bash
-# 1. 三个进程都在
-pm2 status
-#   ┌─────┬───────────────┬────────┬─────┐
-#   │ id  │ name          │ status │ ↺   │
-#   ├─────┼───────────────┼────────┼─────┤
-#   │ 0   │ lingda-api    │ online │ 0   │
-#   │ 1   │ lingda-web    │ online │ 0   │
-#   │ 2   │ ngrok-tunnel  │ online │ 0   │
-#   └─────┴───────────────┴────────┴─────┘
+# 源端：一致性导出
+mysqldump --single-transaction --routines --triggers --hex-blob \
+  -h 127.0.0.1 -u root -p sys | gzip > lingda-$(date +%F-%H%M).sql.gz
 
-# 2. 本机健康
-curl http://127.0.0.1:3000/api/v1/health   # 后端
-curl http://127.0.0.1:4173/                # 前端 preview
-
-# 3. 公网健康
-curl -H "ngrok-skip-browser-warning: 1" https://dipped-handset-clarify.ngrok-free.dev/api/v1/health
-
-# 4. 数据完整
-mysql -u root -p sys -e "SELECT COUNT(*) FROM User;"  # 应是 41+ 条
+# 校内目标端：先建结构，再导入数据
+cd /opt/lingda/current/backend
+npx prisma migrate deploy
+gzip -dc /tmp/lingda-YYYY-MM-DD-HHMM.sql.gz | \
+  mysql --ssl-mode=REQUIRED -h <mysql-host> -u lingda_app -p lingda
 ```
 
----
+切换前必须再做一次最终增量停机窗口，避免新注册、消息和认证记录丢失。禁止在生产环境使用 `prisma db push --accept-data-loss`。
 
-## 七、迁移后清理（在 MacBook 上）
+## 7. 进程管理
+
+学校服务器优先使用 `systemd`，不依赖个人用户的 PM2 状态。
+
+```ini
+[Unit]
+Description=LingDa API
+After=network.target
+
+[Service]
+User=lingda
+Group=lingda
+WorkingDirectory=/opt/lingda/current/backend
+EnvironmentFile=/etc/lingda/backend.env
+ExecStart=/usr/bin/node dist/main.js
+Restart=on-failure
+RestartSec=5
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ReadWritePaths=/srv/lingda-data
+
+[Install]
+WantedBy=multi-user.target
+```
+
+## 8. 上线前验收
 
 ```bash
-# 杀掉所有旧的服务进程，避免 ngrok 抢域名
-pm2 delete all 2>/dev/null
-pkill -f "ngrok http" 2>/dev/null
-pkill -f "node.*nest" 2>/dev/null
-pkill -f "vite preview" 2>/dev/null
-
-# 删本地 ngrok 配置（避免你以后在 MacBook 误启）
-mv ~/Library/Application\ Support/ngrok/ngrok.yml \
-   ~/Library/Application\ Support/ngrok/ngrok.yml.archived
+curl -fsS https://lingda.example.edu.cn/api/v1/health
+sudo systemctl status lingda-api
+sudo nginx -t
 ```
 
----
+同时验证：
 
-## 八、运维常用命令（在 Mac mini 上）
+- 学生端无公告发布入口，管理端可发布并维护时间轴。
+- 非好友无法创建、进入或读取私聊。
+- 认证材料未登录无法访问，普通用户无法访问他人材料。
+- HTTP 自动跳转 HTTPS，TLS 证书链正常。
+- 备份可从异机恢复，不只是“有备份文件”。
 
-```bash
-pm2 status                 # 三进程状态
-pm2 logs lingda-api        # 后端日志
-pm2 logs lingda-web        # 前端日志
-pm2 logs ngrok-tunnel      # ngrok 隧道日志
-pm2 restart lingda-api     # 改完代码重启后端
-pm2 reload all             # 三个全重启
+## 9. 备份与回滚
 
-# DB 备份（建议每天一次）
-mysqldump -u root -p sys | gzip > ~/lingda-backups/sys-$(date +%F).sql.gz
-```
+- MySQL：每日全量 + binlog，备份加密后复制到另一台校内存储。
+- 文件：每日备份 `/srv/lingda-data`，私密材料备份必须加密。
+- release：保留至少前 3 版，回滚时切换 `current` 软链接并重启服务。
+- 数据库迁移只能向前；需要回退时，使用上线前快照恢复。
 
----
+## 10. 待学校确认后再定稿
 
-## 九、未来 push 代码上线
-
-```bash
-# MacBook
-cd ~/Desktop/LingDa
-git add -A && git commit -m "feat: xxx" && git push
-
-# Mac mini（手动 or 写一个 watch）
-ssh <user>@<mac-mini-ip> '
-  cd ~/lingda && git pull &&
-  (cd backend && npm ci && npm run build && pm2 restart lingda-api) &&
-  (cd frontend/student && npm ci && npm run build && pm2 restart lingda-web)
-'
-```
-
-或者把上面这段封装成 `deploy/deploy-macmini-update.sh`（已存在）的 SSH 包装版。
-
----
-
-## 十、回滚
-
-万一迁移 Mac mini 失败：
-1. 删 Mac mini 上 `~/lingda`
-2. MacBook 重新启动旧进程（之前 nohup 的 cf-tunnel / backend / preview），URL 会切回 trycloudflare 那个老的
-3. 老 URL 是 `https://dipped-handset-clarify.ngrok-free.dev` —— 同样可以用，只要 MacBook 重启 ngrok
-
-迁移期间已注册的用户数据保留在 MacBook 的 MySQL 里，DB dump 文件也保留在 tar.gz 里，无数据丢失风险。
+以下内容需要根据学校实际环境替换：服务器 IP、Linux 版本、域名、证书下发方式、MySQL 地址、校内 VPN/防火墙规则、备份目标和监控平台。

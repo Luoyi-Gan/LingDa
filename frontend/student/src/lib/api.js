@@ -39,7 +39,7 @@ const http = axios.create({ baseURL: BASE_URL, timeout: 20000 });
 
 http.interceptors.request.use((config) => {
   config.headers = config.headers || {};
-  config.headers['Content-Type'] = 'application/json';
+  if (!(config.data instanceof FormData)) config.headers['Content-Type'] = 'application/json';
   const token = getToken();
   if (token) config.headers['Authorization'] = 'Bearer ' + token;
   return config;
@@ -96,6 +96,18 @@ function request({ method, url, data, headers, query }) {
 // API 分组
 // ==========================================================
 export const api = {
+  uploads: {
+    images: (files) => {
+      const data = new FormData();
+      files.forEach((file) => data.append('files', file));
+      return request({ method: 'POST', url: '/uploads/images', data });
+    },
+    verificationMaterials: (files) => {
+      const data = new FormData();
+      files.forEach((file) => data.append('files', file));
+      return request({ method: 'POST', url: '/uploads/verification-materials', data });
+    },
+  },
   auth: {
     register: (data) => request({ method: 'POST', url: '/auth/register', data }),
     login: (data) => request({ method: 'POST', url: '/auth/login', data }),
@@ -242,6 +254,15 @@ export const api = {
     submitVerification: (data) => request({ method: 'POST', url: '/verifications', data }),
   },
 };
+
+export function mediaUrl(value) {
+  if (!value || !value.startsWith('/uploads/')) return value || '';
+  try {
+    return `${new URL(BASE_URL, window.location.origin).origin}${value}`;
+  } catch {
+    return value;
+  }
+}
 
 export { request };
 export default api;

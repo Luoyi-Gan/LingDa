@@ -290,10 +290,17 @@ export class CommunityService {
     if (dto.isPinned && user.accountRole !== 'admin') {
       throw new BusinessException(ERROR_CODES.FORBIDDEN, '仅管理员可置顶公告');
     }
+    if (dto.timelineAt && user.accountRole !== 'admin') {
+      throw new BusinessException(ERROR_CODES.FORBIDDEN, '仅管理员可设置时间轴时间');
+    }
+    if (user.accountRole === 'club' && dto.category !== 'club') {
+      throw new BusinessException(ERROR_CODES.FORBIDDEN, '认证社团只能发布社团公告');
+    }
     return this.prisma.announcement.create({
       data: { authorId: userId, category: dto.category ?? 'platform', title: dto.title.trim(),
         summary: dto.summary?.trim(), content: dto.content.trim(), coverUrl: dto.coverUrl,
-        isPinned: dto.isPinned ?? false, status: 'published', publishedAt: new Date() },
+        isPinned: dto.isPinned ?? false, status: 'published',
+        publishedAt: dto.timelineAt ? new Date(dto.timelineAt) : new Date() },
     });
   }
 
@@ -322,7 +329,9 @@ export class CommunityService {
         applicantName: dto.applicantName, studentId: dto.studentId,
         materialUrls: dto.materialUrls, statement: dto.statement },
     });
-    await this.prisma.user.update({ where: { userId }, data: { verificationStatus: 'pending' } });
+    if (user.verificationStatus !== 'verified') {
+      await this.prisma.user.update({ where: { userId }, data: { verificationStatus: 'pending' } });
+    }
     return request;
   }
 
@@ -429,8 +438,11 @@ export class CommunityService {
       ...(dto.content !== undefined ? { content: dto.content.trim() } : {}),
       ...(dto.coverUrl !== undefined ? { coverUrl: dto.coverUrl } : {}),
       ...(dto.isPinned !== undefined ? { isPinned: dto.isPinned } : {}),
+      ...(dto.timelineAt !== undefined ? { publishedAt: new Date(dto.timelineAt) } : {}),
       ...(dto.status !== undefined ? { status: dto.status } : {}),
-      ...(dto.status === 'published' && current.status !== 'published' ? { publishedAt: new Date() } : {}),
+      ...(dto.status === 'published' && current.status !== 'published' && dto.timelineAt === undefined
+        ? { publishedAt: new Date() }
+        : {}),
       ...(dto.status === 'hidden' ? { isPinned: false } : {}),
       reviewer: { connect: { userId: adminId } },
     };
@@ -498,13 +510,17 @@ export class CommunityService {
     if (request.status !== 'pending') throw new BusinessException(ERROR_CODES.VALIDATION_FAILED, '该申请已处理');
     const approved = dto.action === 'approve';
     return this.prisma.$transaction(async (tx) => {
+      const applicant = await tx.user.findUnique({
+        where: { userId: request.userId },
+        select: { verificationStatus: true },
+      });
       const updated = await tx.verificationRequest.update({
         where: { requestId }, data: { status: approved ? 'approved' : 'rejected', reviewerId: adminId,
           reviewNote: dto.note, reviewedAt: new Date() },
       });
       await tx.user.update({
         where: { userId: request.userId },
-        data: { verificationStatus: approved ? 'verified' : 'rejected',
+        data: { verificationStatus: approved || applicant?.verificationStatus === 'verified' ? 'verified' : 'rejected',
           ...(approved ? { accountRole: request.type === 'student' ? 'student' : request.type } : {}) },
       });
       await tx.notification.create({

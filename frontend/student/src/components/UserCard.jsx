@@ -18,6 +18,7 @@ import { useAuth } from '../context/AuthContext';
 import { useUI } from '../context/UIContext';
 import { useWxNav } from '../lib/nav';
 import { makeAvatar } from '../lib/avatar';
+import { formatCohort } from '../lib/cohort';
 import { Avatar, AvatarFallback } from './ui/avatar';
 import { Button } from './ui/button';
 import { cn } from '../lib/cn';
@@ -126,15 +127,18 @@ export default function UserCard({ userId, fallbackName, onClose, anchorRect }) 
     <div
       onClick={onClose}
       className={cn(
-        'fixed inset-0 z-[60] animate-in fade-in-0',
+        'fixed inset-0 z-[100] animate-in fade-in-0',
         isAnchored ? 'bg-transparent' : 'bg-black/40 backdrop-blur-[2px] flex items-center justify-center p-4',
       )}
     >
       <div
+        role="dialog"
+        aria-modal={!isAnchored}
+        aria-label={`${name}的个人资料`}
         onClick={(e) => e.stopPropagation()}
         style={isAnchored ? { position: 'fixed', width: 340, ...positionStyle } : undefined}
         className={cn(
-          'w-full max-w-sm rounded-bento border border-border bg-popover text-popover-foreground shadow-2xl',
+          'w-full max-w-sm rounded-lg border border-border bg-popover text-popover-foreground shadow-2xl',
           'animate-in fade-in-0 zoom-in-95',
           !isAnchored && 'mx-auto',
         )}
@@ -156,12 +160,13 @@ export default function UserCard({ userId, fallbackName, onClose, anchorRect }) 
             <div className="text-xs text-muted-foreground truncate mt-0.5">
               {u.college || ''}
               {u.major ? ` · ${u.major}` : ''}
+              {u.grade ? ` · ${formatCohort(u.grade)}` : ''}
             </div>
-            {(u.rating != null || u.rating_count != null) && (
+            {profile?.rating && (
               <div className="mt-1.5 inline-flex items-center gap-1 rounded-full bg-amber-50 dark:bg-amber-950/30 border border-amber-200/50 dark:border-amber-800/50 px-2 py-0.5 text-[10px] font-bold text-amber-700 dark:text-amber-300">
                 <Star className="h-2.5 w-2.5" fill="currentColor" />
-                <span className="tabular-nums">{u.rating ?? '-'}</span>
-                <span className="opacity-70">· {u.rating_count ?? 0} 条评价</span>
+                <span className="tabular-nums">{profile.rating.average || '暂无评分'}</span>
+                <span className="opacity-70">· {profile.rating.total || 0} 条评价</span>
               </div>
             )}
           </div>

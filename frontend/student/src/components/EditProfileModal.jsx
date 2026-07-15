@@ -30,7 +30,7 @@ const FIELDS = [
   { key: 'gender', label: '性别', placeholder: '男 / 女 / 不填', icon: Users },
   { key: 'college', label: '学院', placeholder: '如：新闻学院', icon: School },
   { key: 'major', label: '专业', placeholder: '如：网络与新媒体', icon: BookOpen },
-  { key: 'grade', label: '年级', placeholder: '如：大三', icon: GraduationCap },
+  { key: 'grade', label: '毕业届别', placeholder: '如：2027届', icon: GraduationCap },
   { key: 'phone', label: '手机号', placeholder: '11 位手机号', icon: Phone },
 ];
 
@@ -75,6 +75,13 @@ export default function EditProfileModal({ initial = {}, onClose, onSaved }) {
     if (payload.phone && !/^1[3-9]\d{9}$/.test(payload.phone)) {
       showToast({ title: '手机号格式不对', icon: 'none' });
       return;
+    }
+    if (payload.grade) {
+      payload.grade = /^20\d{2}$/.test(payload.grade) ? `${payload.grade}届` : payload.grade;
+      if (!/^20\d{2}届$/.test(payload.grade)) {
+        showToast({ title: '毕业届别请填写为 2027届', icon: 'none' });
+        return;
+      }
     }
     if (Object.keys(payload).length === 0) {
       showToast({ title: '没有变更', icon: 'none' });

@@ -36,6 +36,8 @@ tmp/
 
 # ---- Prisma 生成物 ----
 backend/node_modules/.prisma
+backend/uploads/
+backend/private-uploads/
 
 # ---- 老的小程序遗物（保留本地、不入库）----
 _legacy/
