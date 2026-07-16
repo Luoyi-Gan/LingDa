@@ -33,4 +33,12 @@ export class AuthController {
   preview() {
     return this.authService.previewLogin();
   }
+
+  @Public()
+  @Post('preview-admin')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: '管理端本地开发免密预览（非生产）' })
+  previewAdmin() {
+    return this.authService.previewAdminLogin();
+  }
 }

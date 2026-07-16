@@ -131,6 +131,58 @@ export class AuthService {
     return this.signFor(user);
   }
 
+  /**
+   * 管理端本地开发免密入口：自动确保 ADMINPREVIEW 管理员存在并签发真实 JWT。
+   * 生产环境禁用。
+   */
+  async previewAdminLogin(): Promise<AuthResult> {
+    if ((process.env.NODE_ENV || 'development') === 'production') {
+      throw new BusinessException(
+        ERROR_CODES.FORBIDDEN,
+        '开发预览入口仅限非生产环境',
+      );
+    }
+
+    const userId = 'ADMINPREVIEW';
+    const phone = '13800000002';
+    let user = await this.prisma.user.findUnique({ where: { userId } });
+    if (!user) {
+      user = await this.prisma.user.create({
+        data: {
+          userId,
+          username: '开发预览',
+          realName: '管理端开发预览',
+          passwordHash: hashPassword(`admin-preview-${Date.now()}`),
+          phone,
+          college: '灵搭开发中心',
+          major: '运营管理',
+          grade: '2024届',
+          bio: '管理端本地开发免密入口自动创建的账号。',
+          accountStatus: 'normal',
+          accountRole: 'admin',
+          verificationStatus: 'verified',
+        },
+      });
+    } else {
+      const needsUpdate =
+        user.accountRole !== 'admin' ||
+        user.accountStatus !== 'normal' ||
+        user.verificationStatus !== 'verified';
+      if (needsUpdate) {
+        user = await this.prisma.user.update({
+          where: { userId },
+          data: {
+            accountRole: 'admin',
+            accountStatus: 'normal',
+            verificationStatus: 'verified',
+          },
+        });
+      }
+    }
+
+    return this.signFor(user);
+  }
+
   // ============== 内部:签发 token + 返回标准 AuthResult ==============
   private async signFor(user: User): Promise<AuthResult> {
     const token = await this.jwt.signAsync({ sub: user.userId });

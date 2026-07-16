@@ -35,6 +35,15 @@
 
 独立站点（默认开发端口 `5174`），用于帖子 / 评论 / 认证 / 公告等审核与运营，不与学生端共用 localStorage token。
 
+| 模块 | 路由 | 说明 |
+|------|------|------|
+| 工作台 | `/overview` | 待审队列与运营指标 |
+| 公告管理 | `/announcements` | 公告发布 / 下架；`?tab=milestones` 为时间轴关键节点 |
+| 认证审核 | `/verifications` | 学生 / 社团 / 官方认证（`?type=` / `?status=` / `?id=` 抽屉详情） |
+| 内容审核 | `/moderation` | 帖子 / 评论审核与下架恢复 |
+
+正式登录与开发预览均走真实后端；开发时可点 **「开发预览 · 免密进入」**（`ADMINPREVIEW` 真实 JWT，与学生端同库）。详见下方「登录与开发预览」。
+
 ---
 
 ## 仓库结构
@@ -61,6 +70,16 @@ frontend/student/src/
 ├── lib/                  # api / auth / nav / roomDetail …
 ├── context/              # Auth、UI、好友等
 └── styles/               # 设计 token
+```
+
+管理端主要源码：
+
+```
+frontend/admin/src/
+├── pages/                # 登录、工作台、公告、认证、内容审核
+├── components/           # Shell、抽屉、对话框
+├── api.js                # axios 客户端（统一真实 JWT）
+└── auth.js               # lingda_admin_token / user
 ```
 
 ---
@@ -148,35 +167,42 @@ npm run preview             # 默认 4173；若配置了代理，注意与 API �
 
 ```bash
 cd frontend/admin
+cp .env.example .env        # 若尚无 .env
 npm ci
 npm run dev                 # http://127.0.0.1:5174
 ```
+
+| 变量 | 说明 |
+|------|------|
+| `VITE_API_BASE` | API 根路径，默认 / 示例为 `http://127.0.0.1:3000/api/v1` |
+| `VITE_UI_PREVIEW=true` | 非 `npm run dev` 时也可显示「开发预览 · 免密进入」 |
+
+联调前请先启动后端；改 `.env` 后需重启 Vite。
 
 ---
 
 ## 登录与开发预览
 
-学生端支持三种进入方式：
+两端免密预览均为 **真实 JWT + 读写同一 MySQL**（非前端假数据）。生产环境（`NODE_ENV=production`）对应接口返回禁止。
 
-1. **注册**：`POST /auth/register`（学号 + 密码等）
-2. **登录**：`POST /auth/login`
-3. **开发预览**：登录页虚线按钮 **「开发预览 · 免密进入」**  
-   - 前端：`api.auth.preview()` → `POST /api/v1/auth/preview`  
-   - 后端：非生产环境下自动 upsert 学号 `DEVPREVIEW`，返回**真实 JWT**  
-   - 之后所有接口与正常登录一致（不是假数据和本地桩）  
-   - `NODE_ENV=production` 时该接口返回禁止  
-   - 按钮在 `import.meta.env.DEV` 下默认显示；或设 `VITE_UI_PREVIEW=true`
+| | 学生端 | 管理端 |
+|--|--------|--------|
+| 正式登录 | `POST /auth/login` | 同左，且要求 `account_role === admin` |
+| 免密预览 | `POST /auth/preview` → `DEVPREVIEW` | `POST /auth/preview-admin` → `ADMINPREVIEW`（admin） |
+| 按钮文案 | 「开发预览 · 免密进入」 | 同左 |
+| 显示条件 | `DEV` 或 `VITE_UI_PREVIEW=true` | 同左 |
+| Token 存储 | `token` / `currentUser` | `lingda_admin_token` / `lingda_admin_user`（隔离） |
 
-Token 存在浏览器 `localStorage`（`token` / `currentUser`）。鉴权失败业务码 `10001` 时前端会清登录态并跳转登录页。
+学生端另支持注册：`POST /auth/register`。鉴权失败业务码 `10001` 时前端会清登录态并跳转登录页。
 
-本地管理员演示（管理端）：
+本地管理员密码登录演示（可选，与免密预览独立）：
 
 ```bash
 cd backend
 ADMIN_PREVIEW_PASSWORD='自行设置至少10位密码' npm run seed:admin-preview
 ```
 
-账号：`ADMIN001` + 你设的密码。**仅本地**，不要带进生产。
+账号：`ADMIN001` + 你设的密码。该脚本也会写入部分待审样例；免密预览本身不自动 seed。**仅本地**，不要带进生产。
 
 ---
 
@@ -216,9 +242,12 @@ ADMIN_PREVIEW_PASSWORD='自行设置至少10位密码' npm run seed:admin-previe
 | 登录 / 预览报网络错误 | 后端是否在 3000；`VITE_API_BASE` 是否指错 |
 | 预览 / 业务接口 DB 相关失败 | `.env` 的 `DATABASE_URL`；是否执行过 `prisma db push`；MySQL 是否允许该用户连接 |
 | health 通但页面空 / 报错 | Prisma 连接失败时进程可能仍启动，看后端日志里的 Prisma warn |
-| 开发预览按钮没有 | 是否 `npm run dev`；或设置 `VITE_UI_PREVIEW=true` |
-| 开发预览 403 | 后端 `NODE_ENV=production` |
-| 旧「ui-preview」假 token 卡住 | 清站点 localStorage 后重新登录 / 点开发预览 |
+| 学生端开发预览按钮没有 | 是否 `npm run dev`；或设置 `VITE_UI_PREVIEW=true` |
+| 学生端开发预览 403 | 后端 `NODE_ENV=production` |
+| 管理端正式登录失败 | 后端是否启动；是否已 `seed:admin-preview`；账号是否为 admin |
+| 管理端开发预览按钮没有 | 是否 `npm run dev`；或设置 `VITE_UI_PREVIEW=true` |
+| 管理端开发预览 403 | 后端 `NODE_ENV=production` |
+| 管理端改 `.env` 不生效 | 重启 `frontend/admin` 的 Vite |
 
 ---
 
@@ -243,4 +272,4 @@ ADMIN_PREVIEW_PASSWORD='自行设置至少10位密码' npm run seed:admin-previe
 - [`deploy/MIGRATION.md`](./deploy/MIGRATION.md)
 - [`deploy/README.md`](./deploy/README.md)
 
-生产环境请关闭开发预览接口依赖的开发态配置，勿种子 `ADMIN001` / `DEVPREVIEW` 到公网库。
+生产环境请保持 `NODE_ENV=production`（禁用 `/auth/preview` 与 `/auth/preview-admin`），勿种子 `ADMIN001` / `DEVPREVIEW` / `ADMINPREVIEW` 到公网库。

@@ -35,7 +35,8 @@ npm run start:dev
 |------|------|------|
 | POST | `/auth/register` | 注册 |
 | POST | `/auth/login` | 学号 + 密码 |
-| POST | `/auth/preview` | **开发专用**：upsert `DEVPREVIEW` 并签发 JWT；生产拒绝 |
+| POST | `/auth/preview` | **开发专用**：upsert `DEVPREVIEW`（学生）并签发 JWT；生产拒绝 |
+| POST | `/auth/preview-admin` | **开发专用**：upsert `ADMINPREVIEW`（管理员）并签发 JWT；生产拒绝 |
 
 除 `@Public()` 接口外，请求头需：`Authorization: Bearer <token>`。失败业务码见 [`../docs/API.md`](../docs/API.md)。
 
@@ -65,7 +66,7 @@ src/
 ├── config/
 ├── common/                 # 错误码、守卫、过滤器、统一响应
 ├── prisma/
-├── auth/                   # 登录 / 注册 / preview
+├── auth/                   # 登录 / 注册 / preview / preview-admin
 ├── user/
 ├── room/                   # 拼车 / 娱乐 / 学习（group）房间
 ├── member/

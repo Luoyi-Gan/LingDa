@@ -4,7 +4,11 @@ const USER_KEY = 'lingda_admin_user';
 export const adminAuth = {
   token: () => localStorage.getItem(TOKEN_KEY) || '',
   user: () => {
-    try { return JSON.parse(localStorage.getItem(USER_KEY) || 'null'); } catch { return null; }
+    try {
+      return JSON.parse(localStorage.getItem(USER_KEY) || 'null');
+    } catch {
+      return null;
+    }
   },
   save: (token, user) => {
     localStorage.setItem(TOKEN_KEY, token);
